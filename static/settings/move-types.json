@@ -1,0 +1,96 @@
+[
+	{
+		"id": "ground",
+		"name": "Ground Move",
+		"base": "$basic_move",
+		"cost_per_point": 5,
+		"overrides": [
+			{
+				"condition": {
+					"type": "condition",
+					"qualifier": "crawling"
+				},
+				"base": "floor($basic_move/3)"
+			},
+			{
+				"condition": {
+					"type": "condition",
+					"qualifier": "kneeling"
+				},
+				"base": "floor($basic_move/3)"
+			},
+			{
+				"condition": {
+					"type": "condition",
+					"qualifier": "crouching"
+				},
+				"base": "floor($basic_move*2/3)"
+			},
+			{
+				"condition": {
+					"type": "condition",
+					"qualifier": "prone"
+				},
+				"base": "1"
+			},
+			{
+				"condition": {
+					"type": "condition",
+					"qualifier": "sitting"
+				},
+				"base": "0"
+			}
+		]
+	},
+	{
+		"id": "water",
+		"name": "Water Move",
+		"base": "$basic_move/5",
+		"cost_per_point": 5,
+		"overrides": [
+			{
+				"condition": {
+					"type": "trait",
+					"qualifier": "Amphibious"
+				},
+				"base": "$basic_move"
+			},
+			{
+				"condition": {
+					"type": "trait",
+					"qualifier": "Aquatic"
+				},
+				"base": "$basic_move"
+			}
+		]
+	},
+	{
+		"id": "air",
+		"name": "Air Move",
+		"base": "0",
+		"cost_per_point": 5,
+		"overrides": [
+			{
+				"condition": {
+					"type": "trait",
+					"qualifier": "Flight"
+				},
+				"base": "$basic_speed*2"
+			},
+			{
+				"condition": {
+					"type": "trait",
+					"qualifier": "Walk on Air"
+				},
+				"base": "$ground"
+			}
+		]
+	},
+	{
+		"id": "space",
+		"name": "Space Move",
+		"base": "0",
+		"cost_per_point": 5,
+		"overrides": []
+	}
+]

@@ -1,0 +1,117 @@
+{
+	"id": "gcsga",
+	"title": "GURPS 4e (EXPERIMENTAL)",
+	"description": "GURPS 4th Edition, unofficial game aid for FoundryVTT.",
+	"version": "1.0.0-alpha.8",
+	"compatibility": {
+		"minimum": "13.333",
+		"verified": "13"
+	},
+	"license": "MIT",
+	"readme": "README.md",
+	"url": "https://github.com/gcsga/gcsga",
+	"manifest": "this is autoreplaced",
+	"download": "this is autoreplaced",
+	"bugs": "https://github.com/gcsga/gcsga/issues",
+	"changelog": "",
+	"authors": [
+		{
+			"name": "Chris Normand",
+			"email": "nose66@bellsouth.net",
+			"discord": "nose66"
+		},
+		{
+			"name": "M. Jeff Wilson",
+			"email": "geek.macbeer@gmail.com",
+			"discord": "Nick Coffin, PI#8616"
+		},
+		{
+			"name": "Mikolaj Tomczynski",
+			"email": "mikolajtomczynski@gmail.com",
+			"discord": "sasiedny"
+		}
+	],
+	"esmodules": ["gurps.mjs"],
+	"styles": ["styles/gurps.css"],
+	"documentTypes": {
+		"ActiveEffect": {
+			"effect": {},
+			"condition": {}
+		},
+		"Actor": {
+			"character": {},
+			"legacyCharacter": {},
+			"loot": {}
+		},
+		"Item": {
+			"trait": {},
+			"traitContainer": {},
+			"traitModifier": {},
+			"traitModifierContainer": {},
+			"skill": {},
+			"technique": {},
+			"skillContainer": {},
+			"spell": {},
+			"ritualMagicSpell": {},
+			"spellContainer": {},
+			"equipment": {},
+			"equipmentContainer": {},
+			"equipmentModifier": {},
+			"equipmentModifierContainer": {},
+			"note": {},
+			"noteContainer": {},
+			"weaponMelee": {},
+			"weaponRanged": {}
+		},
+		"JournalEntryPage": {
+			"ancestry": {}
+		}
+	},
+	"packs": [
+		{
+			"name": "basic-set-traits",
+			"label": "Basic Set Traits",
+			"path": "packs/basic-set-traits",
+			"type": "Item",
+			"system": "gcsga",
+			"ownership": {
+				"PLAYER": "LIMITED",
+				"ASSISTANT": "OWNER"
+			},
+			"flags": {}
+		},
+		{
+			"name": "conditions",
+			"label": "Conditions",
+			"path": "packs/conditions",
+			"type": "Item",
+			"system": "gcsga",
+			"ownership": {
+				"PLAYER": "OBSERVER",
+				"ASSISTANT": "OWNER"
+			},
+			"flags": {}
+		}
+	],
+	"packFolders": [
+		{
+			"name": "Basic Set",
+			"sorting": "m",
+			"packs": ["basic-set-traits"]
+		}
+	],
+	"languages": [
+		{
+			"lang": "en",
+			"name": "English",
+			"path": "lang/en.json"
+		}
+	],
+	"socket": true,
+	"grid": {
+		"distance": 1,
+		"units": "yd"
+	},
+	"primaryTokenAttribute": "pools.hp",
+	"secondaryTokenAttribute": "pools.fp"
+}
