@@ -209,6 +209,16 @@ enum ActionType {
 	Utility = "utility",
 }
 
+/* -------------------------------------------- */
+/*  Active Effect                               */
+/* -------------------------------------------- */
+
+
+enum EffectType {
+	Effect = "effect",
+	Condition = "condition",
+}
+
 export {
 	SETTINGS,
 	RollType,
@@ -219,5 +229,6 @@ export {
 	ItemTemplateType,
 	ActionType,
 	GID,
+	EffectType
 	ItemTypes,
 }

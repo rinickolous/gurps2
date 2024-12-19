@@ -1,43 +1,14 @@
 import fields = foundry.data.fields
-import { StringComparison, feature, skillsel } from "@util"
+import { Nameable, StringComparison, createDummyElement, feature, skillsel } from "@util"
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
-import { Nameable } from "@module/util/index.ts"
-import { createDummyElement } from "@module/applications/helpers.ts"
-import { ReplaceableStringCriteriaField } from "../item/fields/replaceable-string-criteria-field.ts"
 
 class SkillBonus extends BaseFeature<SkillBonusSchema> {
 	static override TYPE = feature.Type.SkillBonus
 
 	static override defineSchema(): SkillBonusSchema {
-		const fields = foundry.data.fields
-
 		return {
 			...super.defineSchema(),
-			selection_type: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: skillsel.TypesChoices,
-				initial: skillsel.Type.Name,
-			}),
-			name: new ReplaceableStringCriteriaField({
-				required: true,
-				nullable: false,
-				initial: { compare: StringComparison.Option.IsString, qualifier: "" },
-			}),
-			specialization: new ReplaceableStringCriteriaField({
-				required: true,
-				nullable: false,
-				choices: StringComparison.CustomOptionsChoices("GURPS.Item.Features.FIELDS.SkillBonus.Specialization"),
-			}),
-			tags: new ReplaceableStringCriteriaField({
-				required: true,
-				nullable: false,
-				choices: StringComparison.CustomOptionsChoicesPlural(
-					"GURPS.Item.Features.FIELDS.SkillBonus.TagsSingle",
-					"GURPS.Item.Features.FIELDS.SkillBonus.TagsPlural",
-				),
-			}),
+			skillBonusSchema
 		}
 	}
 
@@ -158,13 +129,35 @@ class SkillBonus extends BaseFeature<SkillBonusSchema> {
 	}
 }
 
-interface SkillBonus extends BaseFeature<SkillBonusSchema>, ModelPropsFromSchema<SkillBonusSchema> {}
+const skillBonusSchema = {
 
-type SkillBonusSchema = BaseFeatureSchema & {
-	selection_type: fields.StringField<skillsel.Type, skillsel.Type, true, false, true>
-	name: ReplaceableStringCriteriaField<true, false, true>
-	specialization: ReplaceableStringCriteriaField<true, false, true>
-	tags: ReplaceableStringCriteriaField<true, false, true>
+	selection_type: new fields.StringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		choices: skillsel.TypesChoices,
+		initial: skillsel.Type.Name,
+	}),
+	name: new ReplaceableStringCriteriaField({
+		required: true,
+		nullable: false,
+		initial: { compare: StringComparison.Option.IsString, qualifier: "" },
+	}),
+	specialization: new ReplaceableStringCriteriaField({
+		required: true,
+		nullable: false,
+		choices: StringComparison.CustomOptionsChoices("GURPS.Item.Features.FIELDS.SkillBonus.Specialization"),
+	}),
+	tags: new ReplaceableStringCriteriaField({
+		required: true,
+		nullable: false,
+		choices: StringComparison.CustomOptionsChoicesPlural(
+			"GURPS.Item.Features.FIELDS.SkillBonus.TagsSingle",
+			"GURPS.Item.Features.FIELDS.SkillBonus.TagsPlural",
+		),
+	}),
 }
+
+type SkillBonusSchema = BaseFeatureSchema & typeof skillBonusSchema
 
 export { SkillBonus, type SkillBonusSchema }

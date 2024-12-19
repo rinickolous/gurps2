@@ -2,7 +2,6 @@ import { DocumentSystemFlags } from "@documents/system-flags.ts"
 import type BaseUser from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/documents/user.d.mts"
 import type {
 	AnyObject,
-	ConstructorOf,
 	DeepPartial,
 } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
 import { SYSTEM_NAME } from "@util"
@@ -13,8 +12,8 @@ type InstanceTypeOf<T> = T extends new (...args: any[]) => infer R ? R : never
 // Type to combine instance types of all classes in the array
 type CombinedInstanceType<T extends any[]> = T extends [infer U, ...infer Rest]
 	? U extends new (...args: any[]) => any
-		? InstanceTypeOf<U> & CombinedInstanceType<Rest>
-		: never
+	? InstanceTypeOf<U> & CombinedInstanceType<Rest>
+	: never
 	: {}
 
 // Type to combine static types of all classes in the array
@@ -25,8 +24,8 @@ type CombinedClass<T extends any[]> = CombinedStaticType<T> & (new (...args: any
 
 /* -------------------------------------------- */
 
-interface SystemDataModelMetadata<T extends DocumentSystemFlags = DocumentSystemFlags> {
-	systemFlagsModel: ConstructorOf<T> | null
+interface SystemDataModelMetadata<T extends typeof DocumentSystemFlags = typeof DocumentSystemFlags> {
+	systemFlagsModel: T | null
 }
 
 /* -------------------------------------------- */
@@ -183,7 +182,7 @@ class SystemDataModel<
 		_data: foundry.abstract.TypeDataModel.ParentAssignmentType<this>,
 		_options: foundry.abstract.Document.PreCreateOptions<any>,
 		_user: BaseUser,
-	): Promise<boolean | void> {}
+	): Promise<boolean | void> { }
 
 	/**
 	 * Pre-update logic for this system data.
@@ -196,7 +195,7 @@ class SystemDataModel<
 		_changes: DeepPartial<foundry.abstract.TypeDataModel.ParentAssignmentType<this>>,
 		_options: foundry.abstract.Document.PreUpdateOptions<any>,
 		_userId: string,
-	): Promise<boolean | void> {}
+	): Promise<boolean | void> { }
 
 	/**
 	 * Pre-delete logic for this system data.
@@ -207,13 +206,13 @@ class SystemDataModel<
 	async _preDelete(
 		_options: foundry.abstract.Document.PreDeleteOptions<any>,
 		_user: BaseUser,
-	): Promise<boolean | void> {}
+	): Promise<boolean | void> { }
 
 	_onCreate(
 		_data: Partial<this["_source"]>,
 		_options: foundry.abstract.Document.OnCreateOptions<any>,
 		_userId: string,
-	) {}
+	) { }
 
 	/* -------------------------------------------- */
 
@@ -221,11 +220,11 @@ class SystemDataModel<
 		_changed: DeepPartial<foundry.abstract.TypeDataModel.ParentAssignmentType<this>>,
 		_options: foundry.abstract.Document.OnUpdateOptions<any>,
 		_userId: string,
-	) {}
+	) { }
 
 	/* -------------------------------------------- */
 
-	_onDelete(_options: foundry.abstract.Document.OnDeleteOptions<any>, _userId: string) {}
+	_onDelete(_options: foundry.abstract.Document.OnDeleteOptions<any>, _userId: string) { }
 
 	/* -------------------------------------------- */
 	/*  Data Validation                             */
@@ -316,8 +315,9 @@ class SystemDataModel<
 
 	/* -------------------------------------------- */
 
-	override toObject(source?: boolean): any {
-		return super.toObject(source) as any
+	// override  toObject(source: true): this["_source"];
+	override  toObject(source?: boolean): ReturnType<this["schema"]["toObject"]> {
+		return super.toObject(source)
 	}
 
 	/* -------------------------------------------- */
@@ -334,7 +334,7 @@ class SystemDataModel<
 			}
 		}
 
-		const Base = class extends this {}
+		const Base = class extends this { }
 		Object.defineProperty(Base, "_schemaTemplates", {
 			value: Object.seal([...this._schemaTemplates, ...templates]),
 			writable: false,

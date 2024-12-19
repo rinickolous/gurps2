@@ -3,9 +3,12 @@
 		"target": "ES2022",
 		"useDefineForClassFields": true,
 		"module": "NodeNext",
-		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
 		"skipLibCheck": true,
-
 		/* Bundler mode */
 		"moduleResolution": "NodeNext",
 		"allowImportingTsExtensions": true,
@@ -13,7 +16,6 @@
 		"moduleDetection": "force",
 		"noEmit": true,
 		"resolveJsonModule": true,
-
 		/* Linting */
 		"strict": true,
 		"noUnusedLocals": true,
@@ -22,29 +24,54 @@
 		"noUncheckedSideEffectImports": true,
 		"forceConsistentCasingInFileNames": true,
 		"esModuleInterop": true,
-
 		/* Imports */
 		"rootDir": ".",
 		"baseUrl": ".",
 		"paths": {
-			"@data": ["src/module/data/index.ts"],
-			"@data/*": ["src/module/data/*"],
-			"@documents": ["src/module/documents/index.ts"],
-			"@documents/*": ["src/module/documents/*"],
-			"@util": ["src/module/util/index.ts"],
-			"@util/*": ["src/module/util/*"],
-			"@scripts": ["src/scripts/index.ts"],
-			"@scripts/*": ["src/scripts/*"],
-			"@types/*": ["src/types/*"],
-			"@module/*": ["src/module/*"],
-			"@static/*": ["static/*"]
+			"@data": [
+				"src/module/data/index.ts"
+			],
+			"@data/*": [
+				"src/module/data/*"
+			],
+			"@documents": [
+				"src/module/documents/index.ts"
+			],
+			"@documents/*": [
+				"src/module/documents/*"
+			],
+			"@util": [
+				"src/module/util/index.ts"
+			],
+			"@util/*": [
+				"src/module/util/*"
+			],
+			"@scripts": [
+				"src/scripts/index.ts"
+			],
+			"@scripts/*": [
+				"src/scripts/*"
+			],
+			"@types/*": [
+				"src/types/*"
+			],
+			"@module/*": [
+				"src/module/*"
+			],
+			"@static/*": [
+				"static/*"
+			]
 		},
-
 		/* Exports */
 		"outDir": "dist",
-
 		/* Types */
-		"types": ["jquery", "@league-of-foundry-developers/foundry-vtt-types", "vite/client"]
+		"types": [
+			"jquery",
+			"@league-of-foundry-developers/foundry-vtt-types",
+			"vite/client"
+		]
 	},
-	"include": ["src"]
+	"include": [
+		"src"
+	]
 }

@@ -21,19 +21,19 @@ class CharacterSettings extends foundry.abstract.DataModel<CharacterSettingsSche
 		const sheetSettings = game.settings?.get(SYSTEM_NAME, SETTINGS.DEFAULT_SHEET_SETTINGS)
 		const sheetSettingsSchema = SheetSettings.defineSchema()
 		for (const key of Object.keys(sheetSettingsSchema) as (keyof SheetSettingsSchema)[]) {
-			sheetSettingsSchema[key].initial = sheetSettings[key]
+			sheetSettingsSchema[key].initial = sheetSettings![key]
 		}
 
 		const attributeSettings = game.settings?.get(SYSTEM_NAME, SETTINGS.DEFAULT_ATTRIBUTES)
 		const attributeSettingsSchema = AttributeSettings.defineSchema()
 		for (const key of Object.keys(attributeSettingsSchema) as (keyof AttributeSettingsSchema)[]) {
-			attributeSettingsSchema[key].initial = attributeSettings[key]
+			attributeSettingsSchema[key].initial = attributeSettings![key]
 		}
 
 		const hitLocationSettings = game.settings?.get(SYSTEM_NAME, SETTINGS.DEFAULT_HIT_LOCATIONS)
 		const hitLocationSettingsSchema = HitLocationSettings.defineSchema()
 		for (const key of Object.keys(hitLocationSettingsSchema) as (keyof HitLocationSettingsSchema)[]) {
-			hitLocationSettingsSchema[key].initial = hitLocationSettings[key]
+			hitLocationSettingsSchema[key].initial = hitLocationSettings![key]
 		}
 
 		return {
@@ -48,7 +48,7 @@ class CharacterSettings extends foundry.abstract.DataModel<CharacterSettingsSche
 			...game.settings?.get(SYSTEM_NAME, SETTINGS.DEFAULT_SHEET_SETTINGS),
 			...game.settings?.get(SYSTEM_NAME, SETTINGS.DEFAULT_ATTRIBUTES),
 			...game.settings?.get(SYSTEM_NAME, SETTINGS.DEFAULT_HIT_LOCATIONS),
-		})
+		} as foundry.abstract.DataModel.ConstructorData<CharacterSettingsSchema>)
 	}
 
 	static for(actor: ActorGURPS | null): CharacterSettings {

@@ -1,16 +1,13 @@
-import { gid } from "@data"
+import { createButton, createDummyElement, feature, getAttributeChoices, GID, i18n } from "@util"
 import fields = foundry.data.fields
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
-import { feature } from "@util"
-import { createButton, createDummyElement } from "@module/applications/helpers.ts"
-import { getAttributeChoices } from "../stat/attribute/helpers.ts"
 
 function getCostReductionChoices() {
 	return Object.freeze(
 		Object.fromEntries(
 			[5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80].map(value => [
 				value,
-				game.i18n.format("GURPS.Item.Features.FIELDS.CostReduction.Reduction", { value }),
+				i18n.format("GURPS.Item.Features.FIELDS.CostReduction.Reduction", { value }),
 			]),
 		),
 	)
@@ -24,7 +21,7 @@ class CostReduction extends BaseFeature<CostReductionSchema> {
 
 		const attributeChoices = getAttributeChoices(
 			null,
-			gid.Strength,
+			GID.Strength,
 			"GURPS.Item.Features.FIELDS.CostReduction.Attribute",
 			{
 				blank: false,
@@ -43,7 +40,7 @@ class CostReduction extends BaseFeature<CostReductionSchema> {
 				required: true,
 				nullable: false,
 				choices: attributeChoices.choices,
-				initial: gid.Strength,
+				initial: GID.Strength,
 			}),
 			percentage: new fields.NumberField({
 				required: true,
@@ -54,7 +51,7 @@ class CostReduction extends BaseFeature<CostReductionSchema> {
 		}
 	}
 
-	override toFormElement(enabled: boolean): HTMLElement {
+	override toFormElement(this: CostReduction, enabled: boolean): HTMLElement {
 		const element = document.createElement("li")
 		const prefix = `system.features.${this.index}`
 
@@ -106,7 +103,7 @@ class CostReduction extends BaseFeature<CostReductionSchema> {
 		rowElement.append(
 			this.schema.fields.percentage.toInput({
 				name: enabled ? `${prefix}.percentage` : "",
-				value: this.percentage.toString(),
+				value: this.percentage,
 				localize: true,
 				disabled: !enabled,
 			}) as HTMLElement,
@@ -117,14 +114,13 @@ class CostReduction extends BaseFeature<CostReductionSchema> {
 		return element
 	}
 
-	fillWithNameableKeys(_m: Map<string, string>, _existing: Map<string, string>): void {}
+	fillWithNameableKeys(_m: Map<string, string>, _existing: Map<string, string>): void { }
 }
 
-interface CostReduction extends BaseFeature<CostReductionSchema>, ModelPropsFromSchema<CostReductionSchema> {}
 
 type CostReductionSchema = BaseFeatureSchema & {
-	attribute: fields.StringField<string, string, true, false, true>
-	percentage: fields.NumberField<number, number, true, false, true>
+	attribute: fields.StringField<{ required: true, nullable: false }>
+	percentage: fields.NumberField<{ required: true, nullable: false }>
 }
 
 export { CostReduction, type CostReductionSchema }

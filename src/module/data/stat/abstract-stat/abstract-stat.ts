@@ -1,7 +1,13 @@
+import { ActorDataModel } from "@data/actor/base.ts"
+import type { AnyObject } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
+import { AbstractStatDefinition } from "./abstract-stat-definition.ts"
+import { ActorGURPS } from "@documents"
+import fields = foundry.data.fields
+
 abstract class AbstractStat<
-	TSchema extends AbstractStatSchema = AbstractStatSchema,
-	TActor extends ActorDataModel = ActorDataModel,
-> extends foundry.abstract.DataModel<TSchema, TActor> {
+	Schema extends AbstractStatSchema = AbstractStatSchema,
+	Parent extends ActorDataModel = ActorDataModel,
+> extends foundry.abstract.DataModel<Schema, Parent> {
 	static override defineSchema(): AbstractStatSchema {
 		const fields = foundry.data.fields
 		return {
@@ -11,17 +17,27 @@ abstract class AbstractStat<
 
 	/* -------------------------------------------- */
 
-	constructor(data: DeepPartial<SourceFromSchema<TSchema>>, options?: AbstractStatConstructionOptions<TActor>) {
+
+	constructor(
+		data?: foundry.abstract.DataModel.ConstructorData<Schema>,
+		options?: foundry.abstract.DataModel.DataValidationOptions<Parent> & AnyObject
+	) {
 		super(data, options)
 	}
 
 	/* -------------------------------------------- */
 
-	abstract get definition(): AbstractStatDef | null
+	abstract get definition(): AbstractStatDefinition | null
 
 	/* -------------------------------------------- */
 
-	get actor(): ActorGURPS2 {
+	testFunc() {
+		const f: string = this.id
+
+		this.id = "test"
+	}
+
+	get actor(): ActorGURPS {
 		return this.parent.parent
 	}
 
@@ -49,10 +65,14 @@ abstract class AbstractStat<
 	}
 }
 
+
 type AbstractStatSchema = {
-	id: fields.StringField<string, string, true, false>
+	id: fields.StringField<{ required: true, nullable: false }>
 }
-interface AbstractStatConstructionOptions<TActor extends ActorDataModel> extends DataModelConstructionOptions<TActor> {
-	order?: number
-}
-export { AbstractStat, type AbstractStatSchema, type AbstractStatConstructionOptions }
+
+// interface AbstractStatConstructionOptions<TActor extends ActorDataModel> extends DataModelConstructionOptions<TActor> {
+// 	order?: number
+// }
+
+// export { AbstractStat, type AbstractStatSchema, type AbstractStatConstructionOptions }
+export { AbstractStat, type AbstractStatSchema }

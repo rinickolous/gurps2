@@ -1,8 +1,6 @@
+import { createDummyElement, feature, i18n, Nameable } from "@util"
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
-import { feature } from "@util"
-import { Nameable } from "@module/util/index.ts"
-import { createDummyElement } from "@module/applications/helpers.ts"
-import { ReplaceableStringField } from "../fields/replaceable-string-field.ts"
+import { ReplaceableStringField } from "@data/fields/index.ts"
 
 class ConditionalModifierBonus extends BaseFeature<ConditionalModifierBonusSchema> {
 	static override TYPE = feature.Type.ConditionalModifierBonus
@@ -13,7 +11,7 @@ class ConditionalModifierBonus extends BaseFeature<ConditionalModifierBonusSchem
 			situation: new ReplaceableStringField({
 				required: true,
 				nullable: false,
-				initial: game.i18n.localize("gurps.feature.conditional_modifier"),
+				initial: i18n.localize("gurps.feature.conditional_modifier"),
 			}),
 		}
 	}
@@ -50,12 +48,8 @@ class ConditionalModifierBonus extends BaseFeature<ConditionalModifierBonusSchem
 	}
 }
 
-interface ConditionalModifierBonus
-	extends BaseFeature<ConditionalModifierBonusSchema>,
-		ModelPropsFromSchema<ConditionalModifierBonusSchema> {}
-
 type ConditionalModifierBonusSchema = BaseFeatureSchema & {
-	situation: ReplaceableStringField<string, string, true, false, true>
+	situation: ReplaceableStringField<{ required: true, nullable: false, initial: string }>
 }
-
 export { ConditionalModifierBonus, type ConditionalModifierBonusSchema }
+

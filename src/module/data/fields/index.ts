@@ -1,4 +1,5 @@
 export * from "./mapping-field.ts"
+export * from "./weight-field.ts"
 export * from "./toggleable-boolean-field.ts"
 export * from "./toggleable-number-field.ts"
 export * from "./toggleable-string-field.ts"

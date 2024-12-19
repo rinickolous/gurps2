@@ -39,20 +39,14 @@ class AttributeSettings extends foundry.abstract.DataModel<AttributeSettingsSche
 type AttributeSettingsSchema = {
 	attributes: fields.ArrayField<
 		fields.EmbeddedDataField<typeof AttributeDefinition>,
-		AttributeDefinition,
-		AttributeDefinition,
 		{ required: true; nullable: false }
 	>
 	resource_trackers: fields.ArrayField<
 		fields.EmbeddedDataField<typeof ResourceTrackerDefinition>,
-		ResourceTrackerDefinition,
-		ResourceTrackerDefinition,
 		{ required: true; nullable: false }
 	>
 	move_types: fields.ArrayField<
 		fields.EmbeddedDataField<typeof MoveTypeDefinition>,
-		MoveTypeDefinition,
-		MoveTypeDefinition,
 		{ required: true; nullable: false }
 	>
 }

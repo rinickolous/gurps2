@@ -1,80 +1,18 @@
-import { AttributeHolderTemplate } from "@data/actor/templates/index.ts"
+import { ActorTemplateType, attribute, evaluateToNumber, GID, progression, VariableResolver } from "@util"
 import fields = foundry.data.fields
-import { AbstractStatDefinition, AbstractStatDefinitionSchema } from "../abstract-stat/abstract-stat-definition.ts"
-import { attribute } from "@util/enums/index.ts"
+import { AbstractStatDefinition } from "../abstract-stat/abstract-stat-definition.ts"
+import { PoolThreshold } from "../pool-threshold.ts"
+import { ActorDataModel } from "@data/actor/base.ts"
+import type { AnyObject } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
 
-class AttributeDefinition<
-	TActor extends AttributeHolderTemplate = AttributeHolderTemplate,
-> extends AbstractStatDefinition<AttributeDefinitionSchema> {
+class AttributeDefinition extends AbstractStatDefinition<AttributeDefinitionSchema> {
 	static override defineSchema(): AttributeDefinitionSchema {
-		const fields = foundry.data.fields
-
-		return {
-			type: new fields.StringField({
-				required: true,
-				nullable: false,
-				choices: attribute.TypesChoices,
-				initial: attribute.Type.Integer,
-				label: "GURPS.Attribute.Definition.FIELDS.Type.Name",
-			}),
-			placement: new fields.StringField({
-				required: false,
-				nullable: false,
-				blank: false,
-				choices: attribute.PlacementsChoices,
-				initial: attribute.Placement.Automatic,
-				label: "GURPS.Attribute.Definition.FIELDS.Placement.Name",
-			}),
-			id: new fields.StringField({
-				required: true,
-				nullable: false,
-				initial: "id",
-				label: "GURPS.Attribute.Definition.FIELDS.Id.Name",
-			}),
-			base: new fields.StringField({
-				required: true,
-				nullable: false,
-				initial: "10",
-				label: "GURPS.Attribute.Definition.FIELDS.Base.Name",
-			}),
-			name: new fields.StringField({
-				required: true,
-				nullable: false,
-				initial: "id",
-				label: "GURPS.Attribute.Definition.FIELDS.Name.Name",
-			}),
-			full_name: new fields.StringField({
-				required: false,
-				nullable: false,
-				initial: "",
-				label: "GURPS.Attribute.Definition.FIELDS.FullName.Name",
-			}),
-			cost_per_point: new fields.NumberField({
-				required: true,
-				nullable: false,
-				min: 0,
-				initial: 0,
-				label: "GURPS.Attribute.Definition.FIELDS.CostPerPoint.Name",
-			}),
-			cost_adj_percent_per_sm: new fields.NumberField({
-				required: false,
-				nullable: false,
-				integer: true,
-				min: 0,
-				max: 80,
-				initial: 0,
-				label: "GURPS.Attribute.Definition.FIELDS.CostAdjPercentPerSm.Name",
-			}),
-			thresholds: new fields.ArrayField(new fields.EmbeddedDataField(PoolThreshold), {
-				required: false,
-				nullable: false,
-				label: "GURPS.Attribute.Definition.FIELDS.Thresholds.Name",
-			}),
-		}
+		return attributeDefinitionSchema
 	}
 
-	static override cleanData(source?: object, options?: Parameters<SchemaField.Any["clean"]>[1]): object {
-		let { type, thresholds }: Partial<foundry.abstract.DataModel.ConstructorDataFor<AttributeDefinition>> = {
+	static override cleanData(source?: object, options?: Parameters<fields.SchemaField.Any["clean"]>[1]): object {
+
+		let { type, thresholds }: AnyObject = {
 			type: undefined,
 			thresholds: undefined,
 			...source,
@@ -146,7 +84,7 @@ class AttributeDefinition<
 			size_modifier > 0 &&
 			(this.cost_adj_percent_per_sm ?? 0) > 0 &&
 			!(
-				this.id === gid.HitPoints &&
+				this.id === GID.HitPoints &&
 				actor.settings.damage_progression === progression.Option.KnowingYourOwnStrength
 			)
 		)
@@ -163,21 +101,70 @@ class AttributeDefinition<
 	// }
 }
 
-type AttributeDefinitionSchema = AbstractStatDefinitionSchema & {
-	type: fields.StringField<{ required: true; nullable: false }, attribute.Type>
-	placement: fields.StringField<{ required: true; nullable: false }, attribute.Placement>
-	name: fields.StringField<{ required: true; nullable: false }>
-	full_name: fields.StringField<{ required: true; nullable: false }>
-	cost_per_point: fields.NumberField<{ required: true; nullable: false }>
-	cost_adj_percent_per_sm: fields.NumberField<{ required: true; nullable: false }>
-	thresholds: fields.ArrayField<
-		fields.EmbeddedDataField<PoolThreshold>,
-		Partial<SourceFromSchema<PoolThresholdSchema>>[],
-		PoolThreshold[],
-		false,
-		false,
-		false
-	>
+const attributeDefinitionSchema = {
+	type: new fields.StringField({
+		required: true,
+		nullable: false,
+		choices: attribute.TypesChoices,
+		initial: attribute.Type.Integer,
+		label: "GURPS.Attribute.Definition.FIELDS.Type.Name",
+	}),
+	placement: new fields.StringField({
+		required: false,
+		nullable: false,
+		blank: false,
+		choices: attribute.PlacementsChoices,
+		initial: attribute.Placement.Automatic,
+		label: "GURPS.Attribute.Definition.FIELDS.Placement.Name",
+	}),
+	id: new fields.StringField({
+		required: true,
+		nullable: false,
+		initial: "id",
+		label: "GURPS.Attribute.Definition.FIELDS.Id.Name",
+	}),
+	base: new fields.StringField({
+		required: true,
+		nullable: false,
+		initial: "10",
+		label: "GURPS.Attribute.Definition.FIELDS.Base.Name",
+	}),
+	name: new fields.StringField({
+		required: true,
+		nullable: false,
+		initial: "id",
+		label: "GURPS.Attribute.Definition.FIELDS.Name.Name",
+	}),
+	full_name: new fields.StringField({
+		required: false,
+		nullable: false,
+		initial: "",
+		label: "GURPS.Attribute.Definition.FIELDS.FullName.Name",
+	}),
+	cost_per_point: new fields.NumberField({
+		required: true,
+		nullable: false,
+		min: 0,
+		initial: 0,
+		label: "GURPS.Attribute.Definition.FIELDS.CostPerPoint.Name",
+	}),
+	cost_adj_percent_per_sm: new fields.NumberField({
+		required: false,
+		nullable: false,
+		integer: true,
+		min: 0,
+		max: 80,
+		initial: 0,
+		label: "GURPS.Attribute.Definition.FIELDS.CostAdjPercentPerSm.Name",
+	}),
+	thresholds: new fields.ArrayField(new fields.EmbeddedDataField(PoolThreshold), {
+		required: false,
+		nullable: false,
+		label: "GURPS.Attribute.Definition.FIELDS.Thresholds.Name",
+	}),
 }
+
+type AttributeDefinitionSchema = typeof attributeDefinitionSchema
+
 
 export { AttributeDefinition, type AttributeDefinitionSchema }

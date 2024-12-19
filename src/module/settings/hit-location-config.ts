@@ -1,31 +1,21 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
+import type { AnyObject, DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
 import fields = foundry.data.fields
 import api = foundry.applications.api
 import DEFAULT_BODY_TYPE from "@static/settings/body-type.json"
 import { SETTINGS, SYSTEM_NAME } from "@util"
-import { ActorBody, ActorBodySchema, HitLocation, HitLocationSubTable } from "@data"
+import { ActorBody, HitLocation, HitLocationSubTable } from "@data"
 
 class HitLocationSettings extends foundry.abstract.DataModel<HitLocationSettingsSchema> {
 	static override defineSchema(): HitLocationSettingsSchema {
-		const fields = foundry.data.fields
-		return {
-			body_type: new fields.EmbeddedDataField(ActorBody, {
-				initial: DEFAULT_BODY_TYPE,
-			}),
-		}
+		return hitLocationSettingsSchema
+	}
+
+	get actor(): null {
+		return null
 	}
 }
 
-type HitLocationSettingsSchema = {
-	body_type: fields.EmbeddedDataField<
-		typeof ActorBody,
-		{ required: true; nullable: false },
-		fields.SchemaField.AssignmentType<ActorBodySchema>,
-		ActorBody
-	>
-}
-
-class HitLocationsConfig extends api.HandlebarsApplicationMixin(api.ApplicationV2) {
+class HitLocationsConfig extends api.HandlebarsApplicationMixin(api.ApplicationV2<AnyObject>) {
 	// Cached settings used for retaining progress without submitting changes
 	declare private _cachedSettings: HitLocationSettings
 
@@ -70,7 +60,6 @@ class HitLocationsConfig extends api.HandlebarsApplicationMixin(api.ApplicationV
 	}
 
 	static registerSettings(): void {
-		//@ts-expect-error weird types
 		game.settings?.register(SYSTEM_NAME, SETTINGS.DEFAULT_HIT_LOCATIONS, {
 			name: "",
 			scope: "world",
@@ -84,32 +73,31 @@ class HitLocationsConfig extends api.HandlebarsApplicationMixin(api.ApplicationV
 		return (this._cachedSettings ??= this._getInitialSettings())
 	}
 
-	set cachedSettings(value: fields.SchemaField.AssignmentType<HitLocationSettingsSchema>) {
+	set cachedSettings(value: foundry.abstract.DataModel.ConstructorDataFor<HitLocationSettings>) {
 		this._cachedSettings = new HitLocationSettings(value)
 	}
 
 	// Get the initial settings values for this menu.
 	// This function can be overriden for e.g. Actors
 	protected _getInitialSettings(): HitLocationSettings {
-		//@ts-expect-error weird types
-		return game.settings?.get(SYSTEM_NAME, SETTINGS.DEFAULT_HIT_LOCATIONS)
+		return game.settings?.get(SYSTEM_NAME, SETTINGS.DEFAULT_HIT_LOCATIONS)!
 	}
 
 	// Get the default settings values for this menu.
 	// This can be overriden to instead get the current game settings value if on an Actor
 	protected _getDefaultSettings(): HitLocationSettings {
-		//@ts-expect-error weird types
-		return game.settings.settings.get(`${SYSTEM_NAME}.${SETTINGS.DEFAULT_HIT_LOCATIONS}`).default
+		return game.settings?.settings.get(`${SYSTEM_NAME}.${SETTINGS.DEFAULT_HIT_LOCATIONS}`)?.default
 	}
 
 	// Write changes made in this menu to a permanent dataset.
 	// This function can be overriden for e.g. Actors
 	protected async _setDatabaseSettings(data: object): Promise<void> {
-		//@ts-expect-error weird types
 		await game.settings?.set(SYSTEM_NAME, SETTINGS.DEFAULT_HIT_LOCATIONS, data)
 	}
 
-	protected _prepareContext(_options: DeepPartial<api.ApplicationV2.RenderOptions>): Promise<AnyObject> {
+	protected override async _prepareContext(
+		_options: DeepPartial<api.ApplicationV2.RenderOptions>,
+	): Promise<AnyObject> {
 		const source = this.cachedSettings
 		return {
 			body: source.body_type,
@@ -205,7 +193,7 @@ class HitLocationsConfig extends api.HandlebarsApplicationMixin(api.ApplicationV
 		const index = parseInt(el.dataset.itemIndex ?? "")
 		if (isNaN(index)) return
 
-		source.body_type.locations.splice(index, 1)
+		source.body_type.locations?.splice(index, 1)
 
 		this.cachedSettings = source
 		await this.render()
@@ -247,6 +235,16 @@ class HitLocationsConfig extends api.HandlebarsApplicationMixin(api.ApplicationV
 		await this.render()
 	}
 }
+
+const hitLocationSettingsSchema = {
+	body_type: new fields.EmbeddedDataField(ActorBody, {
+		required: true,
+		nullable: false,
+		initial: DEFAULT_BODY_TYPE,
+	}),
+}
+
+type HitLocationSettingsSchema = typeof hitLocationSettingsSchema
 
 export { HitLocationsConfig, HitLocationSettings }
 export type { HitLocationSettingsSchema }

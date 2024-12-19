@@ -1,26 +1,16 @@
-import fields = foundry.data.fields
-import { TooltipGURPS, feature } from "@util"
-import { gid } from "@module/data/constants.ts"
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
-import { StringArrayField } from "../item/fields/string-array-field.ts"
-import { SheetSettings } from "../sheet-settings.ts"
-import { equalFold } from "../item/components/index.ts"
-import { createDummyElement } from "@module/applications/helpers.ts"
+import fields = foundry.data.fields
+import { createDummyElement, equalFold, feature, GID, i18n, TooltipGURPS } from "@util"
+import { CharacterSettings } from "@data/actor/fields/character-settings.ts"
+import { StringArrayField } from "@data/fields/index.ts"
 
 class DRBonus extends BaseFeature<DRBonusSchema> {
 	static override TYPE = feature.Type.DRBonus
 
 	static override defineSchema(): DRBonusSchema {
-		const fields = foundry.data.fields
-
 		return {
 			...super.defineSchema(),
-			locations: new StringArrayField({
-				required: true,
-				nullable: false,
-				initial: [gid.Torso],
-			}),
-			specialization: new fields.StringField({ required: true, nullable: false, initial: gid.All }),
+			...drBonusSchema
 		}
 	}
 
@@ -29,35 +19,36 @@ class DRBonus extends BaseFeature<DRBonusSchema> {
 			tooltip.push("\n")
 			tooltip.push(this.parentName)
 			tooltip.push(
-				game.i18n.format("GURPS.Feature.DRBonus", {
+				i18n.format("GURPS.Feature.DRBonus", {
 					level: this.format(false),
-					type: this.specialization ?? gid.All,
+					type: this.specialization ?? GID.All,
 				}),
 			)
 		}
 	}
 
-	static override cleanData(
-		source?: Partial<SourceFromSchema<DRBonusSchema>>,
-		options?: Record<string, unknown> | undefined,
-	): SourceFromSchema<DRBonusSchema> {
+	static override cleanData(source?: object, options?: Parameters<fields.SchemaField.Any["clean"]>[1]): object {
 		if (source) {
-			for (const location of source.locations ?? []) {
-				if (equalFold(location, gid.All)) {
-					source.locations = [gid.All]
-					break
+			if ("locations" in source && Array.isArray(source.locations)) {
+				for (const location of source.locations ?? []) {
+					if (equalFold(location, GID.All)) {
+						source.locations = [GID.All]
+						break
+					}
 				}
 			}
-			let specialization = source?.specialization?.trim() ?? ""
-			if (specialization === "" || equalFold(specialization, gid.All)) specialization = gid.All
-			source.specialization = specialization
+			if ("specialization" in source && typeof source.specialization === "string") {
+				let specialization = source?.specialization?.trim() ?? ""
+				if (specialization === "" || equalFold(specialization, GID.All)) specialization = GID.All
+				source.specialization = specialization
+			}
 		}
 
-		return super.cleanData(source, options) as SourceFromSchema<DRBonusSchema>
+		return super.cleanData(source, options)
 	}
 
 	get locationOptions(): { key: string; value: string }[] {
-		const settings = SheetSettings.for(this.parent.actor)
+		const settings = CharacterSettings.for(this.parent.actor)
 		const locations: { key: string; value: string }[] = []
 		for (const location of settings.body_type.locations) {
 			if (!locations.some(e => e.key === location.id))
@@ -87,11 +78,11 @@ class DRBonus extends BaseFeature<DRBonusSchema> {
 		rowElement1.append(
 			foundry.applications.fields.createSelectInput({
 				name: enabled ? `${prefix}.locations` : "",
-				value: this.locations[0] === gid.All ? gid.All : "",
+				value: this.locations[0] === GID.All ? GID.All : "",
 				localize: true,
 				options: [
 					{
-						value: gid.All,
+						value: GID.All,
 						label: "GURPS.Item.Features.FIELDS.DRBonus.Locations.All",
 					},
 					{
@@ -104,7 +95,7 @@ class DRBonus extends BaseFeature<DRBonusSchema> {
 		)
 		element.append(rowElement1)
 
-		if (this.locations[0] !== gid.All) {
+		if (this.locations[0] !== GID.All) {
 			const rowElement2 = document.createElement("div")
 			rowElement2.classList.add("form-fields", "secondary", "dr-locations")
 
@@ -125,7 +116,7 @@ class DRBonus extends BaseFeature<DRBonusSchema> {
 		}
 
 		const labelBefore = document.createElement("label")
-		labelBefore.innerHTML = game.i18n.localize("GURPS.Item.Features.FIELDS.DRBonus.SpecializationBefore")
+		labelBefore.innerHTML = i18n.localize("GURPS.Item.Features.FIELDS.DRBonus.SpecializationBefore")
 		rowElement3.append(labelBefore)
 
 		rowElement3.append(
@@ -138,7 +129,7 @@ class DRBonus extends BaseFeature<DRBonusSchema> {
 		)
 
 		const labelAfter = document.createElement("label")
-		labelAfter.innerHTML = game.i18n.localize("GURPS.Item.Features.FIELDS.DRBonus.SpecializationAfter")
+		labelAfter.innerHTML = i18n.localize("GURPS.Item.Features.FIELDS.DRBonus.SpecializationAfter")
 		rowElement3.append(labelAfter)
 
 		element.append(rowElement3)
@@ -146,14 +137,19 @@ class DRBonus extends BaseFeature<DRBonusSchema> {
 		return element
 	}
 
-	fillWithNameableKeys(_m: Map<string, string>, _existing: Map<string, string>): void {}
+	fillWithNameableKeys(_m: Map<string, string>, _existing: Map<string, string>): void { }
 }
 
-interface DRBonus extends BaseFeature<DRBonusSchema>, ModelPropsFromSchema<DRBonusSchema> {}
 
-type DRBonusSchema = BaseFeatureSchema & {
-	locations: StringArrayField<true, false, true>
-	specialization: fields.StringField<string, string, true, false, true>
+const drBonusSchema = {
+	locations: new StringArrayField({
+		required: true,
+		nullable: false,
+		initial: [GID.Torso],
+	}),
+	specialization: new fields.StringField({ required: true, nullable: false, initial: GID.All }),
 }
+
+type DRBonusSchema = BaseFeatureSchema & typeof drBonusSchema
 
 export { DRBonus, type DRBonusSchema }

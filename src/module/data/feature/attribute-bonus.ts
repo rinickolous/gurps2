@@ -1,10 +1,6 @@
-import { gid } from "@data"
-import { feature } from "@util/enum/feature.ts"
-import { stlimit } from "@util/enum/stlimit.ts"
-import { getAttributeChoices } from "../stat/attribute/helpers.ts"
-import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
+import { createDummyElement, feature, getAttributeChoices, GID, stlimit } from "@util"
 import fields = foundry.data.fields
-import { createDummyElement } from "@module/applications/helpers.ts"
+import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
 
 class AttributeBonus extends BaseFeature<AttributeBonusSchema> {
 	static override TYPE = feature.Type.AttributeBonus
@@ -14,7 +10,7 @@ class AttributeBonus extends BaseFeature<AttributeBonusSchema> {
 
 		const attributeChoices = getAttributeChoices(
 			null,
-			gid.Strength,
+			GID.Strength,
 			"GURPS.Item.Features.FIELDS.Attribute.Attribute",
 			{
 				blank: false,
@@ -33,7 +29,7 @@ class AttributeBonus extends BaseFeature<AttributeBonusSchema> {
 				required: true,
 				nullable: false,
 				choices: attributeChoices.choices,
-				initial: gid.Strength,
+				initial: GID.Strength,
 			}),
 			limitation: new fields.StringField({
 				required: true,
@@ -46,7 +42,7 @@ class AttributeBonus extends BaseFeature<AttributeBonusSchema> {
 	}
 
 	get actualLimitation(): stlimit.Option {
-		if (this.attribute === gid.Strength) return this.limitation ?? stlimit.Option.None
+		if (this.attribute === GID.Strength) return this.limitation ?? stlimit.Option.None
 		return stlimit.Option.None
 	}
 
@@ -89,8 +85,8 @@ class AttributeBonus extends BaseFeature<AttributeBonusSchema> {
 		rowElement.append(
 			this.schema.fields.limitation.toInput({
 				name: enabled ? `${prefix}.limitation` : "",
-				value: this.attribute === gid.Strength ? this.limitation : stlimit.Option.None,
-				disabled: !enabled || this.attribute !== gid.Strength,
+				value: this.attribute === GID.Strength ? this.limitation : stlimit.Option.None,
+				disabled: !enabled || this.attribute !== GID.Strength,
 				localize: true,
 			}) as HTMLElement,
 		)
@@ -100,14 +96,12 @@ class AttributeBonus extends BaseFeature<AttributeBonusSchema> {
 		return element
 	}
 
-	fillWithNameableKeys(_m: Map<string, string>, _existing: Map<string, string>): void {}
+	fillWithNameableKeys(_m: Map<string, string>, _existing: Map<string, string>): void { }
 }
 
-interface AttributeBonus extends BaseFeature<AttributeBonusSchema>, ModelPropsFromSchema<AttributeBonusSchema> {}
-
 type AttributeBonusSchema = BaseFeatureSchema & {
-	attribute: fields.StringField<string, string, true, false, true>
-	limitation: fields.StringField<stlimit.Option, stlimit.Option, true, false, true>
+	attribute: fields.StringField<{ required: true, nullable: false }>
+	limitation: fields.StringField<{ required: true, nullable: false }, string, stlimit.Option>
 }
 
 export { AttributeBonus }

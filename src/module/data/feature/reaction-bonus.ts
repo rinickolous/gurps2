@@ -1,8 +1,6 @@
+import { ReplaceableStringField } from "@data/fields/index.ts"
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
-import { feature } from "@util"
-import { Nameable } from "@module/util/index.ts"
-import { createDummyElement } from "@module/applications/helpers.ts"
-import { ReplaceableStringField } from "../fields/replaceable-string-field.ts"
+import { createDummyElement, feature, i18n, Nameable } from "@util"
 
 class ReactionBonus extends BaseFeature<ReactionBonusSchema> {
 	static override TYPE = feature.Type.ReactionBonus
@@ -10,11 +8,7 @@ class ReactionBonus extends BaseFeature<ReactionBonusSchema> {
 	static override defineSchema(): ReactionBonusSchema {
 		return {
 			...super.defineSchema(),
-			situation: new ReplaceableStringField({
-				required: true,
-				nullable: false,
-				initial: game.i18n.localize("gurps.feature.reaction_bonus"),
-			}),
+			...reactionBonusSchema
 		}
 	}
 
@@ -50,10 +44,15 @@ class ReactionBonus extends BaseFeature<ReactionBonusSchema> {
 	}
 }
 
-interface ReactionBonus extends BaseFeature<ReactionBonusSchema>, ModelPropsFromSchema<ReactionBonusSchema> {}
-
-type ReactionBonusSchema = BaseFeatureSchema & {
-	situation: ReplaceableStringField<string, string, true, false, true>
+const reactionBonusSchema = {
+	situation: new ReplaceableStringField({
+		required: true,
+		nullable: false,
+		initial: i18n.localize("gurps.feature.reaction_bonus"),
+	}),
 }
+
+type ReactionBonusSchema = BaseFeatureSchema & typeof reactionBonusSchema
+
 
 export { ReactionBonus, type ReactionBonusSchema }

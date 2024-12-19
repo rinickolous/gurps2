@@ -1,35 +1,15 @@
+import { createDummyElement, feature, GID, movelimit } from "@util"
 import fields = foundry.data.fields
-import { gid } from "@data"
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
-import { feature } from "@util"
-import { createDummyElement } from "@module/applications/helpers.ts"
 
-enum MoveBonusType {
-	Base = "base",
-	Enhanced = "enhanced",
-}
-
-const MoveBonusTypeChoices = Object.freeze({
-	[MoveBonusType.Base]: "GURPS.Item.Features.FIELDS.MoveBonus.Base",
-	[MoveBonusType.Enhanced]: "GURPS.Item.Features.FIELDS.MoveBonus.Enhanced",
-})
 
 class MoveBonus extends BaseFeature<MoveBonusSchema> {
 	static override TYPE = feature.Type.MoveBonus
 
 	static override defineSchema(): MoveBonusSchema {
-		const fields = foundry.data.fields
-
 		return {
 			...super.defineSchema(),
-			move_type: new fields.StringField({ initial: gid.Ground }),
-			limitation: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: MoveBonusTypeChoices,
-				initial: MoveBonusType.Base,
-			}),
+			...moveBonusSchema
 		}
 	}
 
@@ -51,10 +31,10 @@ class MoveBonus extends BaseFeature<MoveBonusSchema> {
 				value: this.move_type,
 				localize: true,
 				options: [
-					{ value: gid.Ground, label: "GROUND" },
-					{ value: gid.Water, label: "WATER" },
-					{ value: gid.Air, label: "AIR" },
-					{ value: gid.Space, label: "SPACE" },
+					{ value: GID.Ground, label: "GROUND" },
+					{ value: GID.Water, label: "WATER" },
+					{ value: GID.Air, label: "AIR" },
+					{ value: GID.Space, label: "SPACE" },
 				],
 				disabled: !enabled,
 			}),
@@ -74,14 +54,21 @@ class MoveBonus extends BaseFeature<MoveBonusSchema> {
 		return element
 	}
 
-	fillWithNameableKeys(_m: Map<string, string>, _existing: Map<string, string>): void {}
+	fillWithNameableKeys(_m: Map<string, string>, _existing: Map<string, string>): void { }
 }
 
-interface MoveBonus extends BaseFeature<MoveBonusSchema>, ModelPropsFromSchema<MoveBonusSchema> {}
-
-type MoveBonusSchema = BaseFeatureSchema & {
-	move_type: fields.StringField<string, string, true, false, true>
-	limitation: fields.StringField<MoveBonusType, MoveBonusType, true, false, true>
+const moveBonusSchema = {
+	move_type: new fields.StringField({ required: true, nullable: false, blank: false, initial: GID.Ground }),
+	limitation: new fields.StringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		choices: movelimit.OptionsChoices,
+		initial: movelimit.Option.Base,
+	}),
 }
 
-export { MoveBonus, MoveBonusType, type MoveBonusSchema }
+
+type MoveBonusSchema = BaseFeatureSchema & typeof moveBonusSchema
+
+export { MoveBonus, type MoveBonusSchema }

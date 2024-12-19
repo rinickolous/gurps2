@@ -1,8 +1,7 @@
-import { createButton, createDummyElement } from "@module/applications/helpers.ts"
+import { createButton, createDummyElement, feature, Int, Weight } from "@util"
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
-import { Int, Weight, feature } from "@util"
-import { SheetSettings } from "../sheet-settings.ts"
-import { WeightField } from "../item/fields/weight-field.ts"
+import { WeightField } from "@data/fields/index.ts"
+import { CharacterSettings } from "@data/actor/fields/character-settings.ts"
 
 class ContainedWeightReduction extends BaseFeature<ContainedWeightReductionSchema> {
 	static override TYPE = feature.Type.ContainedWeightReduction
@@ -10,7 +9,7 @@ class ContainedWeightReduction extends BaseFeature<ContainedWeightReductionSchem
 	static override defineSchema(): ContainedWeightReductionSchema {
 		return {
 			...super.defineSchema(),
-			reduction: new WeightField({ required: true, nullable: false, initial: "0%", allowPercent: true }),
+			...containedWeightReductionSchema
 		}
 	}
 
@@ -78,16 +77,16 @@ class ContainedWeightReduction extends BaseFeature<ContainedWeightReductionSchem
 			}),
 		)
 
-		const settings = SheetSettings.for(this.parent.actor)
+		const settings = CharacterSettings.for(this.parent.actor)
 		rowElement.append(
 			this.schema.fields.reduction.toInput({
 				name: enabled ? `${prefix}.reduction` : "",
 				value: this.isPercentageReduction
 					? this.reduction
 					: Weight.format(
-							Weight.fromStringForced(this.reduction, settings.default_weight_units),
-							settings.default_weight_units,
-						),
+						Weight.fromStringForced(this.reduction, settings.default_weight_units),
+						settings.default_weight_units,
+					),
 				localize: true,
 				disabled: !enabled,
 			}) as HTMLElement,
@@ -98,14 +97,17 @@ class ContainedWeightReduction extends BaseFeature<ContainedWeightReductionSchem
 		return element
 	}
 
-	fillWithNameableKeys(_m: Map<string, string>, _existing: Map<string, string>): void {}
+	fillWithNameableKeys(_m: Map<string, string>, _existing: Map<string, string>): void { }
 }
 
-interface ContainedWeightReduction
-	extends BaseFeature<ContainedWeightReductionSchema>,
-		ModelPropsFromSchema<ContainedWeightReductionSchema> {}
-
-type ContainedWeightReductionSchema = BaseFeatureSchema & {
-	reduction: WeightField<string, string, true, false, true>
+const containedWeightReductionSchema = {
+	reduction: new WeightField({ required: true, nullable: false, initial: "0%", allowPercent: true }),
 }
+
+type ContainedWeightReductionSchema = BaseFeatureSchema & typeof containedWeightReductionSchema
+
+
+// type ContainedWeightReductionSchema = BaseFeatureSchema & {
+// 	reduction: WeightField<{ required: true, nullable: false, initial: string, allowPercent: true }>
+// }
 export { ContainedWeightReduction, type ContainedWeightReductionSchema }

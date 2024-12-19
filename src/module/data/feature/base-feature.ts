@@ -1,10 +1,15 @@
 import type { Feature, FeatureInstances } from "./types.ts"
 import fields = foundry.data.fields
-import { ItemDataModel } from "@data/item/base.ts"
+import { EffectDataModel, ItemDataModel } from "@data"
+import { createButton, createDummyElement, feature, i18n, ItemTemplateType, ItemType, TooltipGURPS } from "@util"
+import { ActiveEffectGURPS, ItemGURPS } from "@documents"
 
-abstract class BaseFeature<Schema extends BaseFeatureSchema = BaseFeatureSchema> extends foundry.abstract.DataModel<
+abstract class BaseFeature<
+	Schema extends BaseFeatureSchema = BaseFeatureSchema,
+	Parent extends ItemDataModel | EffectDataModel = ItemDataModel | EffectDataModel
+> extends foundry.abstract.DataModel<
 	Schema,
-	ItemDataModel | EffectDataModel
+	Parent
 > {
 	declare private _owner: ItemGURPS | ActiveEffectGURPS | null
 	declare private _subOwner: ItemGURPS | ActiveEffectGURPS | null
@@ -20,28 +25,13 @@ abstract class BaseFeature<Schema extends BaseFeatureSchema = BaseFeatureSchema>
 	}
 
 	static override defineSchema(): BaseFeatureSchema {
-		const fields = foundry.data.fields
-
-		return {
-			type: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: feature.TypesChoices,
-				initial: this.TYPE,
-			}),
-			amount: new fields.NumberField({ required: true, integer: true, initial: 1 }),
-			per_level: new fields.BooleanField({
-				required: true,
-				nullable: false,
-				initial: false,
-				label: "GURPS.Item.Features.FIELDS.PerLevel",
-			}),
-			temporary: new fields.BooleanField({ required: true, nullable: false, initial: false }),
-		}
+		return baseFeatureSchema
 	}
 
-	constructor(data: DeepPartial<SourceFromSchema<TSchema>>, options?: DataModelConstructionOptions<ItemDataModel>) {
+	constructor(
+		data?: foundry.abstract.DataModel.ConstructorData<Schema>,
+		options?: foundry.abstract.DataModel.DataValidationOptions<Parent>
+	) {
 		super(data, options)
 		this._owner = null
 		this._subOwner = null
@@ -56,9 +46,8 @@ abstract class BaseFeature<Schema extends BaseFeatureSchema = BaseFeatureSchema>
 	set owner(owner: ItemGURPS | ActiveEffectGURPS | null) {
 		this._owner = owner
 		if (owner !== null) {
-			if (owner instanceof ActiveEffectGURPS) this.temporary = true
-			// if (owner.isOfType(ItemType.Effect, ItemType.Condition)) this.temporary = true
-			else this.temporary = false
+			if (owner instanceof ActiveEffectGURPS) (this as BaseFeature).temporary = true
+			else (this as BaseFeature).temporary = false
 		}
 	}
 
@@ -71,7 +60,7 @@ abstract class BaseFeature<Schema extends BaseFeatureSchema = BaseFeatureSchema>
 	}
 
 	get index(): number {
-		if (this.parent instanceof ItemDataModel && !this.parent.hasTemplate(ItemTemplateType.Feature)) return -1
+		if (this.parent instanceof ItemDataModel && !this.parent.hasTemplate(ItemTemplateType.FeatureHolder)) return -1
 
 		return (this.parent as any).features.indexOf(this as unknown as Feature)
 	}
@@ -90,10 +79,10 @@ abstract class BaseFeature<Schema extends BaseFeatureSchema = BaseFeatureSchema>
 	}
 
 	get adjustedAmount(): number {
-		let amt = this.amount
+		let amt = (this as BaseFeature).amount
 		if (this.per_level) {
 			if (this.featureLevel < 0) return 0
-			amt *= this.featureLevel
+			amt *= (this as BaseFeature).featureLevel
 		}
 		return amt
 	}
@@ -104,7 +93,7 @@ abstract class BaseFeature<Schema extends BaseFeatureSchema = BaseFeatureSchema>
 	}
 
 	get replacements(): Map<string, string> {
-		return this.parent instanceof ItemDataModel && this.parent.hasTemplate(ItemTemplateType.Replacement)
+		return this.parent instanceof ItemDataModel && this.parent.hasTemplate(ItemTemplateType.ReplacementHolder)
 			? this.parent.replacements
 			: new Map()
 	}
@@ -134,7 +123,7 @@ abstract class BaseFeature<Schema extends BaseFeatureSchema = BaseFeatureSchema>
 		}
 	}
 
-	format(asPercentage: boolean): string {
+	format(this: BaseFeature, asPercentage: boolean): string {
 		let amt = this.amount.signedString()
 		let adjustedAmt = this.adjustedAmount.signedString()
 		if (asPercentage) {
@@ -142,14 +131,14 @@ abstract class BaseFeature<Schema extends BaseFeatureSchema = BaseFeatureSchema>
 			adjustedAmt += "%"
 		}
 		if (this.per_level)
-			return game.i18n.format("GURPS.Feature.WeaponBonus.PerLevel", {
+			return i18n.format("GURPS.Feature.WeaponBonus.PerLevel", {
 				total: adjustedAmt,
 				base: amt,
 			})
 		return amt
 	}
 
-	toFormElement(enabled: boolean): HTMLElement {
+	toFormElement(this: BaseFeature, enabled: boolean): HTMLElement {
 		const prefix = `system.features.${this.index}`
 		const element = document.createElement("li")
 
@@ -192,7 +181,7 @@ abstract class BaseFeature<Schema extends BaseFeatureSchema = BaseFeatureSchema>
 		rowElement.append(
 			this.schema.fields.amount.toInput({
 				name: enabled ? `${prefix}.amount` : "",
-				value: this.amount.toString(),
+				value: this.amount,
 				localize: true,
 				disabled: !enabled,
 			}) as HTMLElement,
@@ -207,7 +196,7 @@ abstract class BaseFeature<Schema extends BaseFeatureSchema = BaseFeatureSchema>
 				disabled: !enabled,
 			}) as HTMLElement,
 		)
-		perLevelLabelElement.innerHTML += game.i18n.localize(this.schema.fields.per_level.options.label ?? "")
+		perLevelLabelElement.innerHTML += i18n.localize(this.schema.fields.per_level.options.label ?? "")
 		rowElement.append(perLevelLabelElement)
 
 		element.append(rowElement)
@@ -218,17 +207,24 @@ abstract class BaseFeature<Schema extends BaseFeatureSchema = BaseFeatureSchema>
 	abstract fillWithNameableKeys(m: Map<string, string>, existing: Map<string, string>): void
 }
 
-interface BaseFeature<TSchema extends BaseFeatureSchema>
-	extends foundry.abstract.DataModel<ItemDataModel | EffectDataModel, TSchema>,
-		ModelPropsFromSchema<BaseFeatureSchema> {
-	consturctor: typeof BaseFeature<TSchema>
+const baseFeatureSchema = {
+	type: new fields.StringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		choices: feature.TypesChoices,
+		// initial: this.TYPE,
+	}),
+	amount: new fields.NumberField({ required: true, nullable: false, integer: true, initial: 1 }),
+	per_level: new fields.BooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		label: "GURPS.Item.Features.FIELDS.PerLevel",
+	}),
+	temporary: new fields.BooleanField({ required: true, nullable: false, initial: false }),
 }
 
-type BaseFeatureSchema = {
-	type: fields.StringField<feature.Type, feature.Type, true>
-	amount: fields.NumberField<number, number, true, false>
-	per_level: fields.BooleanField
-	temporary: fields.BooleanField<boolean, boolean, true, false, true>
-}
+type BaseFeatureSchema = typeof baseFeatureSchema
 
 export { BaseFeature, type BaseFeatureSchema }

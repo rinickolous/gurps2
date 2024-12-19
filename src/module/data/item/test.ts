@@ -1,21 +1,32 @@
-import { WeaponBulk } from "@data/action/fields/weapon-bulk.ts"
-import { ItemDataModel } from "./base.ts"
-import { ActionCollectionField } from "./fields/action-collection-field.ts"
+import { ActorBody } from "@data/hit-location.ts"
+import fields = foundry.data.fields
+import { SystemDataModel } from "@data/abstract.ts"
 
-class TestItem extends ItemDataModel<TestSchema> {
-	static override defineSchema(): TestSchema {
-		return {
-			attributes: new CollectionField(WeaponBulk),
-			actions: new ActionCollectionField(),
-		}
+class TestItem extends SystemDataModel<TestSchema> {
+
+	testFunc() {
+		const a: TestItem = {} as any
+		const b = a.toObject()
+
+		b.body.locations
+
+
 	}
-
-	testFunc() {}
 }
 
+class TestModel extends foundry.abstract.DataModel<TestModelSchema> { }
+
 type TestSchema = {
-	attributes: CollectionField<typeof WeaponBulk>
-	actions: ActionCollectionField
+	test: fields.EmbeddedDataField<typeof TestModel>
+	body: fields.EmbeddedDataField<typeof ActorBody>
+	foo: fields.StringField
+}
+
+type TestModelSchema = {
+	foo: fields.SchemaField<{
+		bar: fields.ArrayField<fields.StringField>
+	}>
+	body: fields.EmbeddedDataField<typeof ActorBody>
 }
 
 export { TestItem }

@@ -5,8 +5,9 @@ import { ActorGURPS } from "@documents/actor.ts"
 // export const RESERVED_IDS: string[] = [gid.Skill, gid.Parry, gid.Block, gid.Dodge, gid.SizeModifier, gid.Ten]
 
 abstract class AbstractStatDefinition<
-	TSchema extends AbstractStatDefinitionSchema = AbstractStatDefinitionSchema,
-> extends foundry.abstract.DataModel<TSchema, SheetSettings> {
+	Schema extends AbstractStatDefinitionSchema = AbstractStatDefinitionSchema,
+	Parent extends SheetSettings = SheetSettings
+> extends foundry.abstract.DataModel<Schema, Parent> {
 	static override defineSchema(): AbstractStatDefinitionSchema {
 		const fields = foundry.data.fields
 

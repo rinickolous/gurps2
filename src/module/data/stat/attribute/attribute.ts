@@ -1,13 +1,20 @@
-class AttributeGURPS<TActor extends Actor> extends AbstractStat<TActor, AttributeSchema> {
-	order: number
+import { AbstractStat, AbstractStatSchema } from "../abstract-stat/abstract-stat.ts"
+import fields = foundry.data.fields
+import { AttributeHolderTemplate } from "@data/actor/templates/attribute-holder.ts"
+import { ActorTemplateType, stlimit } from "@util"
+import { AttributeDefinition } from "./attribute-definition.ts"
+import { CharacterSettings } from "@data/actor/fields/character-settings.ts"
 
-	constructor(
-		data: DeepPartial<SourceFromSchema<AttributeSchema>>,
-		options?: AbstractStatConstructionOptions<TActor>,
-	) {
-		super(data, options)
-		this.order = options?.order ?? 0
-	}
+class AttributeGURPS<Parent extends AttributeHolderTemplate = AttributeHolderTemplate> extends AbstractStat<AttributeSchema, Parent> {
+	// order: number
+
+
+	// constructor(
+	// 	data?: foundry.abstract.DataModel.ConstructorData<Schema>,
+	// 	options?: foundry.abstract.DataModel.DataValidationOptions<Parent> & AnyObject
+	// ) {
+	// 	super(data, options)
+	// }
 
 	static override defineSchema(): AttributeSchema {
 		const fields = foundry.data.fields
@@ -35,13 +42,13 @@ class AttributeGURPS<TActor extends Actor> extends AbstractStat<TActor, Attribut
 		return 0
 	}
 
-	get definition(): AttributeDef | null {
-		const definition = SheetSettings.for(this.actor).attributes.find(att => att.id === this.id)
+	get definition(): AttributeDefinition | null {
+		const definition = CharacterSettings.for(this.actor).attributes.find(att => att.id === this.id)
 		if (!definition) {
 			console.error(`Attribute with ID ${this.id} has no definition`)
 			return null
 		}
-		return definition as AttributeDef<TActor>
+		return definition
 	}
 
 	override get max(): number {
@@ -152,17 +159,11 @@ class AttributeGURPS<TActor extends Actor> extends AbstractStat<TActor, Attribut
 	}
 }
 
-interface AttributeGURPS<TActor extends AttributeHolderTemplate>
-	extends AbstractStat<TActor, AttributeSchema>,
-		ModelPropsFromSchema<AttributeSchema> {
-	constructor: typeof AttributeGURPS
-}
-
 type AttributeSchema = AbstractStatSchema & {
-	adj: fields.NumberField<number, number, true, false, true>
-	damage: fields.NumberField<number, number, true, true, true>
-	applyOps: fields.BooleanField<boolean, boolean, true, true, true>
-	manualThreshold: fields.NumberField<number, number, true, true, true>
+	adj: fields.NumberField<{ required: true, nullable: false }>
+	damage: fields.NumberField<{ required: true, nullable: true }>
+	applyOps: fields.BooleanField<{ required: true, nullable: true }>
+	manualThreshold: fields.NumberField<{ required: true, nullable: true }>
 }
 
 export { AttributeGURPS, type AttributeSchema }

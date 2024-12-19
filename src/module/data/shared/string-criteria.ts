@@ -3,7 +3,7 @@ import fields = foundry.data.fields
 import { i18n } from "@util/i18n.ts"
 import { Nameable } from "@util/nameable.ts"
 
-class StringCriteria extends foundry.abstract.DataModel<StringCriteriaSchema> {
+class StringCriteria<Schema extends StringCriteriaSchema = StringCriteriaSchema> extends foundry.abstract.DataModel<Schema> {
 	static override defineSchema(): StringCriteriaSchema {
 		const fields = foundry.data.fields
 		return {
@@ -18,7 +18,7 @@ class StringCriteria extends foundry.abstract.DataModel<StringCriteriaSchema> {
 		}
 	}
 
-	matches(replacements: Map<string, string>, value: string): boolean {
+	matches(this: StringCriteria, replacements: Map<string, string>, value: string): boolean {
 		value = Nameable.apply(value, replacements)
 		switch (this.compare) {
 			case StringComparison.Option.AnyString:
@@ -68,11 +68,11 @@ class StringCriteria extends foundry.abstract.DataModel<StringCriteriaSchema> {
 		}
 	}
 
-	override toString(replacements: Map<string, string> = new Map()): string {
+	override toString(this: StringCriteria, replacements: Map<string, string> = new Map()): string {
 		return this.describe(Nameable.apply(this.qualifier, replacements))
 	}
 
-	toStringWithPrefix(replacements: Map<string, string>, prefix: string, notPrefix: string): string {
+	toStringWithPrefix(this: StringCriteria, replacements: Map<string, string>, prefix: string, notPrefix: string): string {
 		return this.describeWithPrefix(prefix, notPrefix, Nameable.apply(this.qualifier, replacements))
 	}
 

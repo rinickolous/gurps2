@@ -121,13 +121,13 @@ class SheetSettings extends foundry.abstract.DataModel<SheetSettingsSchema, Acto
 /* -------------------------------------------- */
 
 type SheetSettingsSchema = {
-	damage_progression: fields.StringField<{ required: true; nullable: false; blank: false }, progression.Option>
-	default_length_units: fields.StringField<{ required: true; nullable: false; blank: false }, Length.Unit>
-	default_weight_units: fields.StringField<{ required: true; nullable: false; blank: false }, Weight.Unit>
-	user_description_display: fields.StringField<{ required: true; nullable: false; blank: false }, display.Option>
-	modifiers_display: fields.StringField<{ required: true; nullable: false; blank: false }, display.Option>
-	notes_display: fields.StringField<{ required: true; nullable: false; blank: false }, display.Option>
-	skill_level_adj_display: fields.StringField<{ required: true; nullable: false; blank: false }, display.Option>
+	damage_progression: fields.StringField<{ required: true; nullable: false; blank: false }, string, progression.Option>
+	default_length_units: fields.StringField<{ required: true; nullable: false; blank: false }, string, Length.Unit>
+	default_weight_units: fields.StringField<{ required: true; nullable: false; blank: false }, string, Weight.Unit>
+	user_description_display: fields.StringField<{ required: true; nullable: false; blank: false }, string, display.Option>
+	modifiers_display: fields.StringField<{ required: true; nullable: false; blank: false }, string, display.Option>
+	notes_display: fields.StringField<{ required: true; nullable: false; blank: false }, string, display.Option>
+	skill_level_adj_display: fields.StringField<{ required: true; nullable: false; blank: false }, string, display.Option>
 	use_multiplicative_modifiers: fields.BooleanField<{ required: true; nullable: false }>
 	use_modifying_dice_plus_adds: fields.BooleanField<{ required: true; nullable: false }>
 	use_half_stat_defaults: fields.BooleanField<{ required: true; nullable: false }>

@@ -1,13 +1,9 @@
-import { ActionType, ItemType, SYSTEM_NAME } from "@module/data/constants.ts"
-import { BaseRollGURPS, BaseRollOptions } from "./base-roll.ts"
-import { ItemGURPS2 } from "@module/documents/item.ts"
-import { selfctrl } from "@util"
-import { SkillDefaultSchema } from "@module/data/item/components/skill-default.ts"
-import { ActorGURPS2 } from "@module/documents/actor.ts"
-import { ActorTemplateType } from "@module/data/actor/types.ts"
-import { WeaponROFSchema } from "@module/data/action/fields/weapon-rof.ts"
-import { WeaponRecoilSchema } from "@module/data/action/fields/weapon-recoil.ts"
-import { ItemTemplateType } from "@module/data/item/types.ts"
+import { ActionType, ActorTemplateType, ItemTemplateType, ItemType, selfctrl, SYSTEM_NAME } from "@util"
+import { BaseRollGURPS } from "./base-roll.ts"
+import { ActorGURPS, ItemGURPS } from "@documents"
+
+// TODO: redo the type options here
+// need to account for weapons not beeing items anymore
 
 class SuccessRoll extends BaseRollGURPS {
 	static override CHAT_TEMPLATE = `systems/${SYSTEM_NAME}/templates/roll/success-roll.hbs`
@@ -63,10 +59,10 @@ class SuccessRoll extends BaseRollGURPS {
 	protected _getTargetFromItem(options: SuccessRollOptions): number {
 		if (!options.item) return 0
 		const item = fromUuid(options.item.uuid)
-		if (!(item instanceof ItemGURPS2)) {
+		if (!(item instanceof ItemGURPS)) {
 			if (options.item.type !== "attribute") return 0
 			const actor = fromUuid(options.actor)
-			if (!(actor instanceof ActorGURPS2)) return 0
+			if (!(actor instanceof ActorGURPS)) return 0
 			if (!actor.hasTemplate(ActorTemplateType.Attributes)) return 0
 
 			const attributeLevel = actor.system.resolveAttributeCurrent(options.item.uuid)
@@ -96,10 +92,10 @@ class SuccessRoll extends BaseRollGURPS {
 			uuid: options.item.uuid,
 		}
 		const item = fromUuid(options.item.uuid)
-		if (!(item instanceof ItemGURPS2)) {
+		if (!(item instanceof ItemGURPS)) {
 			if (data.type !== "attribute") return data
 			const actor = fromUuid(options.actor)
-			if (!(actor instanceof ActorGURPS2)) return data
+			if (!(actor instanceof ActorGURPS)) return data
 			if (!actor.hasTemplate(ActorTemplateType.Attributes)) return data
 
 			const attribute = actor.system.resolveAttribute(options.item.uuid)
@@ -111,7 +107,7 @@ class SuccessRoll extends BaseRollGURPS {
 		switch (true) {
 			case !!options.action:
 				{
-					if (!item.hasTemplate(ItemTemplateType.Action)) break
+					if (!item.hasTemplate(ItemTemplateType.ActionHolder)) break
 					const action = item.system.actions.get(options.action.id) ?? null
 					if (action === null) break
 					if (action.isOfType(ActionType.AttackMelee, ActionType.AttackRanged)) {
@@ -197,10 +193,10 @@ interface SuccessRoll extends BaseRollGURPS {
 
 type SuccessRollOptions = BaseRollOptions & {
 	target?: number
-	actor: ActorUUID
+	actor: string
 	item?: {
 		type: ItemType | "attribute"
-		uuid: ItemUUID | string
+		uuid: string
 		level: number
 		name?: string
 		specialization?: string

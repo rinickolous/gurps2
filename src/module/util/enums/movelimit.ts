@@ -13,4 +13,11 @@ export namespace movelimit {
 	}
 
 	export const Options: Option[] = [Option.Base, Option.Enhanced]
+
+
+	export const OptionsChoices: Readonly<Record<Option, string>> = Object.freeze({
+		[Option.Base]: Option.toString(Option.Base),
+		[Option.Enhanced]: Option.toString(Option.Enhanced),
+	})
+
 }

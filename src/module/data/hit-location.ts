@@ -1,80 +1,23 @@
 import { DiceField } from "./fields/index.ts"
 import fields = foundry.data.fields
-import { CharacterSettings } from "./actor/fields/character-settings.ts"
 import { ActorGURPS } from "@documents"
 import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
-import { ActorType, equalFold, GID, i18n, StringBuilder, TooltipGURPS } from "@util"
-
-type ActorBodySchema = {
-	name: fields.StringField<{ required: true; nullable: false }>
-	roll: DiceField<{ required: true; nullable: false }>
-	locations: fields.ArrayField<
-		fields.EmbeddedDataField<typeof HitLocation>,
-		fields.ArrayField.AssignmentElementType<fields.EmbeddedDataField<typeof HitLocation>>,
-		// HitLocation,
-		fields.ArrayField.InitializedElementType<fields.EmbeddedDataField<typeof HitLocation>>,
-		{ required: true; nullable: false }
-	>
-	sub_tables: fields.ArrayField<
-		fields.EmbeddedDataField<typeof HitLocationSubTable>,
-		fields.ArrayField.AssignmentElementType<fields.EmbeddedDataField<typeof HitLocationSubTable>>,
-		// HitLocationSubTable,
-		fields.ArrayField.InitializedElementType<fields.EmbeddedDataField<typeof HitLocationSubTable>>,
-		{ required: true; nullable: false }
-	>
-}
-
-type HitLocationSchema = {
-	id: fields.StringField<{ required: true; nullable: false }>
-	choice_name: fields.StringField<{ required: true; nullable: false }>
-	table_name: fields.StringField<{ required: true; nullable: false }>
-	slots: fields.NumberField<{ required: true; nullable: false }>
-	hit_penalty: fields.NumberField<{ required: true; nullable: false }>
-	dr_bonus: fields.NumberField<{ required: true; nullable: false }>
-	description: fields.StringField<{ required: true; nullable: false }>
-	owningTableId: fields.StringField<{ required: true; nullable: true }>
-	subTableId: fields.StringField<{ required: true; nullable: true }>
-}
-
-type HitLocationSubTableSchema = {
-	id: fields.StringField<{ required: true; nullable: false }>
-	roll: DiceField<{ required: true; nullable: false }>
-}
+import { ActorType, equalFold, ErrorGURPS, GID, i18n, StringBuilder, TooltipGURPS } from "@util"
+import { HitLocationSettings } from "@module/settings/hit-location-config.ts"
 
 // This is the root actor body object.
 // It contains flat arrays of hit locations and sub-tables as fields,
 // And contains accessors for a hierarchical list of hit locations and sub-tables
-class ActorBody extends foundry.abstract.DataModel<ActorBodySchema, CharacterSettings> {
+class ActorBody extends foundry.abstract.DataModel<ActorBodySchema, foundry.abstract.DataModel.Any> {
 	static override defineSchema(): ActorBodySchema {
-		const fields = foundry.data.fields
-		return {
-			name: new fields.StringField({
-				required: true,
-				nullable: false,
-				initial: "Humanoid",
-				label: "GURPS.HitLocation.Table.FIELDS.Name.Name",
-			}),
-			roll: new DiceField({
-				required: true,
-				nullable: false,
-				initial: { count: 3, sides: 6, modifier: 0, multiplier: 1 },
-				label: "GURPS.HitLocation.Table.FIELDS.Roll.Name",
-			}),
-			locations: new fields.ArrayField(new fields.EmbeddedDataField(HitLocation), {
-				required: true,
-				nullable: false,
-				label: "GURPS.HitLocation.Table.FIELDS.Locations.Name",
-			}),
-			sub_tables: new fields.ArrayField(new fields.EmbeddedDataField(HitLocationSubTable), {
-				required: true,
-				nullable: true,
-				initial: null,
-			}),
-		}
+		return actorBodySchema
 	}
 
-	get actor(): ActorGURPS {
-		return this.parent.actor
+	get actor(): ActorGURPS | null {
+		if (this.parent instanceof HitLocationSettings)
+			return this.parent.actor
+
+		return null
 	}
 
 	// Hierarchical list of hit locatios with included sub tables
@@ -109,10 +52,8 @@ class ActorBody extends foundry.abstract.DataModel<ActorBodySchema, CharacterSet
 				addRecursiveLocations(newLocation!)
 			}
 		}
-		// const bodySource = source as foundry.abstract.DataModel.ConstructorDataFor<ActorBody>
 		const bodySource = source as foundry.abstract.DataModel.ConstructorDataFor<ActorBody>
 
-		// const subTables = bodySource.sub_tables ?? []
 		const subTables = (bodySource.sub_tables ??
 			[]) as foundry.abstract.DataModel.ConstructorDataFor<HitLocationSubTable>[]
 		const locations = (bodySource.locations ?? []) as foundry.abstract.DataModel.ConstructorDataFor<HitLocation>[]
@@ -140,73 +81,30 @@ class ActorBody extends foundry.abstract.DataModel<ActorBodySchema, CharacterSet
 	}
 }
 
-class HitLocation extends foundry.abstract.DataModel<HitLocationSchema, ActorBody> {
+class HitLocation extends foundry.abstract.DataModel<HitLocationSchema, foundry.abstract.DataModel.Any> {
 	rollRange: string = "-"
 
 	static override defineSchema(): HitLocationSchema {
-		const fields = foundry.data.fields
-
-		return {
-			id: new fields.StringField({
-				required: true,
-				nullable: false,
-				initial: "id",
-				label: "GURPS.HitLocation.Location.FIELDS.Id.Name",
-			}),
-			choice_name: new fields.StringField({
-				required: true,
-				nullable: false,
-				initial: "choice name",
-				label: "GURPS.HitLocation.Location.FIELDS.ChoiceName.Name",
-			}),
-			table_name: new fields.StringField({
-				required: true,
-				nullable: false,
-				initial: "table name",
-				label: "GURPS.HitLocation.Location.FIELDS.TableName.Name",
-			}),
-			slots: new fields.NumberField({
-				required: true,
-				nullable: false,
-				initial: 0,
-				label: "GURPS.HitLocation.Location.FIELDS.Slots.Name",
-			}),
-			hit_penalty: new fields.NumberField({
-				required: true,
-				nullable: false,
-				initial: 0,
-				label: "GURPS.HitLocation.Location.FIELDS.HitPenalty.Name",
-			}),
-			dr_bonus: new fields.NumberField({
-				required: true,
-				nullable: false,
-				initial: 0,
-				label: "GURPS.HitLocation.Location.FIELDS.DrBonus.Name",
-			}),
-			description: new fields.StringField({
-				required: true,
-				nullable: false,
-				initial: "",
-				label: "GURPS.HitLocation.Location.FIELDS.Description.Name",
-			}),
-			owningTableId: new fields.StringField({ required: true, nullable: true, initial: null }),
-			subTableId: new fields.StringField({ required: true, nullable: true, initial: null }),
-			// sub_table: new fields.EmbeddedDataField(BodyGURPS, { required: false, nullable: true, initial: null }),
-		}
+		return hitLocationSchema
 	}
 
-	get actor(): ActorGURPS {
-		return this.parent.actor
+	get body(): ActorBody {
+		if (this.parent instanceof ActorBody) return this.parent
+		throw ErrorGURPS("HitLocationSubTable.parent must be of type ActorBody")
+	}
+
+	get actor(): ActorGURPS | null {
+		return this.body.actor
 	}
 
 	get owningTable(): ActorBody | HitLocationSubTable {
-		if (this.owningTableId === null) return this.parent
-		return this.parent.sub_tables.find(e => e.id === this.owningTableId)!
+		if (this.owningTableId === null) return this.body
+		return this.body.sub_tables.find(e => e.id === this.owningTableId)!
 	}
 
 	get subTable(): HitLocationSubTable | null {
 		if (!this.subTableId) return null
-		return this.parent.sub_tables.find(e => e.id === this.subTableId)!
+		return this.body.sub_tables.find(e => e.id === this.subTableId)!
 	}
 
 	get descriptionTooltip(): string {
@@ -214,7 +112,7 @@ class HitLocation extends foundry.abstract.DataModel<HitLocationSchema, ActorBod
 	}
 
 	get trueIndex(): number {
-		return this.parent.locations.indexOf(this)
+		return this.body.locations.indexOf(this)
 	}
 
 	get first(): boolean {
@@ -261,7 +159,7 @@ class HitLocation extends foundry.abstract.DataModel<HitLocationSchema, ActorBod
 				"<br>",
 			)
 		}
-		drMap = this.actor.isOfType(ActorType.Character)
+		drMap = this.actor?.isOfType(ActorType.Character)
 			? this.actor.system.addDRBonusesFor(this.id, tooltip, drMap)
 			: new Map()
 		if (this.owningTable && this.owningTable.owningLocation)
@@ -314,35 +212,30 @@ class HitLocation extends foundry.abstract.DataModel<HitLocationSchema, ActorBod
 	}
 }
 
-class HitLocationSubTable extends foundry.abstract.DataModel<HitLocationSubTableSchema, ActorBody> {
+class HitLocationSubTable extends foundry.abstract.DataModel<HitLocationSubTableSchema, foundry.abstract.DataModel.Any> {
 	static override defineSchema(): HitLocationSubTableSchema {
-		const fields = foundry.data.fields
-
-		return {
-			id: new fields.StringField({ required: true, nullable: false, initial: generateId }),
-			roll: new DiceField({
-				required: true,
-				nullable: false,
-				initial: { count: 1, sides: 6, modifier: 0, multiplier: 1 },
-				label: "GURPS.HitLocation.Table.FIELDS.Roll.Name",
-			}),
-		}
+		return hitLocationSubTableSchema
 	}
 
-	get actor(): ActorGURPS {
-		return this.parent.actor
+	get body(): ActorBody {
+		if (this.parent instanceof ActorBody) return this.parent
+		throw ErrorGURPS("HitLocationSubTable.parent must be of type ActorBody")
+	}
+
+	get actor(): ActorGURPS | null {
+		return this.body.actor
 	}
 
 	get owningLocation(): HitLocation {
-		return this.parent.locations.find(e => e.subTableId === this.id)!
+		return this.body.locations.find(e => e.subTableId === this.id)!
 	}
 
 	get hitLocations(): HitLocation[] {
-		return this.parent.locations.filter(e => e.owningTableId === this.id)
+		return this.body.locations.filter(e => e.owningTableId === this.id)
 	}
 
 	get trueIndex(): number {
-		return this.parent.sub_tables.indexOf(this)
+		return this.body.sub_tables.indexOf(this)
 	}
 
 	get depth(): number {
@@ -354,6 +247,91 @@ class HitLocationSubTable extends foundry.abstract.DataModel<HitLocationSubTable
 		if (this.hitLocations) for (const location of this.hitLocations) start = location.updateRollRange(start)
 	}
 }
+
+const actorBodySchema = {
+	name: new fields.StringField({
+		required: true,
+		nullable: false,
+		initial: "Humanoid",
+		label: "GURPS.HitLocation.Table.FIELDS.Name.Name",
+	}),
+	roll: new DiceField({
+		required: true,
+		nullable: false,
+		initial: { count: 3, sides: 6, modifier: 0, multiplier: 1 },
+		label: "GURPS.HitLocation.Table.FIELDS.Roll.Name",
+	}),
+	locations: new fields.ArrayField(new fields.EmbeddedDataField(HitLocation), {
+		required: true,
+		nullable: false,
+		label: "GURPS.HitLocation.Table.FIELDS.Locations.Name",
+	}),
+	sub_tables: new fields.ArrayField(new fields.EmbeddedDataField(HitLocationSubTable), {
+		required: true,
+		nullable: false,
+	}),
+}
+
+const hitLocationSchema = {
+	id: new fields.StringField({
+		required: true,
+		nullable: false,
+		initial: "id",
+		label: "GURPS.HitLocation.Location.FIELDS.Id.Name",
+	}),
+	choice_name: new fields.StringField({
+		required: true,
+		nullable: false,
+		initial: "choice name",
+		label: "GURPS.HitLocation.Location.FIELDS.ChoiceName.Name",
+	}),
+	table_name: new fields.StringField({
+		required: true,
+		nullable: false,
+		initial: "table name",
+		label: "GURPS.HitLocation.Location.FIELDS.TableName.Name",
+	}),
+	slots: new fields.NumberField({
+		required: true,
+		nullable: false,
+		initial: 0,
+		label: "GURPS.HitLocation.Location.FIELDS.Slots.Name",
+	}),
+	hit_penalty: new fields.NumberField({
+		required: true,
+		nullable: false,
+		initial: 0,
+		label: "GURPS.HitLocation.Location.FIELDS.HitPenalty.Name",
+	}),
+	dr_bonus: new fields.NumberField({
+		required: true,
+		nullable: false,
+		initial: 0,
+		label: "GURPS.HitLocation.Location.FIELDS.DrBonus.Name",
+	}),
+	description: new fields.StringField({
+		required: true,
+		nullable: false,
+		initial: "",
+		label: "GURPS.HitLocation.Location.FIELDS.Description.Name",
+	}),
+	owningTableId: new fields.StringField({ required: true, nullable: true, initial: null }),
+	subTableId: new fields.StringField({ required: true, nullable: true, initial: null }),
+}
+
+const hitLocationSubTableSchema = {
+	id: new fields.StringField({ required: true, nullable: false, initial: () => foundry.utils.randomID() }),
+	roll: new DiceField({
+		required: true,
+		nullable: false,
+		initial: { count: 1, sides: 6, modifier: 0, multiplier: 1 },
+		label: "GURPS.HitLocation.Table.FIELDS.Roll.Name",
+	}),
+}
+
+type ActorBodySchema = typeof actorBodySchema
+type HitLocationSchema = typeof hitLocationSchema
+type HitLocationSubTableSchema = typeof hitLocationSubTableSchema
 
 export { ActorBody, HitLocation, HitLocationSubTable }
 export type { ActorBodySchema, HitLocationSchema, HitLocationSubTableSchema }
