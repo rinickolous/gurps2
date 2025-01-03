@@ -5,11 +5,11 @@ import DEFAULT_RESOURCE_TRACKER_SETTINGS from "@static/settings/resource-tracker
 import DEFAULT_MOVE_TYPE_SETTINGS from "@static/settings/move-types.json"
 import { AttributeDefinition } from "@data/stat/attribute/attribute-definition.ts"
 import { ResourceTrackerDefinition } from "@data/stat/resource-tracker/resource-tracker-definition.ts"
-import type { AnyObject, DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
 import { SETTINGS, SYSTEM_NAME, threshold } from "@util"
 import { MoveTypeDefinition } from "@data/stat/move-type/move-type-definition.ts"
 import { PoolThreshold } from "@data/stat/pool-threshold.ts"
 import { MoveTypeOverride } from "@data/stat/move-type/move-type-override.ts"
+import { AnyObject, DeepPartial } from "fvtt-types/utils"
 
 class AttributeSettings extends foundry.abstract.DataModel<AttributeSettingsSchema> {
 	static override defineSchema(): AttributeSettingsSchema {

@@ -1,5 +1,3 @@
-import type { MaybePromise } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
-
 export class StringBuilder {
 	buffer: MaybePromise<string>[]
 

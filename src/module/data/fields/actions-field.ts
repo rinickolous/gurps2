@@ -1,17 +1,27 @@
-import { Action, ActionClass, ActionDataModelClasses } from "@data/action/types.ts"
-import fields = foundry.data.fields
-import { MappingField } from "@data/fields/mapping-field.ts"
-import type { AnyObject } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
-import { ActionType } from "@util"
-import { ItemDataModel } from "@data/item/base.ts"
 import { BaseAction } from "@data/action/base-action.ts"
+import { Action, ActionClass, ActionDataModelClasses } from "@data/action/types.ts"
+import { MappingField } from "@data/fields/mapping-field.ts"
+import { ItemDataModel } from "@data/item/base.ts"
+import { ActionType } from "@util"
+import { AnyObject } from "fvtt-types/utils"
+import fields = foundry.data.fields
 
-class ActionsField<Options extends MappingField.Options<ActionField, typeof ActionCollection>> extends MappingField<
+// class ActionsField<Options extends MappingField.Options<ActionField, typeof ActionCollection>> extends MappingField<
+// 	ActionField,
+// 	typeof ActionCollection,
+// 	ActionField,
+// 	ActionField,
+// 	Options
+// > {
+class ActionsField<
+	Options extends MappingField.Options<ActionField>
+> extends MappingField<
 	ActionField,
-	typeof ActionCollection,
+	Options,
 	ActionField,
 	ActionField,
-	Options
+	ActionCollection,
+	ActionCollection
 > {
 	constructor(options: Options) {
 		super(new ActionField(), options)
@@ -28,7 +38,7 @@ class ActionsField<Options extends MappingField.Options<ActionField, typeof Acti
 }
 
 class ActionField<
-	const Options extends DataFieldOptions<Action> = fields.DataField.DefaultOptions,
+	const Options extends fields.DataField.Options<Action> = fields.DataField.DefaultOptions,
 > extends fields.DataField<Options, Action, Action, AnyObject> {
 	/* -------------------------------------------- */
 
@@ -125,4 +135,4 @@ class ActionCollection extends Collection<Action> {
 		return this.map(doc => doc.toObject(source))
 	}
 }
-export { ActionsField, ActionField, ActionCollection }
+export { ActionCollection, ActionField, ActionsField }

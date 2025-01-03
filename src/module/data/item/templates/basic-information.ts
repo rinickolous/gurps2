@@ -1,38 +1,12 @@
 import { ItemDataModel } from "../base.ts"
 import fields = foundry.data.fields
 import { ItemGURPS } from "@documents"
-import { ReplaceableStringField, StringArrayField, ToggleableStringField } from "@data/fields/index.ts"
+import { ExtendedStringField, StringArrayField } from "@data/fields/index.ts"
 import { ItemTemplateType, Nameable, RegEx } from "@util"
 
 class BasicInformationTemplate extends ItemDataModel<BasicInformationSchema> {
 	static override defineSchema(): BasicInformationSchema {
-		const fields = foundry.data.fields
-		return {
-			//@ts-expect-error weird type issue
-			container: new fields.ForeignDocumentField(ItemGURPS, { idOnly: true }),
-			name: new ReplaceableStringField({ required: true, nullable: false, initial: "" }),
-			description: new fields.HTMLField({ required: true, nullable: false, initial: "" }),
-			notes: new ReplaceableStringField({
-				required: true,
-				nullable: false,
-				initial: "",
-				label: "GURPS.Item.BasicInformation.FIELDS.Notes.Name",
-			}),
-			tags: new StringArrayField({
-				required: true,
-				nullable: false,
-				initial: [],
-				label: "GURPS.Item.BasicInformation.FIELDS.Tags.Name",
-			}),
-			vtt_notes: new ToggleableStringField({ required: true, nullable: false, initial: "" }),
-			reference: new ToggleableStringField({
-				required: true,
-				nullable: false,
-				initial: "",
-				label: "GURPS.Item.BasicInformation.FIELDS.Reference.Name",
-			}),
-			reference_highlight: new ToggleableStringField({ required: true, nullable: false, initial: "" }),
-		}
+		return basicInformationSchema
 	}
 
 	/* -------------------------------------------- */
@@ -86,28 +60,44 @@ class BasicInformationTemplate extends ItemDataModel<BasicInformationSchema> {
 	}
 }
 
-type BasicInformationSchema = {
-	name: ReplaceableStringField<{ required: true; nullable: false; initial: "" }>
-	description: fields.HTMLField<{ required: true; nullable: false; initial: "" }>
-	notes: ReplaceableStringField<{
-		required: true
-		nullable: false
+const basicInformationSchema = {
+	container: new fields.ForeignDocumentField(ItemGURPS, { idOnly: true }),
+	name: new ExtendedStringField({ required: true, nullable: false, toggleable: true, replaceable: true, initial: "" }),
+	description: new fields.HTMLField({ required: true, nullable: false, initial: "" }),
+	notes: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		replaceable: true,
+		initial: "",
+		label: "GURPS.Item.BasicInformation.FIELDS.Notes.Name",
+	}),
+	tags: new StringArrayField({
+		required: true,
+		nullable: false,
+		initial: [],
+		label: "GURPS.Item.BasicInformation.FIELDS.Tags.Name",
+	}),
+	vtt_notes: new ExtendedStringField({
+		required: true, nullable: false,
+
+		toggleable: true,
 		initial: ""
-		label: "GURPS.Item.BasicInformation.FIELDS.Notes.Name"
-	}>
-	tags: StringArrayField<{
-		required: true
-		nullable: false
-		initial: []
-		label: "GURPS.Item.BasicInformation.FIELDS.Tags.Name"
-	}>
-	vtt_notes: ToggleableStringField<{ required: true; nullable: false; initial: "" }>
-	reference: ToggleableStringField<{
-		required: true
-		nullable: false
+	}),
+	reference: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		initial: "",
+		label: "GURPS.Item.BasicInformation.FIELDS.Reference.Name",
+	}),
+	reference_highlight: new ExtendedStringField({
+		required: true, nullable: false,
+
+		toggleable: true,
 		initial: ""
-		label: "GURPS.Item.BasicInformation.FIELDS.Reference.Name"
-	}>
-	keference_highlight: ToggleableStringField<{ required: true; nullable: false; initial: "" }>
+	}),
 }
+
+type BasicInformationSchema = typeof basicInformationSchema
 export { BasicInformationTemplate, type BasicInformationSchema }

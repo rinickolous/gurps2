@@ -1,26 +1,41 @@
 import { ErrorGURPS } from "@util"
 import fields = foundry.data.fields
-import type { AnyConstructor, AnyObject } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
+import { AnyObject } from "fvtt-types/utils"
 
 type MappingFieldInitialValueBuilder = (key: string, initial: object, existing: object) => object
 
 class MappingField<
+	// const ElementFieldType extends fields.DataField.Any,
+	// const ModelType extends AnyConstructor,
+	// const AssignmentElementType = MappingField.AssignmentElementType<ElementFieldType>,
+	// const InitializedElementType = MappingField.InitializedElementType<ElementFieldType>,
+	// const Options extends MappingField.Options<AssignmentElementType, ModelType> = MappingField.DefaultOptions,
+	// const AssignmentType = MappingField.AssignmentType<AssignmentElementType, ModelType, Options>,
+	// const InitializedType = MappingField.InitializedType<
+	// 	AssignmentElementType,
+	// 	InitializedElementType,
+	// 	ModelType,
+	// 	Options
+	// >,
+	// const PersistedElementType = MappingField.PersistedElementType<ElementFieldType>,
+	// const PersistedType extends Record<string, PersistedElementType> | null | undefined = MappingField.PersistedType<
+	// 	ModelType,
+	// 	AssignmentElementType,
+	// 	PersistedElementType,
+	// 	Options
+	// >,
 	const ElementFieldType extends fields.DataField.Any,
-	// const ModelType extends foundry.abstract.DataModel.AnyConstructor,
-	const ModelType extends AnyConstructor,
+	const Options extends MappingField.AnyOptions = MappingField.DefaultOptions<MappingField.AssignmentElementType<ElementFieldType>>,
 	const AssignmentElementType = MappingField.AssignmentElementType<ElementFieldType>,
 	const InitializedElementType = MappingField.InitializedElementType<ElementFieldType>,
-	const Options extends MappingField.Options<AssignmentElementType, ModelType> = MappingField.DefaultOptions,
-	const AssignmentType = MappingField.AssignmentType<AssignmentElementType, ModelType, Options>,
+	const AssignmentType = MappingField.AssignmentType<AssignmentElementType, Options>,
 	const InitializedType = MappingField.InitializedType<
 		AssignmentElementType,
 		InitializedElementType,
-		ModelType,
 		Options
 	>,
 	const PersistedElementType = MappingField.PersistedElementType<ElementFieldType>,
 	const PersistedType extends Record<string, PersistedElementType> | null | undefined = MappingField.PersistedType<
-		ModelType,
 		AssignmentElementType,
 		PersistedElementType,
 		Options
@@ -38,13 +53,12 @@ class MappingField<
 		super(options)
 
 		this.model = model
-		// TODO: fix
-		model.parent = this as any
+		model.parent = this
 	}
 
 	/* -------------------------------------------- */
 
-	static override get _defaults(): DataFieldOptions<AnyObject> {
+	static override get _defaults(): fields.DataField.Options<AnyObject> {
 		return foundry.utils.mergeObject(super._defaults, {
 			initialKeys: null,
 			initialValue: null,

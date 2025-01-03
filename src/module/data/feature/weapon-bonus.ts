@@ -1,14 +1,9 @@
-import { Int, NumericComparison, StringComparison, TooltipGURPS, feature, wsel, wswitch } from "@util"
+import { Int, ItemType, NumericComparison, StringComparison, TooltipGURPS, createButton, createDummyElement, feature, i18n, wsel, wswitch } from "@util"
 import fields = foundry.data.fields
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
-import { ItemType } from "@module/data/constants.ts"
-import { Nameable } from "@module/util/index.ts"
-import { NumericCriteriaField } from "../item/fields/numeric-criteria-field.ts"
-import { createButton, createDummyElement } from "@module/applications/helpers.ts"
-import { BooleanSelectField } from "../item/fields/boolean-select-field.ts"
-import { ActiveEffectGURPS } from "@module/documents/active-effect.ts"
-import { ReplaceableStringCriteriaField } from "../item/fields/replaceable-string-criteria-field.ts"
-import { BaseAttack } from "../action/base-attack.ts"
+import { ExtendedBooleanField, ExtendedStringField, NumericCriteriaField, StringCriteriaField } from "@data/fields/index.ts"
+import { BaseAttack } from "@data/action/base-attack.ts"
+import { ActiveEffectGURPS } from "@documents"
 
 class WeaponBonus extends BaseFeature<WeaponBonusSchema> {
 	declare dieCount: number
@@ -16,80 +11,9 @@ class WeaponBonus extends BaseFeature<WeaponBonusSchema> {
 	// static override TYPE = feature.Type.WeaponBonus
 
 	static override defineSchema(): WeaponBonusSchema {
-		const fields = foundry.data.fields
-
 		return {
 			...super.defineSchema(),
-			type: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: feature.TypesChoices,
-			}),
-			percent: new fields.BooleanField({
-				required: true,
-				nullable: false,
-				initial: false,
-
-				label: "GURPS.Item.Features.FIELDS.WeaponBonus.Percent",
-			}),
-			switch_type: new fields.StringField({
-				choices: wswitch.TypesChoices,
-				nullable: true,
-				blank: false,
-				initial: null,
-			}),
-			switch_type_value: new BooleanSelectField({
-				choices: {
-					true: "GURPS.Item.Features.FIELDS.WeaponBonus.SwitchTypeValue.true",
-					false: "GURPS.Item.Features.FIELDS.WeaponBonus.SwitchTypeValue.false",
-				},
-				required: true,
-				nullable: true,
-				initial: null,
-			}),
-			selection_type: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: wsel.TypesChoices,
-				initial: wsel.Type.WithRequiredSkill,
-			}),
-			name: new ReplaceableStringCriteriaField({
-				required: true,
-				nullable: false,
-				initial: { compare: StringComparison.Option.IsString, qualifier: "" },
-			}),
-			specialization: new ReplaceableStringCriteriaField({
-				required: true,
-				nullable: false,
-				choices: StringComparison.CustomOptionsChoices("GURPS.Item.Features.FIELDS.WeaponBonus.Specialization"),
-			}),
-			level: new NumericCriteriaField({
-				required: true,
-				nullable: false,
-				choices: NumericComparison.CustomOptionsChoices("GURPS.Item.Features.FIELDS.WeaponBonus.Level"),
-				initial: { compare: NumericComparison.Option.AtLeastNumber, qualifier: 0 },
-			}),
-			usage: new ReplaceableStringCriteriaField({
-				required: true,
-				nullable: false,
-				choices: StringComparison.CustomOptionsChoices("GURPS.Item.Features.FIELDS.WeaponBonus.Usage"),
-			}),
-			tags: new ReplaceableStringCriteriaField({
-				required: true,
-				nullable: false,
-				choices: StringComparison.CustomOptionsChoicesPlural(
-					"GURPS.Item.Features.FIELDS.SkillBonus.TagsSingle",
-					"GURPS.Item.Features.FIELDS.SkillBonus.TagsPlural",
-				),
-			}),
-			amount: new fields.NumberField({ integer: true, initial: 1 }),
-			// leveled: new fields.BooleanField({ initial: false }),
-			per_die: new fields.BooleanField({
-				initial: false,
-				label: "GURPS.Item.Features.FIELDS.WeaponBonus.PerDie",
-			}),
+			...weaponBonusSchema
 		}
 	}
 
@@ -123,14 +47,14 @@ class WeaponBonus extends BaseFeature<WeaponBonusSchema> {
 		buf.push(" [")
 		if (this.type === feature.Type.WeaponSwitch) {
 			buf.push(
-				game.i18n.format(`GURPS.Feature.WeaponBonus.${this.type}`, {
+				i18n.format(`GURPS.Feature.WeaponBonus.${this.type}`, {
 					type: this.switch_type!,
 					value: this.switch_type_value!,
 				}),
 			)
 		} else {
 			buf.push(
-				game.i18n.format(`GURPS.Feature.WeaponBonus.${this.type}`, {
+				i18n.format(`GURPS.Feature.WeaponBonus.${this.type}`, {
 					level: this.format(this.percent ?? false),
 				}),
 			)
@@ -159,17 +83,17 @@ class WeaponBonus extends BaseFeature<WeaponBonusSchema> {
 		}
 		switch (true) {
 			case this.per_die && this.per_level:
-				return game.i18n.format("GURPS.Feature.WeaponBonus.PerDiePerLevel", {
+				return i18n.format("GURPS.Feature.WeaponBonus.PerDiePerLevel", {
 					total: adjustedAmt,
 					base: amt,
 				})
 			case this.per_die:
-				return game.i18n.format("GURPS.Feature.WeaponBonus.PerDie", {
+				return i18n.format("GURPS.Feature.WeaponBonus.PerDie", {
 					total: adjustedAmt,
 					base: amt,
 				})
 			case this.per_level:
-				return game.i18n.format("GURPS.Feature.WeaponBonus.PerLevel", {
+				return i18n.format("GURPS.Feature.WeaponBonus.PerLevel", {
 					total: adjustedAmt,
 					base: amt,
 				})
@@ -447,21 +371,91 @@ class WeaponBonus extends BaseFeature<WeaponBonusSchema> {
 	}
 }
 
-interface WeaponBonus extends BaseFeature<WeaponBonusSchema>, ModelPropsFromSchema<WeaponBonusSchema> {}
+const weaponBonusSchema = {
+	type: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		choices: feature.TypesChoices,
+	}),
+	percent: new ExtendedBooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
 
-type WeaponBonusSchema = BaseFeatureSchema & {
-	percent: fields.BooleanField<boolean, boolean, true, false, true>
-	switch_type: fields.StringField<string, wswitch.Type, true, true>
-	switch_type_value: BooleanSelectField<boolean, boolean, true, true, true>
-	selection_type: fields.StringField<wsel.Type, wsel.Type, true, false, true>
-	name: ReplaceableStringCriteriaField<true, false, true>
-	specialization: ReplaceableStringCriteriaField<true, false, true>
-	level: NumericCriteriaField<true, false, true>
-	usage: ReplaceableStringCriteriaField<true, false, true>
-	tags: ReplaceableStringCriteriaField<true, false, true>
-	amount: fields.NumberField<number, number, true, false>
-	// leveled: fields.BooleanField<boolean, boolean, true, false, true>
-	per_die: fields.BooleanField<boolean, boolean, true, false, true>
+		label: "GURPS.Item.Features.FIELDS.WeaponBonus.Percent",
+	}),
+	switch_type: new ExtendedStringField({
+		choices: wswitch.TypesChoices,
+		nullable: true,
+		blank: false,
+		initial: null,
+	}),
+	switch_type_value: new BooleanSelectField({
+		choices: {
+			true: "GURPS.Item.Features.FIELDS.WeaponBonus.SwitchTypeValue.true",
+			false: "GURPS.Item.Features.FIELDS.WeaponBonus.SwitchTypeValue.false",
+		},
+		required: true,
+		nullable: true,
+		initial: null,
+	}),
+	selection_type: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		toggleable: true,
+		choices: wsel.TypesChoices,
+		initial: wsel.Type.WithRequiredSkill,
+	}),
+	name: new StringCriteriaField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		replaceable: true,
+		initial: { compare: StringComparison.Option.IsString, qualifier: "" },
+	}),
+	specialization: new StringCriteriaField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		replaceable: true,
+		choices: StringComparison.CustomOptionsChoices("GURPS.Item.Features.FIELDS.WeaponBonus.Specialization"),
+	}),
+	level: new NumericCriteriaField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		choices: NumericComparison.CustomOptionsChoices("GURPS.Item.Features.FIELDS.WeaponBonus.Level"),
+		initial: { compare: NumericComparison.Option.AtLeastNumber, qualifier: 0 },
+	}),
+	usage: new StringCriteriaField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		choices: StringComparison.CustomOptionsChoices("GURPS.Item.Features.FIELDS.WeaponBonus.Usage"),
+	}),
+	tags: new StringCriteriaField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		choices: StringComparison.CustomOptionsChoicesPlural(
+			"GURPS.Item.Features.FIELDS.SkillBonus.TagsSingle",
+			"GURPS.Item.Features.FIELDS.SkillBonus.TagsPlural",
+		),
+	}),
+	amount: new fields.NumberField({
+		required: true, nullable: false,
+		toggleable: true,
+		integer: true, initial: 1
+	}),
+	// leveled: new fields.BooleanField({ initial: false }),
+	per_die: new fields.BooleanField({
+		initial: false,
+		label: "GURPS.Item.Features.FIELDS.WeaponBonus.PerDie",
+	}),
 }
+
+type WeaponBonusSchema = BaseFeatureSchema & typeof weaponBonusSchema
 
 export { WeaponBonus, type WeaponBonusSchema }

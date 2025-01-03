@@ -1,22 +1,39 @@
 import { StringComparison } from "@util/enums/string-comparison.ts"
-import fields = foundry.data.fields
+import DataModel = foundry.abstract.DataModel
 import { i18n } from "@util/i18n.ts"
 import { Nameable } from "@util/nameable.ts"
+import { ExtendedStringField } from "@data/fields/extended-string-field.ts"
 
-class StringCriteria<Schema extends StringCriteriaSchema = StringCriteriaSchema> extends foundry.abstract.DataModel<Schema> {
-	static override defineSchema(): StringCriteriaSchema {
-		const fields = foundry.data.fields
-		return {
-			compare: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: StringComparison.OptionsChoices,
-				initial: StringComparison.Option.AnyString,
-			}),
-			qualifier: new fields.StringField({ required: true, nullable: false }),
+class StringCriteria<
+	const Parent extends DataModel.Any | null = null,
+	const  ExtraConstructorOptions extends CriteriaConstructorOptions = {},
+> extends DataModel<StringCriteriaSchema, Parent, ExtraConstructorOptions> {
+
+	constructor(
+		data?: DataModel.ConstructorData<StringCriteriaSchema>,
+		options?: DataModel.DataValidationOptions<Parent> & ExtraConstructorOptions,
+	) {
+		super(data, options)
+
+		if (options) {
+			if ("toggleable" in options) {
+				this.schema.fields.compare.toggleable = options.toggleable ?? false
+				this.schema.fields.qualifier.toggleable = options.toggleable ?? false
+			}
+
+			if ("replaceable" in options) {
+				this.schema.fields.qualifier.replaceable = options.toggleable ?? false
+			}
 		}
 	}
+
+	/* -------------------------------------------- */
+
+	static override defineSchema(): StringCriteriaSchema {
+		return stringCriteriaSchema
+	}
+
+	/* -------------------------------------------- */
 
 	matches(this: StringCriteria, replacements: Map<string, string>, value: string): boolean {
 		value = Nameable.apply(value, replacements)
@@ -44,7 +61,11 @@ class StringCriteria<Schema extends StringCriteriaSchema = StringCriteriaSchema>
 		}
 	}
 
-	matchesList(replacements: Map<string, string>, ...value: string[]): boolean {
+	/* -------------------------------------------- */
+
+	matchesList(
+		this: StringCriteria,
+		replacements: Map<string, string>, ...value: string[]): boolean {
 		value = Nameable.applyToList(value, replacements)
 		if (value.length === 0) return this.matches(replacements, "")
 		let matches = 0
@@ -68,15 +89,21 @@ class StringCriteria<Schema extends StringCriteriaSchema = StringCriteriaSchema>
 		}
 	}
 
+	/* -------------------------------------------- */
+
 	override toString(this: StringCriteria, replacements: Map<string, string> = new Map()): string {
 		return this.describe(Nameable.apply(this.qualifier, replacements))
 	}
+
+	/* -------------------------------------------- */
 
 	toStringWithPrefix(this: StringCriteria, replacements: Map<string, string>, prefix: string, notPrefix: string): string {
 		return this.describeWithPrefix(prefix, notPrefix, Nameable.apply(this.qualifier, replacements))
 	}
 
-	altString(): string {
+	/* -------------------------------------------- */
+
+	altString(this: StringCriteria): string {
 		switch (this.compare) {
 			case StringComparison.Option.IsNotString:
 			case StringComparison.Option.DoesNotContainString:
@@ -88,6 +115,8 @@ class StringCriteria<Schema extends StringCriteriaSchema = StringCriteriaSchema>
 		}
 	}
 
+
+	/* -------------------------------------------- */
 	describe(qualifier: string): string {
 		if (this.compare === StringComparison.Option.AnyString)
 			return i18n.localize(`GURPS.Enum.StringComparison[this.compare].Tooltip`)
@@ -95,6 +124,8 @@ class StringCriteria<Schema extends StringCriteriaSchema = StringCriteriaSchema>
 			qualifier,
 		})
 	}
+
+	/* -------------------------------------------- */
 
 	describeWithPrefix(prefix: string, notPrefix: string, qualifier: string): string {
 		let info = ""
@@ -112,10 +143,18 @@ class StringCriteria<Schema extends StringCriteriaSchema = StringCriteriaSchema>
 	}
 }
 
-type StringCriteriaSchema = {
-	compare: fields.StringField<{ required: true; nullable: false }, StringComparison.Option>
-	qualifier: fields.StringField<{ required: true; nullable: false }, string>
+const stringCriteriaSchema = {
+	compare: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		choices: StringComparison.OptionsChoices,
+		initial: StringComparison.Option.AnyString,
+	}),
+	qualifier: new ExtendedStringField({ required: true, nullable: false }),
 }
+
+type StringCriteriaSchema = typeof stringCriteriaSchema
 
 function equalFold(s: string, t: string): boolean {
 	if (!s || !t) return false

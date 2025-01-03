@@ -1,25 +1,39 @@
 import { NumericComparison } from "@util/enums/numeric-comparison.ts"
-import fields = foundry.data.fields
 import { Weight } from "@util/weight.ts"
 import { i18n } from "@util/i18n.ts"
+import DataModel = foundry.abstract.DataModel
+import { ExtendedStringField } from "@data/fields/extended-string-field.ts"
 
-class WeightCriteria extends foundry.abstract.DataModel<WeightCriteriaSchema> {
-	static override defineSchema(): WeightCriteriaSchema {
-		const fields = foundry.data.fields
-		return {
-			compare: new fields.StringField({
-				required: true,
-				nullable: false,
-				choices: NumericComparison.Options,
-				initial: NumericComparison.Option.AnyNumber,
-			}),
-			qualifier: new fields.StringField({
-				required: true,
-				nullable: false,
-				initial: `0 ${Weight.Unit.Pound}`,
-			}),
+class WeightCriteria<
+	const Parent extends DataModel.Any | null = null,
+	const  ExtraConstructorOptions extends CriteriaConstructorOptions = {},
+> extends DataModel<WeightCriteriaSchema, Parent, ExtraConstructorOptions> {
+
+	constructor(
+		data?: DataModel.ConstructorData<WeightCriteriaSchema>,
+		options?: DataModel.DataValidationOptions<Parent> & ExtraConstructorOptions,
+	) {
+		super(data, options)
+
+		if (options) {
+			if ("toggleable" in options) {
+				this.schema.fields.compare.toggleable = options.toggleable ?? false
+				this.schema.fields.qualifier.toggleable = options.toggleable ?? false
+			}
+
+			if ("replaceable" in options) {
+				this.schema.fields.qualifier.replaceable = options.toggleable ?? false
+			}
 		}
 	}
+
+	/* -------------------------------------------- */
+
+	static override defineSchema(): WeightCriteriaSchema {
+		return weightCriteriaSchema
+	}
+
+	/* -------------------------------------------- */
 
 	matches(n: number): boolean {
 		const qualifier = Weight.fromString(this.qualifier)
@@ -40,19 +54,27 @@ class WeightCriteria extends foundry.abstract.DataModel<WeightCriteriaSchema> {
 		}
 	}
 
+	/* -------------------------------------------- */
+
 	override toString(): string {
 		return i18n.localize(`GURPS.WeightCriteria.${this.compare}.Name`)
 	}
 
+	/* -------------------------------------------- */
+
 	altString(): string {
 		return i18n.localize(`GURPS.WeightCriteria.${this.compare}.Alt`)
 	}
+
+	/* -------------------------------------------- */
 
 	describe(): string {
 		const result = this.toString()
 		if (this.compare === NumericComparison.Option.AnyNumber) return result
 		return `${result} ${this.qualifier}`
 	}
+
+	/* -------------------------------------------- */
 
 	altDescribe(): string {
 		let result = this.altString()
@@ -62,9 +84,20 @@ class WeightCriteria extends foundry.abstract.DataModel<WeightCriteriaSchema> {
 	}
 }
 
-type WeightCriteriaSchema = {
-	compare: fields.StringField<{ required: true; nullable: false }, NumericComparison.Option>
-	qualifier: fields.StringField<{ required: true; nullable: false }, string>
+const weightCriteriaSchema = {
+	compare: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		choices: NumericComparison.Options,
+		initial: NumericComparison.Option.AnyNumber,
+	}),
+	qualifier: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		initial: `0 ${Weight.Unit.Pound}`,
+	}),
 }
+
+type WeightCriteriaSchema = typeof weightCriteriaSchema
 
 export { WeightCriteria, type WeightCriteriaSchema }

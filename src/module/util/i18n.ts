@@ -1,5 +1,4 @@
 function localize(key: string): string {
-	// @ts-expect-error weird types
 	return game.i18n?.localize(key) ?? key
 }
 

@@ -1,6 +1,6 @@
 import { ActiveEffectGURPS } from "@module/documents/active-effect.ts"
 import fields = foundry.data.fields
-import type { AnyObject } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
+import { AnyObject } from "fvtt-types/utils"
 
 class AppliedEffectField<
 	Options extends fields.SchemaField.Options<AppliedEffectFieldSchema> = fields.SchemaField.DefaultOptions,
@@ -35,7 +35,6 @@ class AppliedEffectField<
 		Object.defineProperty(obj, "effect", {
 			get(): ActiveEffectGURPS {
 				// TODO: review
-				// @ts-expect-error weird types
 				return item.effects?.get(this._id) as ActiveEffectGURPS
 			},
 			configurable: true,

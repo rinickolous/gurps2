@@ -1,9 +1,9 @@
 import { DiceField } from "./fields/index.ts"
 import fields = foundry.data.fields
 import { ActorGURPS } from "@documents"
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
 import { ActorType, equalFold, ErrorGURPS, GID, i18n, StringBuilder, TooltipGURPS } from "@util"
 import { HitLocationSettings } from "@module/settings/hit-location-config.ts"
+import { DeepPartial } from "fvtt-types/utils"
 
 // This is the root actor body object.
 // It contains flat arrays of hit locations and sub-tables as fields,

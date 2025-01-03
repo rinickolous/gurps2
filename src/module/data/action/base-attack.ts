@@ -16,31 +16,22 @@ import {
 	wsel,
 	wswitch,
 } from "@util"
-import { ReplaceableStringField } from "../fields/replaceable-string-field.ts"
 import { Nameable } from "@module/util/nameable.ts"
-import { SkillDefaultField } from "@data/fields/skill-default-field.ts"
 import { ItemDataTemplateClasses, ItemInstance, ItemTemplateInstance } from "@data/item/types.ts"
 import { SkillDefault } from "@data/skill-default.ts"
+import { ExtendedStringField } from "@data/fields/index.ts"
+import { SkillDefaultField } from "@data/fields/skill-default-field.ts"
+import { Feature } from "@data/feature/types.ts"
+import { WeaponBonus } from "@data/feature/weapon-bonus.ts"
 
 class BaseAttack<Schema extends BaseAttackSchema = BaseAttackSchema> extends BaseAction<Schema> {
 	declare protected _weaponLevel: number
 
 	static override defineSchema(): BaseAttackSchema {
-		const fields = foundry.data.fields
 
 		return {
 			...super.defineSchema(),
-			notes: new ReplaceableStringField({
-				required: true,
-				nullable: false,
-				initial: "",
-				label: "GURPS.Item.BasicInformation.FIELDS.Notes.Name",
-			}),
-			strength: new fields.EmbeddedDataField(WeaponStrength),
-			damage: new fields.EmbeddedDataField(WeaponDamage),
-			// Is the weapon currently unready?
-			unready: new fields.BooleanField({ required: true, nullable: false, initial: false }),
-			defaults: new fields.ArrayField(new SkillDefaultField()),
+			...baseAttackSchema
 		}
 	}
 
@@ -401,24 +392,21 @@ class BaseAttack<Schema extends BaseAttackSchema = BaseAttackSchema> extends Bas
 	}
 }
 
-type BaseAttackSchema = BaseActionSchema & {
-	notes: ReplaceableStringField<{
-		required: true
-		nullable: false
-		initial: ""
-		label: "GURPS.Item.BasicInformation.FIELDS.Notes.Name"
-	}>
-	strength: fields.EmbeddedDataField<typeof WeaponStrength, { required: true; nullable: false }>
-	damage: fields.EmbeddedDataField<typeof WeaponDamage, { required: true; nullable: false }>
-	unready: fields.BooleanField<{ required: true; nullable: false }>
-	defaults: fields.ArrayField<
-		SkillDefaultField,
-		SkillDefault,
-		SkillDefault,
-		{ required: true; nullable: false },
-		SkillDefault[],
-		SkillDefault[]
-	>
+const baseAttackSchema = {
+	notes: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		toggleable: true, replaceable: true,
+		initial: "",
+		label: "GURPS.Item.BasicInformation.FIELDS.Notes.Name",
+	}),
+	strength: new fields.EmbeddedDataField(WeaponStrength),
+	damage: new fields.EmbeddedDataField(WeaponDamage),
+	// Is the weapon currently unready?
+	unready: new fields.BooleanField({ required: true, nullable: false, initial: false }),
+	defaults: new fields.ArrayField(new SkillDefaultField()),
 }
+
+type BaseAttackSchema = BaseActionSchema & typeof baseAttackSchema
 
 export { BaseAttack, type BaseAttackSchema }

@@ -1,5 +1,8 @@
 import { SYSTEM_NAME, SETTINGS } from "@util"
+import api = foundry.applications.api
 import { SheetSettingsConfig } from "./sheet-settings-config.ts"
+import { AttributesConfig } from "./attributes-config.ts"
+import { HitLocationsConfig } from "./hit-location-config.ts"
 
 export function registerSystemSettings(): void {
 	if (!game.settings) return
@@ -29,7 +32,7 @@ export function registerSystemSettings(): void {
 		label: "GURPS.Settings.AttributesConfig.Label",
 		hint: "GURPS.Settings.AttributesConfig.Hint",
 		icon: "gcs-attribute",
-		type: AttributesConfig,
+		type: (AttributesConfig as unknown as Constructor<AttributesConfig>),
 		restricted: false,
 	})
 	AttributesConfig.registerSettings()
@@ -39,7 +42,7 @@ export function registerSystemSettings(): void {
 		label: "GURPS.Settings.HitLocationsConfig.Label",
 		hint: "GURPS.Settings.HitLocationsConfig.Hint",
 		icon: "gcs-body-type",
-		type: HitLocationsConfig,
+		type: (HitLocationsConfig as unknown as Constructor<HitLocationsConfig>),
 		restricted: false,
 	})
 	HitLocationsConfig.registerSettings()
@@ -86,7 +89,7 @@ export function registerSystemSettings(): void {
 		hint: "GURPS.Settings.BucektIcon.Hint",
 		scope: "client",
 		config: true,
-		type: new foundry.data.fields.FilePathField({ nullable: false, categories: ["IMAGE"] }),
+		type: new foundry.data.fields.FilePathField({ required: true, nullable: false, categories: ["IMAGE"] }),
 		default: `/systems/${SYSTEM_NAME}/images/3d6.webp`,
 	})
 

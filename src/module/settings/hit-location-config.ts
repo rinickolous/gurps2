@@ -1,9 +1,9 @@
-import type { AnyObject, DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
 import fields = foundry.data.fields
 import api = foundry.applications.api
 import DEFAULT_BODY_TYPE from "@static/settings/body-type.json"
 import { SETTINGS, SYSTEM_NAME } from "@util"
 import { ActorBody, HitLocation, HitLocationSubTable } from "@data"
+import { AnyObject, DeepPartial } from "fvtt-types/utils"
 
 class HitLocationSettings extends foundry.abstract.DataModel<HitLocationSettingsSchema> {
 	static override defineSchema(): HitLocationSettingsSchema {
@@ -86,7 +86,8 @@ class HitLocationsConfig extends api.HandlebarsApplicationMixin(api.ApplicationV
 	// Get the default settings values for this menu.
 	// This can be overriden to instead get the current game settings value if on an Actor
 	protected _getDefaultSettings(): HitLocationSettings {
-		return game.settings?.settings.get(`${SYSTEM_NAME}.${SETTINGS.DEFAULT_HIT_LOCATIONS}`)?.default
+		// HACK: not sure why the type isn't being picked up
+		return game.settings?.settings.get(`${SYSTEM_NAME}.${SETTINGS.DEFAULT_HIT_LOCATIONS}`)?.default as HitLocationSettings
 	}
 
 	// Write changes made in this menu to a permanent dataset.

@@ -1,7 +1,7 @@
 import { SETTINGS, SYSTEM_NAME } from "@util"
 import fields = foundry.data.fields
 import api = foundry.applications.api
-import type { AnyObject, DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
+import { AnyObject, DeepPartial } from "fvtt-types/utils"
 
 class ColorSettings extends foundry.abstract.DataModel<ColorSettingsSchema> {
 	static override defineSchema(): ColorSettingsSchema {
@@ -110,7 +110,6 @@ class ColorConfig extends api.HandlebarsApplicationMixin(api.ApplicationV2) {
 	}
 
 	static registerSettings(): void {
-		//@ts-expect-error weird types
 		game.settings?.register(SYSTEM_NAME, SETTINGS.COLORS, {
 			name: "",
 			scope: "client",
@@ -164,7 +163,7 @@ class ColorConfig extends api.HandlebarsApplicationMixin(api.ApplicationV2) {
 		formData: FormDataExtended,
 	): Promise<void> {
 		event.preventDefault()
-		let current = game.settings?.get(SYSTEM_NAME, SETTINGS.COLORS)?.toObject()
+		let current = game.settings.get(SYSTEM_NAME, SETTINGS.COLORS).toObject()
 		current = foundry.utils.mergeObject(current, formData.object)
 		for (const key of ColorSettings.schema.keys() as (keyof ColorSettingsSchema)[]) {
 			current[key].lightForeground = ColorConfig._getContrastingForeground(current[key].light)

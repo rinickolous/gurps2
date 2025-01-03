@@ -1,6 +1,6 @@
 import { MappingField, MappingFieldOptions } from "@data/fields/mapping-field.ts"
 import fields = foundry.data.fields
-import type { AnyObject } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
+import { AnyObject } from "fvtt-types/utils"
 
 // HACK: this needs some fixing to accoutn for new data models
 
@@ -15,7 +15,6 @@ class ReplacementsField<const Options extends MappingFieldOptions<AnyObject>> ex
 
 	/* -------------------------------------------- */
 
-	// @ts-expect-error waiting on types to catch up HACK: maybe I'm the problem?
 	override initialize(
 		value: Map<string, string>,
 		model: foundry.abstract.DataModel.Any,

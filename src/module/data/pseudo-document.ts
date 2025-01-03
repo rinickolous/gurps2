@@ -1,4 +1,4 @@
-import type { ConstructorOf, DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
+import { DeepPartial } from "fvtt-types/utils"
 import fields = foundry.data.fields
 import { ItemDataModel } from "./item/base.ts"
 import { ActorGURPS, ItemGURPS } from "@documents"
@@ -13,7 +13,7 @@ type PseudoDocumentMetaData = {
 	type?: string
 	img: string
 	title: string
-	sheetClass: ConstructorOf<foundry.applications.api.ApplicationV2>
+	sheetClass: typeof foundry.applications.api.ApplicationV2
 }
 
 abstract class PseudoDocument<
@@ -156,7 +156,6 @@ abstract class PseudoDocument<
 		const cls = this.constructor.metadata.sheetClass
 		if (!cls) return null
 		if (!this.constructor._sheets.has(this.uuid)) {
-			// @ts-expect-error idk
 			this.constructor._sheets.set(this.uuid, new cls({ document: this }))
 		}
 		return this.constructor._sheets.get(this.uuid) ?? null
@@ -291,7 +290,7 @@ abstract class PseudoDocument<
 					button.dataset.tooltip = label
 					button.setAttribute("aria-label", label)
 				})
-				;(htmlQuery(app, ".document-name") as HTMLInputElement).select()
+					; (htmlQuery(app, ".document-name") as HTMLInputElement).select()
 			},
 			// @ts-expect-error idk types???
 			buttons: {
@@ -367,12 +366,12 @@ abstract class PseudoDocument<
 	 * @param {object} _data     The initial data object provided to the document creation request.
 	 * @returns {boolean|void}  A return value of false indicates the creation operation should be cancelled.
 	 */
-	preCreate(_data: object): boolean | void {} // NOTE: not protected because it actually has to be accessed from its parent item
+	preCreate(_data: object): boolean | void { } // NOTE: not protected because it actually has to be accessed from its parent item
 
 	/* -------------------------------------------- */
 
 	/** Prepare data related to this DataModel itself, before any derived data is computed. */
-	prepareBaseData(): void {}
+	prepareBaseData(): void { }
 
 	/* -------------------------------------------- */
 
@@ -380,7 +379,7 @@ abstract class PseudoDocument<
 	 * Apply transformations of derivations to the values of the source data object.
 	 * Compute data fields whose values are not stored to the database.
 	 */
-	prepareDerivedData(): void {}
+	prepareDerivedData(): void { }
 }
 
 interface PseudoDocument {

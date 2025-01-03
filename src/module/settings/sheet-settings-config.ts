@@ -1,9 +1,9 @@
 import { ActorGURPS } from "@documents/actor.ts"
 import fields = foundry.data.fields
 import api = foundry.applications.api
-import type { AnyObject, DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
 import { display, i18n, Length, progression, SETTINGS, SYSTEM_NAME, Weight } from "@util"
 import { ActorDataModel } from "@data/actor/base.ts"
+import type { AnyObject, DeepPartial } from "fvtt-types/utils"
 
 class SheetSettings extends foundry.abstract.DataModel<SheetSettingsSchema, ActorDataModel | null> {
 	static override defineSchema(): SheetSettingsSchema {

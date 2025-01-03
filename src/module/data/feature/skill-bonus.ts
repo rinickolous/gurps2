@@ -1,6 +1,6 @@
-import fields = foundry.data.fields
 import { Nameable, StringComparison, createDummyElement, feature, skillsel } from "@util"
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
+import { ExtendedStringField, StringCriteriaField } from "@data/fields/index.ts"
 
 class SkillBonus extends BaseFeature<SkillBonusSchema> {
 	static override TYPE = feature.Type.SkillBonus
@@ -8,7 +8,7 @@ class SkillBonus extends BaseFeature<SkillBonusSchema> {
 	static override defineSchema(): SkillBonusSchema {
 		return {
 			...super.defineSchema(),
-			skillBonusSchema
+			...skillBonusSchema
 		}
 	}
 
@@ -130,27 +130,33 @@ class SkillBonus extends BaseFeature<SkillBonusSchema> {
 }
 
 const skillBonusSchema = {
-
-	selection_type: new fields.StringField({
+	selection_type: new ExtendedStringField({
 		required: true,
 		nullable: false,
 		blank: false,
+		toggleable: true,
 		choices: skillsel.TypesChoices,
 		initial: skillsel.Type.Name,
 	}),
-	name: new ReplaceableStringCriteriaField({
+	name: new StringCriteriaField({
 		required: true,
 		nullable: false,
+		toggleable: true,
+		replaceable: true,
 		initial: { compare: StringComparison.Option.IsString, qualifier: "" },
 	}),
-	specialization: new ReplaceableStringCriteriaField({
+	specialization: new StringCriteriaField({
 		required: true,
 		nullable: false,
+		toggleable: true,
+		replaceable: true,
 		choices: StringComparison.CustomOptionsChoices("GURPS.Item.Features.FIELDS.SkillBonus.Specialization"),
 	}),
-	tags: new ReplaceableStringCriteriaField({
+	tags: new StringCriteriaField({
 		required: true,
 		nullable: false,
+		toggleable: true,
+		replaceable: true,
 		choices: StringComparison.CustomOptionsChoicesPlural(
 			"GURPS.Item.Features.FIELDS.SkillBonus.TagsSingle",
 			"GURPS.Item.Features.FIELDS.SkillBonus.TagsPlural",

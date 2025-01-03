@@ -1,10 +1,8 @@
 import { DocumentSystemFlags } from "@documents/system-flags.ts"
-import type BaseUser from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/documents/user.d.mts"
-import type {
-	AnyObject,
-	DeepPartial,
-} from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
+import fields = foundry.data.fields
+import DataSchema = foundry.data.fields.DataSchema
 import { SYSTEM_NAME } from "@util"
+import { AnyObject, DeepPartial } from "fvtt-types/utils"
 
 // Type to get the instance type of a class constructor
 type InstanceTypeOf<T> = T extends new (...args: any[]) => infer R ? R : never
@@ -20,12 +18,12 @@ type CombinedInstanceType<T extends any[]> = T extends [infer U, ...infer Rest]
 type CombinedStaticType<T extends any[]> = T extends [infer U, ...infer Rest] ? U & CombinedStaticType<Rest> : {}
 
 // Type to represent the combined class with both static and instance members
-type CombinedClass<T extends any[]> = CombinedStaticType<T> & (new (...args: any[]) => CombinedInstanceType<T>)
+type CombinedClass<T extends (typeof SystemDataModel)[]> = CombinedStaticType<T> & (new (...args: any[]) => CombinedInstanceType<T>)
 
 /* -------------------------------------------- */
 
-interface SystemDataModelMetadata<T extends typeof DocumentSystemFlags = typeof DocumentSystemFlags> {
-	systemFlagsModel: T | null
+interface SystemDataModelMetadata<T extends DocumentSystemFlags = DocumentSystemFlags> {
+	systemFlagsModel: Constructor<T> | null
 }
 
 /* -------------------------------------------- */
@@ -179,9 +177,9 @@ class SystemDataModel<
 	 * @returns {Promise<boolean|void>}   A return value of false indicates the creation operation should be cancelled.
 	 */
 	protected override async _preCreate(
-		_data: foundry.abstract.TypeDataModel.ParentAssignmentType<this>,
+		_data: foundry.abstract.TypeDataModel.ParentAssignmentType<Schema, Parent>,
 		_options: foundry.abstract.Document.PreCreateOptions<any>,
-		_user: BaseUser,
+		_user: foundry.documents.BaseUser,
 	): Promise<boolean | void> { }
 
 	/**
@@ -192,7 +190,7 @@ class SystemDataModel<
 	 * @returns {Promise<boolean|void>}   A return value of false indicates the creation operation should be cancelled.
 	 */
 	async _preUpdate(
-		_changes: DeepPartial<foundry.abstract.TypeDataModel.ParentAssignmentType<this>>,
+		_changes: DeepPartial<foundry.abstract.TypeDataModel.ParentAssignmentType<Schema, Parent>>,
 		_options: foundry.abstract.Document.PreUpdateOptions<any>,
 		_userId: string,
 	): Promise<boolean | void> { }
@@ -205,19 +203,21 @@ class SystemDataModel<
 	 */
 	async _preDelete(
 		_options: foundry.abstract.Document.PreDeleteOptions<any>,
-		_user: BaseUser,
+		_user: foundry.documents.BaseUser,
 	): Promise<boolean | void> { }
 
-	_onCreate(
-		_data: Partial<this["_source"]>,
-		_options: foundry.abstract.Document.OnCreateOptions<any>,
-		_userId: string,
-	) { }
+	override	_onCreate(
+		data: foundry.abstract.TypeDataModel.ParentAssignmentType<Schema, Parent>,
+		options: foundry.abstract.Document.OnCreateOptions<any>,
+		userId: string,
+	) {
+		super._onCreate(data, options, userId)
+	}
 
 	/* -------------------------------------------- */
 
 	_onUpdate(
-		_changed: DeepPartial<foundry.abstract.TypeDataModel.ParentAssignmentType<this>>,
+		_changed: DeepPartial<foundry.abstract.TypeDataModel.ParentAssignmentType<Schema, Parent>>,
 		_options: foundry.abstract.Document.OnUpdateOptions<any>,
 		_userId: string,
 	) { }
@@ -230,7 +230,54 @@ class SystemDataModel<
 	/*  Data Validation                             */
 	/* -------------------------------------------- */
 
-	override validate(options = {}) {
+	override validate(options?: {
+		/**
+		 * A specific set of proposed changes to validate, rather than the full source data of the model.
+		 */
+		changes?: fields.SchemaField.InnerAssignmentType<Schema>;
+
+		/**
+		 * If changes are provided, attempt to clean the changes before validating them?
+		 * @defaultValue `false`
+		 */
+		clean?: boolean;
+
+		/**
+		 * Allow replacement of invalid values with valid defaults?
+		 * @defaultValue `false`
+		 */
+		fallback?: boolean;
+
+		/**
+		 * If true, invalid embedded documents will emit a warning and
+		 * be placed in the invalidDocuments collection rather than
+		 * causing the parent to be considered invalid.
+		 * @defaultValue `false`
+		 */
+		dropInvalidEmbedded: boolean;
+
+		/**
+		 * Throw if an invalid value is encountered, otherwise log a warning?
+		 * @defaultValue `true`
+		 */
+		strict?: boolean;
+
+		/**
+		 * Perform validation on individual fields?
+		 * @defaultValue `true`
+		 */
+		fields?: boolean;
+
+		/**
+		 * Perform joint validation on the full data model?
+		 * Joint validation will be performed by default if no changes are passed.
+		 * Joint validation will be disabled by default if changes are passed.
+		 * Joint validation can be performed on a complete set of changes (for
+		 * example testing a complete data model) by explicitly passing true.
+		 */
+		joint?: boolean;
+	}
+	) {
 		if (this.constructor._enableV10Validation === false) return true
 		return super.validate(options)
 	}

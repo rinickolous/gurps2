@@ -15,6 +15,20 @@ export type Feature =
 	| FeatureType.ReactionBonus
 	| FeatureType.ConditionalModifierBonus
 
+export type FeatureClass =
+	| typeof FeatureType.AttributeBonus
+	| typeof FeatureType.ContainedWeightReduction
+	| typeof FeatureType.CostReduction
+	| typeof FeatureType.DRBonus
+	| typeof FeatureType.MoveBonus
+	| typeof FeatureType.SkillBonus
+	| typeof FeatureType.SkillPointBonus
+	| typeof FeatureType.SpellBonus
+	| typeof FeatureType.SpellPointBonus
+	| typeof FeatureType.WeaponBonus
+	| typeof FeatureType.ReactionBonus
+	| typeof FeatureType.ConditionalModifierBonus
+
 export interface FeatureMap {
 	attributeBonuses: FeatureType.AttributeBonus[]
 	costReductions: FeatureType.CostReduction[]
@@ -27,7 +41,7 @@ export interface FeatureMap {
 	moveBonuses: FeatureType.MoveBonus[]
 }
 
-export const FeatureTypes: Readonly<Record<feature.Type, ConstructorOf<Feature>>> = Object.freeze({
+export const FeatureTypes: Readonly<Record<feature.Type, Constructor<Feature>>> = Object.freeze({
 	[feature.Type.AttributeBonus]: FeatureType.AttributeBonus,
 	[feature.Type.ConditionalModifierBonus]: FeatureType.ConditionalModifierBonus,
 	[feature.Type.DRBonus]: FeatureType.DRBonus,

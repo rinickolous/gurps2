@@ -1,4 +1,3 @@
-import type { ConstructorOf } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
 import * as ActionDataModels from "./index.ts"
 import { ActionType } from "@util"
 
@@ -20,7 +19,7 @@ export type ActionSchema =
 	| ActionDataModels.ActionHealSchema
 	| ActionDataModels.ActionUtilitySchema
 
-export const ActionDataModelClasses: Readonly<Record<ActionType, ConstructorOf<Action>>> = Object.freeze({
+export const ActionDataModelClasses: Readonly<Record<ActionType, ActionClass>> = Object.freeze({
 	[ActionType.AttackMelee]: ActionDataModels.AttackMelee,
 	[ActionType.AttackRanged]: ActionDataModels.AttackRanged,
 	[ActionType.Heal]: ActionDataModels.ActionHeal,

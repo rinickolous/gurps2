@@ -3,7 +3,6 @@ import fields = foundry.data.fields
 import { AbstractStatDefinition } from "../abstract-stat/abstract-stat-definition.ts"
 import { PoolThreshold } from "../pool-threshold.ts"
 import { ActorDataModel } from "@data/actor/base.ts"
-import type { AnyObject } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
 
 class AttributeDefinition extends AbstractStatDefinition<AttributeDefinitionSchema> {
 	static override defineSchema(): AttributeDefinitionSchema {

@@ -1,8 +1,8 @@
 import { ActorDataModel } from "@data/actor/base.ts"
-import type { AnyObject } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.d.mts"
 import { AbstractStatDefinition } from "./abstract-stat-definition.ts"
 import { ActorGURPS } from "@documents"
 import fields = foundry.data.fields
+import { AnyObject } from "fvtt-types/utils"
 
 abstract class AbstractStat<
 	Schema extends AbstractStatSchema = AbstractStatSchema,

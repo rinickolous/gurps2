@@ -229,6 +229,6 @@ export {
 	ItemTemplateType,
 	ActionType,
 	GID,
-	EffectType
+	EffectType,
 	ItemTypes,
 }

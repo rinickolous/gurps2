@@ -6,7 +6,6 @@ import { ItemDataModelClasses, ItemDataTemplateClasses, ItemTemplateInstance } f
 import { ActorGURPS } from "@documents/actor.ts"
 import { CellData, CellDataOptions } from "@data/cell-data.ts"
 import { SheetButton } from "@data/sheet-button.ts"
-import type ApplicationV2 from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/client-esm/applications/api/application.d.mts"
 
 type ItemDataModelMetadata = SystemDataModelMetadata<ItemSystemFlags>
 
@@ -108,18 +107,17 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 	 */
 	async _renderContainers(
 		options: {
-			formerContainer?: string
-		} & ApplicationV2.RenderOptions,
+			formerContainer?: `Item.${string}`
+		} & foundry.applications.api.ApplicationV2.RenderOptions,
 	) {
 		// Render this item's container & any containers it is within
 		const parentContainers = await this.allContainers()
-		parentContainers.forEach(c => c.sheet?.render(false, options))
+		parentContainers.forEach(c => c.render(false, options))
 
 		// Render the actor sheet, compendium, or sidebar
 		if (this.parent.isEmbedded) this.parent.actor!.sheet?.render(false, options)
-		// @ts-expect-error waiting for types to catch up
 		else if (this.parent.pack) game.packs?.get(this.parent.pack)?.apps.forEach(a => a.render(false, options))
-		// @ts-expect-error waiting for types to catch up
+		//@ts-expect-error waiting for types to catch up to v13
 		else ui.items?.render(false, options)
 
 		// Render former container if it was moved between containers
@@ -140,7 +138,7 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 	 * Prepare type-specific data for the Item sheet.
 	 * @param  context  Sheet context data.
 	 */
-	async getSheetData(_context: Record<string, unknown>): Promise<void> {}
+	async getSheetData(_context: Record<string, unknown>): Promise<void> { }
 
 	/**
 	 * All of the containers this item is within up to the parent actor or collection.
