@@ -6,13 +6,6 @@ import { ActionType } from "@util"
 import { AnyObject } from "fvtt-types/utils"
 import fields = foundry.data.fields
 
-// class ActionsField<Options extends MappingField.Options<ActionField, typeof ActionCollection>> extends MappingField<
-// 	ActionField,
-// 	typeof ActionCollection,
-// 	ActionField,
-// 	ActionField,
-// 	Options
-// > {
 class ActionsField<
 	Options extends MappingField.Options<ActionField>
 > extends MappingField<

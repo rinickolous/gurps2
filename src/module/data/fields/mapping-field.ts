@@ -5,25 +5,6 @@ import { AnyObject } from "fvtt-types/utils"
 type MappingFieldInitialValueBuilder = (key: string, initial: object, existing: object) => object
 
 class MappingField<
-	// const ElementFieldType extends fields.DataField.Any,
-	// const ModelType extends AnyConstructor,
-	// const AssignmentElementType = MappingField.AssignmentElementType<ElementFieldType>,
-	// const InitializedElementType = MappingField.InitializedElementType<ElementFieldType>,
-	// const Options extends MappingField.Options<AssignmentElementType, ModelType> = MappingField.DefaultOptions,
-	// const AssignmentType = MappingField.AssignmentType<AssignmentElementType, ModelType, Options>,
-	// const InitializedType = MappingField.InitializedType<
-	// 	AssignmentElementType,
-	// 	InitializedElementType,
-	// 	ModelType,
-	// 	Options
-	// >,
-	// const PersistedElementType = MappingField.PersistedElementType<ElementFieldType>,
-	// const PersistedType extends Record<string, PersistedElementType> | null | undefined = MappingField.PersistedType<
-	// 	ModelType,
-	// 	AssignmentElementType,
-	// 	PersistedElementType,
-	// 	Options
-	// >,
 	const ElementFieldType extends fields.DataField.Any,
 	const Options extends MappingField.AnyOptions = MappingField.DefaultOptions<MappingField.AssignmentElementType<ElementFieldType>>,
 	const AssignmentElementType = MappingField.AssignmentElementType<ElementFieldType>,

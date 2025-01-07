@@ -17,7 +17,7 @@ export type Feature =
 
 export type FeatureClass =
 	| typeof FeatureType.AttributeBonus
-	| typeof FeatureType.ContainedWeightReduction
+	// | typeof FeatureType.ContainedWeightReduction
 	| typeof FeatureType.CostReduction
 	| typeof FeatureType.DRBonus
 	| typeof FeatureType.MoveBonus

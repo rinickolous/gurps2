@@ -7,4 +7,5 @@
 
 Up next:
 
-- FeatureHolderTemplate re-do which allows datamodel instances instead of just schemas
+- Finish boolean select field (maybe just get rid of it and use ExtendedBooleanField? Would need "is select field" option which may be messy but also the "disabled" would otherwise have to be here too. so yeah, just add it to ExtendedBooleanField and make it a select field if select options are specified or if choices is defined)
+- Finish moving across prereqs
