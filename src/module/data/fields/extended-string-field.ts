@@ -1,10 +1,9 @@
-import { ExtendedFieldOptions, ExtendedToInputConfig, ExtendedToInputConfigWithChoices, ExtendedToInputConfigWithOptions } from "./helpers.ts"
 import fields = foundry.data.fields
 import { Nameable, i18n } from "@util"
 
 
 class ExtendedStringField<
-	const Options extends ExtendedFieldOptions<fields.StringField.Options> = fields.StringField.DefaultOptions,
+	const Options extends ExtendedField.Options<fields.StringField.Options> = fields.StringField.DefaultOptions,
 	const AssignmentType = fields.StringField.AssignmentType<Options>,
 	const InitializedType = fields.StringField.InitializedType<Options>,
 	const PersistedType extends string | null | undefined = fields.StringField.InitializedType<Options>,
@@ -24,10 +23,10 @@ class ExtendedStringField<
 
 
 	override  toInput(
-		config?: ExtendedToInputConfig<InitializedType> | ExtendedToInputConfigWithOptions<InitializedType>
+		config?: ExtendedField.ToInputConfig<InitializedType> | ExtendedField.ToInputConfigWithOptions<InitializedType>
 	): HTMLElement | HTMLCollection;
 	override  toInput(
-		config?: ExtendedToInputConfigWithChoices<InitializedType, Options["choices"]>
+		config?: ExtendedField.ToInputConfigWithChoices<InitializedType, Options["choices"]>
 	): HTMLElement | HTMLCollection {
 		return super.toInput(config)
 	}
@@ -35,10 +34,10 @@ class ExtendedStringField<
 	/* -------------------------------------------- */
 
 	protected override _toInput(
-		config: ExtendedToInputConfig<InitializedType> | ExtendedToInputConfigWithOptions<InitializedType>
+		config: ExtendedField.ToInputConfig<InitializedType> | ExtendedField.ToInputConfigWithOptions<InitializedType>
 	): HTMLElement | HTMLCollection;
 	protected override _toInput(
-		config: ExtendedToInputConfigWithChoices<InitializedType, Options["choices"]>
+		config: ExtendedField.ToInputConfigWithChoices<InitializedType, Options["choices"]>
 	): HTMLElement | HTMLCollection {
 
 		let options: Record<string, string> = {}

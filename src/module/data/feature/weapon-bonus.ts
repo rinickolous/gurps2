@@ -1,7 +1,6 @@
-import { Int, ItemType, NumericComparison, StringComparison, TooltipGURPS, createButton, createDummyElement, feature, i18n, wsel, wswitch } from "@util"
-import fields = foundry.data.fields
+import { Int, ItemType, Nameable, NumericComparison, StringComparison, TooltipGURPS, createButton, createDummyElement, feature, i18n, wsel, wswitch } from "@util"
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
-import { ExtendedBooleanField, ExtendedStringField, NumericCriteriaField, StringCriteriaField } from "@data/fields/index.ts"
+import { ExtendedBooleanField, ExtendedNumberField, ExtendedStringField, NumericCriteriaField, StringCriteriaField } from "@data/fields/index.ts"
 import { BaseAttack } from "@data/action/base-attack.ts"
 import { ActiveEffectGURPS } from "@documents"
 
@@ -200,7 +199,7 @@ class WeaponBonus extends BaseFeature<WeaponBonusSchema> {
 					disabled: !enabled,
 				}) as HTMLElement,
 			)
-			perLevelLabelElement.innerHTML += game.i18n.localize(this.schema.fields.per_level.options.label ?? "")
+			perLevelLabelElement.innerHTML += i18n.localize(this.schema.fields.per_level.options.label ?? "")
 			rowElement1.append(perLevelLabelElement)
 
 			if (this.type !== feature.Type.WeaponEffectiveSTBonus && this.type !== feature.Type.WeaponMinSTBonus) {
@@ -213,7 +212,7 @@ class WeaponBonus extends BaseFeature<WeaponBonusSchema> {
 						disabled: !enabled,
 					}) as HTMLElement,
 				)
-				perDieLabelElement.innerHTML += game.i18n.localize(this.schema.fields.per_die.options.label ?? "")
+				perDieLabelElement.innerHTML += i18n.localize(this.schema.fields.per_die.options.label ?? "")
 				rowElement1.append(perDieLabelElement)
 			}
 
@@ -226,7 +225,7 @@ class WeaponBonus extends BaseFeature<WeaponBonusSchema> {
 					disabled: !enabled,
 				}) as HTMLElement,
 			)
-			percentLabelElement.innerHTML += game.i18n.localize(this.schema.fields.percent.options.label ?? "")
+			percentLabelElement.innerHTML += i18n.localize(this.schema.fields.percent.options.label ?? "")
 			rowElement1.append(percentLabelElement)
 
 			element.append(rowElement1)
@@ -346,7 +345,7 @@ class WeaponBonus extends BaseFeature<WeaponBonusSchema> {
 		rowElement5.append(
 			this.schema.fields.level.fields.qualifier.toInput({
 				name: enabled ? `${prefix}.level.qualifier` : "",
-				value: this.level.qualifier.toString(),
+				value: this.level.qualifier,
 				disabled: !enabled || this.level.compare === NumericComparison.Option.AnyNumber,
 			}) as HTMLElement,
 		)
@@ -376,29 +375,32 @@ const weaponBonusSchema = {
 		required: true,
 		nullable: false,
 		blank: false,
+		toggleable: true,
 		choices: feature.TypesChoices,
 	}),
 	percent: new ExtendedBooleanField({
 		required: true,
 		nullable: false,
+		toggleable: true,
 		initial: false,
-
 		label: "GURPS.Item.Features.FIELDS.WeaponBonus.Percent",
 	}),
 	switch_type: new ExtendedStringField({
 		choices: wswitch.TypesChoices,
 		nullable: true,
 		blank: false,
+		toggleable: true,
 		initial: null,
 	}),
-	switch_type_value: new BooleanSelectField({
+	switch_type_value: new ExtendedBooleanField({
+		required: true,
+		nullable: true,
+		toggleable: true,
+		initial: null,
 		choices: {
 			true: "GURPS.Item.Features.FIELDS.WeaponBonus.SwitchTypeValue.true",
 			false: "GURPS.Item.Features.FIELDS.WeaponBonus.SwitchTypeValue.false",
 		},
-		required: true,
-		nullable: true,
-		initial: null,
 	}),
 	selection_type: new ExtendedStringField({
 		required: true,
@@ -444,14 +446,19 @@ const weaponBonusSchema = {
 			"GURPS.Item.Features.FIELDS.SkillBonus.TagsPlural",
 		),
 	}),
-	amount: new fields.NumberField({
-		required: true, nullable: false,
+	amount: new ExtendedNumberField({
+		required: true,
+		nullable: false,
 		toggleable: true,
-		integer: true, initial: 1
+		integer: true,
+		initial: 1
 	}),
 	// leveled: new fields.BooleanField({ initial: false }),
-	per_die: new fields.BooleanField({
+	per_die: new ExtendedBooleanField({
+		required: true,
+		nullable: false,
 		initial: false,
+		toggleable: true,
 		label: "GURPS.Item.Features.FIELDS.WeaponBonus.PerDie",
 	}),
 }

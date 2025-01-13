@@ -1,4 +1,6 @@
 /// <reference path="./types/fields/collection-field.d.ts" />
+/// <reference path="./types/fields/extended-fields.d.ts" />
+/// <reference path="./types/fields/mapping-field.d.ts" />
 
 import { ItemDataModel } from "@data"
 import { ActorDataModel } from "@data/actor/base.ts"
@@ -8,7 +10,7 @@ import { HitLocationSettings } from "@module/settings/hit-location-config.ts"
 import { SheetSettings } from "@module/settings/sheet-settings-config.ts"
 import { ActorType, ItemType } from "@util"
 import { AnyObject } from "fvtt-types/utils"
-export type * from "./types/index.js"
+// export type * from "./types/index.js"
 
 declare global {
 	type Maybe<T> = T | null | undefined

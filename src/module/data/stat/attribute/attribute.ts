@@ -1,11 +1,10 @@
 import { AbstractStat, AbstractStatSchema } from "../abstract-stat/abstract-stat.ts"
 import fields = foundry.data.fields
-import { AttributeHolderTemplate } from "@data/actor/templates/attribute-holder.ts"
-import { ActorTemplateType, stlimit } from "@util"
+import { ActorTemplateType, attribute, Int, stlimit, threshold } from "@util"
 import { AttributeDefinition } from "./attribute-definition.ts"
 import { CharacterSettings } from "@data/actor/fields/character-settings.ts"
 
-class AttributeGURPS<Parent extends AttributeHolderTemplate = AttributeHolderTemplate> extends AbstractStat<AttributeSchema, Parent> {
+class AttributeGURPS extends AbstractStat<AttributeSchema> {
 	// order: number
 
 
@@ -29,7 +28,7 @@ class AttributeGURPS<Parent extends AttributeHolderTemplate = AttributeHolderTem
 	}
 
 	get bonus(): number {
-		if (this.parent.hasTemplate(ActorTemplateType.Features)) {
+		if (this.parent.hasTemplate(ActorTemplateType.Featu)) {
 			return this.parent.attributeBonusFor(this.id, stlimit.Option.None)
 		}
 		return 0

@@ -1,6 +1,6 @@
 import { createButton, createDummyElement, feature, getAttributeChoices, GID, i18n } from "@util"
-import fields = foundry.data.fields
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
+import { ExtendedNumberField, ExtendedStringField } from "@data/fields/index.ts"
 
 function getCostReductionChoices() {
 	return Object.freeze(
@@ -17,37 +17,9 @@ class CostReduction extends BaseFeature<CostReductionSchema> {
 	static override TYPE = feature.Type.CostReduction
 
 	static override defineSchema(): CostReductionSchema {
-		const fields = foundry.data.fields
-
-		const attributeChoices = getAttributeChoices(
-			null,
-			GID.Strength,
-			"GURPS.Item.Features.FIELDS.CostReduction.Attribute",
-			{
-				blank: false,
-				ten: false,
-				size: true,
-				dodge: true,
-				parry: true,
-				block: true,
-				skill: false,
-			},
-		)
-
 		return {
 			...super.defineSchema(),
-			attribute: new fields.StringField({
-				required: true,
-				nullable: false,
-				choices: attributeChoices.choices,
-				initial: GID.Strength,
-			}),
-			percentage: new fields.NumberField({
-				required: true,
-				nullable: false,
-				choices: getCostReductionChoices(),
-				initial: 40,
-			}),
+			...costReductionSchema
 		}
 	}
 
@@ -117,10 +89,34 @@ class CostReduction extends BaseFeature<CostReductionSchema> {
 	fillWithNameableKeys(_m: Map<string, string>, _existing: Map<string, string>): void { }
 }
 
-
-type CostReductionSchema = BaseFeatureSchema & {
-	attribute: fields.StringField<{ required: true, nullable: false }>
-	percentage: fields.NumberField<{ required: true, nullable: false }>
+const costReductionSchema = {
+	attribute: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		choices: getAttributeChoices(
+			null,
+			GID.Strength,
+			"GURPS.Item.Features.FIELDS.CostReduction.Attribute",
+			{
+				blank: false,
+				ten: false,
+				size: true,
+				dodge: true,
+				parry: true,
+				block: true,
+				skill: false,
+			},
+		).choices,
+		initial: GID.Strength,
+	}),
+	percentage: new ExtendedNumberField({
+		required: true,
+		nullable: false,
+		choices: getCostReductionChoices(),
+		initial: 40,
+	}),
 }
+
+type CostReductionSchema = BaseFeatureSchema & typeof costReductionSchema
 
 export { CostReduction, type CostReductionSchema }

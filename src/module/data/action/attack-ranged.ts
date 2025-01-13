@@ -26,22 +26,15 @@ class AttackRanged extends BaseAttack<AttackRangedSchema> {
 	/* -------------------------------------------- */
 
 	static override defineSchema(): AttackRangedSchema {
-		const fields = foundry.data.fields
-
 		return {
 			...super.defineSchema(),
-			accuracy: new fields.EmbeddedDataField(WeaponAccuracy),
-			range: new fields.EmbeddedDataField(WeaponRange),
-			rate_of_fire: new fields.EmbeddedDataField(WeaponROF),
-			shots: new fields.EmbeddedDataField(WeaponShots),
-			bulk: new fields.EmbeddedDataField(WeaponBulk),
-			recoil: new fields.EmbeddedDataField(WeaponRecoil),
+			...attackRangedSchema
 		}
 	}
 
 	/* -------------------------------------------- */
 
-	override cellData(_options: CellDataOptions = {}): Record<string, CellData> {
+	override cellData(this: AttackRanged, _options: CellDataOptions = {}): Record<string, CellData> {
 		function addBuffer(tooltip: string, buffer: TooltipGURPS): string {
 			if (tooltip.length !== 0) {
 				tooltip += "\n\n"
@@ -133,13 +126,15 @@ class AttackRanged extends BaseAttack<AttackRangedSchema> {
 	}
 }
 
-type AttackRangedSchema = BaseAttackSchema & {
-	accuracy: fields.EmbeddedDataField<typeof WeaponAccuracy, { required: true; nullable: false }>
-	range: fields.EmbeddedDataField<typeof WeaponRange, { required: true; nullable: false }>
-	rate_of_fire: fields.EmbeddedDataField<typeof WeaponROF, { required: true; nullable: false }>
-	shots: fields.EmbeddedDataField<typeof WeaponShots, { required: true; nullable: false }>
-	bulk: fields.EmbeddedDataField<typeof WeaponBulk, { required: true; nullable: false }>
-	recoil: fields.EmbeddedDataField<typeof WeaponRecoil, { required: true; nullable: false }>
+const attackRangedSchema = {
+	accuracy: new fields.EmbeddedDataField(WeaponAccuracy),
+	range: new fields.EmbeddedDataField(WeaponRange),
+	rate_of_fire: new fields.EmbeddedDataField(WeaponROF),
+	shots: new fields.EmbeddedDataField(WeaponShots),
+	bulk: new fields.EmbeddedDataField(WeaponBulk),
+	recoil: new fields.EmbeddedDataField(WeaponRecoil),
 }
+
+type AttackRangedSchema = BaseAttackSchema & typeof attackRangedSchema
 
 export { AttackRanged, type AttackRangedSchema }

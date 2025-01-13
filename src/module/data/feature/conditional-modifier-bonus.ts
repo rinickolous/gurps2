@@ -1,6 +1,6 @@
 import { createDummyElement, feature, i18n, Nameable } from "@util"
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
-import { ReplaceableStringField } from "@data/fields/index.ts"
+import { ExtendedStringField } from "@data/fields/index.ts"
 
 class ConditionalModifierBonus extends BaseFeature<ConditionalModifierBonusSchema> {
 	static override TYPE = feature.Type.ConditionalModifierBonus
@@ -8,11 +8,7 @@ class ConditionalModifierBonus extends BaseFeature<ConditionalModifierBonusSchem
 	static override defineSchema(): ConditionalModifierBonusSchema {
 		return {
 			...super.defineSchema(),
-			situation: new ReplaceableStringField({
-				required: true,
-				nullable: false,
-				initial: i18n.localize("gurps.feature.conditional_modifier"),
-			}),
+			...conditionalModifierBonusSchema
 		}
 	}
 
@@ -48,8 +44,16 @@ class ConditionalModifierBonus extends BaseFeature<ConditionalModifierBonusSchem
 	}
 }
 
-type ConditionalModifierBonusSchema = BaseFeatureSchema & {
-	situation: ReplaceableStringField<{ required: true, nullable: false, initial: string }>
+const conditionalModifierBonusSchema = {
+	situation: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		replaceable: true,
+		initial: i18n.localize("gurps.feature.conditional_modifier"),
+	}),
 }
+
+type ConditionalModifierBonusSchema = BaseFeatureSchema & typeof conditionalModifierBonusSchema
 export { ConditionalModifierBonus, type ConditionalModifierBonusSchema }
 

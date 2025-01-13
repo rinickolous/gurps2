@@ -1,17 +1,18 @@
 
-import { ToggleableStringField } from "./toggleable-string-field.ts"
+// import { ToggleableStringField } from "./toggleable-string-field.ts"
+import { ExtendedStringField } from "./extended-string-field.ts"
 import fields = foundry.data.fields
-import { ToToggleableInputConfig, ToToggleableInputConfigWithOptions } from "./helpers.ts"
+// import { ToToggleableInputConfig, ToToggleableInputConfigWithOptions } from "./helpers.ts"
 import { Int, Weight } from "@util"
 
-interface WeightFieldOptions extends StringFieldOptions {
+interface WeightFieldOptions extends ExtendedField.Options {
 	/* Should the fields allow percentages as a unit?*/
 	allowPercent?: boolean
 }
 
 class WeightField<
 	const Options extends WeightFieldOptions = { required: true, nullable: false, allowPercent: false },
-> extends ToggleableStringField<Options, string, string> {
+> extends ExtendedStringField<Options, string, string> {
 	allowPercent: boolean
 
 
@@ -21,7 +22,7 @@ class WeightField<
 	}
 
 	protected override _toInput(
-		config: ToToggleableInputConfig<string> | ToToggleableInputConfigWithOptions<string>,
+		config: ExtendedField.ToInputConfig<string> | ExtendedField.ToInputConfigWithOptions<string>
 	): HTMLElement | HTMLCollection {
 		return super._toInput(config)
 	}

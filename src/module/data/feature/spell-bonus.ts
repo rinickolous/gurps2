@@ -1,44 +1,26 @@
-import { Nameable } from "@module/util/index.ts"
-import { StringComparison, feature, spellmatch } from "@util"
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
-import fields = foundry.data.fields
-import { createDummyElement } from "@module/applications/helpers.ts"
-import { ReplaceableStringCriteriaField } from "../item/fields/replaceable-string-criteria-field.ts"
+import { createDummyElement, feature, Nameable, spellmatch, StringComparison } from "@util"
+import { ExtendedStringField, StringCriteriaField } from "@data/fields/index.ts"
 
 class SpellBonus extends BaseFeature<SpellBonusSchema> {
 	static override TYPE = feature.Type.SpellBonus
 
-	static override defineSchema(): SpellBonusSchema {
-		const fields = foundry.data.fields
+	/* -------------------------------------------- */
 
+	static override defineSchema(): SpellBonusSchema {
 		return {
 			...super.defineSchema(),
-			match: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: spellmatch.TypesChoices,
-				initial: spellmatch.Type.AllColleges,
-			}),
-			name: new ReplaceableStringCriteriaField({
-				required: true,
-				nullable: false,
-				initial: { compare: StringComparison.Option.IsString, qualifier: "" },
-			}),
-			tags: new ReplaceableStringCriteriaField({
-				required: true,
-				nullable: false,
-				choices: StringComparison.CustomOptionsChoicesPlural(
-					"GURPS.Item.Features.FIELDS.SkillBonus.TagsSingle",
-					"GURPS.Item.Features.FIELDS.SkillBonus.TagsPlural",
-				),
-			}),
+			...spellBonusSchema
 		}
 	}
+
+	/* -------------------------------------------- */
 
 	matchForType(replacements: Map<string, string>, name: string, powerSource: string, colleges: string[]): boolean {
 		return spellmatch.Type.matchForType(this.match, replacements, this.name, name, powerSource, colleges)
 	}
+
+	/* -------------------------------------------- */
 
 	override toFormElement(enabled: boolean): HTMLElement {
 		const prefix = `system.features.${this.index}`
@@ -111,6 +93,8 @@ class SpellBonus extends BaseFeature<SpellBonusSchema> {
 		return element
 	}
 
+	/* -------------------------------------------- */
+
 	fillWithNameableKeys(m: Map<string, string>, existing: Map<string, string>): void {
 		if (this.match !== spellmatch.Type.AllColleges) {
 			Nameable.extract(this.name.qualifier, m, existing)
@@ -119,12 +103,36 @@ class SpellBonus extends BaseFeature<SpellBonusSchema> {
 	}
 }
 
-interface SpellBonus extends BaseFeature<SpellBonusSchema>, ModelPropsFromSchema<SpellBonusSchema> {}
+/* -------------------------------------------- */
 
-type SpellBonusSchema = BaseFeatureSchema & {
-	match: fields.StringField<spellmatch.Type, spellmatch.Type, true, false, true>
-	name: ReplaceableStringCriteriaField<true, false, true>
-	tags: ReplaceableStringCriteriaField<true, false, true>
+const spellBonusSchema = {
+	match: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		toggleable: true,
+		choices: spellmatch.TypesChoices,
+		initial: spellmatch.Type.AllColleges,
+	}),
+	name: new StringCriteriaField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		replaceable: true,
+		initial: { compare: StringComparison.Option.IsString, qualifier: "" },
+	}),
+	tags: new StringCriteriaField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		replaceable: true,
+		choices: StringComparison.CustomOptionsChoicesPlural(
+			"GURPS.Item.Features.FIELDS.SkillBonus.TagsSingle",
+			"GURPS.Item.Features.FIELDS.SkillBonus.TagsPlural",
+		),
+	})
 }
+
+type SpellBonusSchema = BaseFeatureSchema & typeof spellBonusSchema
 
 export { SpellBonus, type SpellBonusSchema }

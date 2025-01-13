@@ -1,24 +1,12 @@
 import fields = foundry.data.fields
 import { WeaponField } from "./weapon-field.ts"
-import { ActorTemplateType, Int, TooltipGURPS, feature, wswitch } from "@util"
+import { Int, TooltipGURPS, feature, wswitch } from "@util"
 import { BaseAttack } from "../base-attack.ts"
-import { ToggleableBooleanField, ToggleableNumberField } from "@data/fields/index.ts"
+import { ExtendedNumberField, ExtendedBooleanField } from "@data/fields/index.ts"
 
 class WeaponAccuracy extends WeaponField<WeaponAccuracySchema, BaseAttack> {
 	static override defineSchema(): WeaponAccuracySchema {
-		return {
-			base: new ToggleableNumberField({
-				required: true,
-				nullable: false,
-				initial: 0,
-			}),
-			scope: new ToggleableNumberField({
-				required: true,
-				nullable: false,
-				initial: 0,
-			}),
-			jet: new ToggleableBooleanField({ required: true, nullable: false, initial: false }),
-		}
+		return weaponAccuracySchema
 	}
 
 	static override fromString(s: string): WeaponAccuracy {
@@ -28,7 +16,7 @@ class WeaponAccuracy extends WeaponField<WeaponAccuracySchema, BaseAttack> {
 		else {
 			s = s.replaceAll(/^\++/, "")
 			const parts = s.split("+")
-			;[wa.base] = Int.extract(parts[0])
+				;[wa.base] = Int.extract(parts[0])
 			if (parts.length > 1) {
 				;[wa.scope] = Int.extract(parts[1])
 			}
@@ -48,7 +36,8 @@ class WeaponAccuracy extends WeaponField<WeaponAccuracySchema, BaseAttack> {
 
 		if (!result.jet) {
 			const actor = w.actor
-			if (actor !== null && actor.hasTemplate(ActorTemplateType.Features)) {
+			if (actor !== null) {
+				// if (actor !== null && actor.hasTemplate(ActorTemplateType.Features)) {
 				let [percentBase, percentScope] = [0, 0]
 				for (const bonus of w.collectWeaponBonuses(
 					1,
@@ -80,10 +69,10 @@ class WeaponAccuracy extends WeaponField<WeaponAccuracySchema, BaseAttack> {
 	}
 
 	static cleanData(
-		source?: Partial<foundry.abstract.DataModel.ConstructorDataFor<WeaponAccuracy>>,
+		source?: Partial<foundry.abstract.DataModel.ConstructorData<WeaponAccuracySchema>>,
 		options?: Parameters<fields.SchemaField.Any["clean"]>[1],
 	): object {
-		let { jet, base, scope }: Partial<foundry.abstract.DataModel.ConstructorDataFor<WeaponAccuracy>> = {
+		let { jet, base, scope }: Partial<foundry.abstract.DataModel.ConstructorData<WeaponAccuracySchema>> = {
 			jet: false,
 			base: 0,
 			scope: 0,
@@ -101,10 +90,28 @@ class WeaponAccuracy extends WeaponField<WeaponAccuracySchema, BaseAttack> {
 	}
 }
 
-type WeaponAccuracySchema = {
-	base: ToggleableNumberField<{ required: true; nullable: false }>
-	scope: ToggleableNumberField<{ required: true; nullable: false }>
-	jet: ToggleableBooleanField<{ required: true; nullable: false }>
+const weaponAccuracySchema = {
+	base: new ExtendedNumberField({
+		required: true,
+		nullable: false,
+		initial: 0,
+		toggleable: true,
+	}),
+	scope: new ExtendedNumberField({
+		required: true,
+		nullable: false,
+		initial: 0,
+		toggleable: true,
+	}),
+	jet: new ExtendedBooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		toggleable: true,
+	}),
+
 }
+
+type WeaponAccuracySchema = typeof weaponAccuracySchema
 
 export { WeaponAccuracy, type WeaponAccuracySchema }

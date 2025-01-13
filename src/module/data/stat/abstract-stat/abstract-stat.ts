@@ -31,12 +31,6 @@ abstract class AbstractStat<
 
 	/* -------------------------------------------- */
 
-	testFunc() {
-		const f: string = this.id
-
-		this.id = "test"
-	}
-
 	get actor(): ActorGURPS {
 		return this.parent.parent
 	}

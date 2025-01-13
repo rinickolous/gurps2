@@ -1,8 +1,6 @@
-import { Nameable } from "@module/util/index.ts"
-import { StringComparison, TooltipGURPS, feature } from "@util"
+import { Nameable, StringComparison, TooltipGURPS, createDummyElement, feature, i18n } from "@util"
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
-import { createDummyElement } from "@module/applications/helpers.ts"
-import { ReplaceableStringCriteriaField } from "../item/fields/replaceable-string-criteria-field.ts"
+import { StringCriteriaField } from "@data/fields/index.ts"
 
 class SkillPointBonus extends BaseFeature<SkillPointBonusSchema> {
 	static override TYPE = feature.Type.SkillPointBonus
@@ -10,29 +8,11 @@ class SkillPointBonus extends BaseFeature<SkillPointBonusSchema> {
 	static override defineSchema(): SkillPointBonusSchema {
 		return {
 			...super.defineSchema(),
-			name: new ReplaceableStringCriteriaField({
-				required: true,
-				nullable: false,
-				choices: StringComparison.CustomOptionsChoices("GURPS.Item.Features.FIELDS.SkillPointBonus.Name"),
-				initial: { compare: StringComparison.Option.IsString, qualifier: "" },
-			}),
-			specialization: new ReplaceableStringCriteriaField({
-				required: true,
-				nullable: false,
-				choices: StringComparison.CustomOptionsChoices(
-					"GURPS.Item.Features.FIELDS.SkillPointBonus.Specialization",
-				),
-			}),
-			tags: new ReplaceableStringCriteriaField({
-				required: true,
-				nullable: false,
-				choices: StringComparison.CustomOptionsChoicesPlural(
-					"GURPS.Item.Features.FIELDS.SkillPointBonus.TagsSingle",
-					"GURPS.Item.Features.FIELDS.SkillPointBonus.TagsPlural",
-				),
-			}),
+			...skillPointBonusSchema
 		}
 	}
+
+	/* -------------------------------------------- */
 
 	override addToTooltip(tooltip: TooltipGURPS | null): void {
 		if (tooltip !== null) {
@@ -40,7 +20,7 @@ class SkillPointBonus extends BaseFeature<SkillPointBonusSchema> {
 			if (this.adjustedAmount === 1) lang = "GURPS.Feature.Points.Singular"
 			if (tooltip.length !== 0) tooltip.push("<br>")
 			tooltip.push(
-				game.i18n.format(lang, {
+				i18n.format(lang, {
 					source: this.parentName,
 					// amount: this.leveledAmount.format(false),
 					amount: this.format(false),
@@ -48,6 +28,8 @@ class SkillPointBonus extends BaseFeature<SkillPointBonusSchema> {
 			)
 		}
 	}
+
+	/* -------------------------------------------- */
 
 	override toFormElement(enabled: boolean): HTMLElement {
 		const prefix = `system.features.${this.index}`
@@ -130,6 +112,8 @@ class SkillPointBonus extends BaseFeature<SkillPointBonusSchema> {
 		return element
 	}
 
+	/* -------------------------------------------- */
+
 	fillWithNameableKeys(m: Map<string, string>, existing: Map<string, string>): void {
 		Nameable.extract(this.specialization.qualifier, m, existing)
 		Nameable.extract(this.name.qualifier, m, existing)
@@ -137,12 +121,39 @@ class SkillPointBonus extends BaseFeature<SkillPointBonusSchema> {
 	}
 }
 
-interface SkillPointBonus extends BaseFeature<SkillPointBonusSchema>, ModelPropsFromSchema<SkillPointBonusSchema> {}
+/* -------------------------------------------- */
 
-type SkillPointBonusSchema = BaseFeatureSchema & {
-	name: ReplaceableStringCriteriaField<true, false, true>
-	specialization: ReplaceableStringCriteriaField<true, false, true>
-	tags: ReplaceableStringCriteriaField<true, false, true>
+const skillPointBonusSchema = {
+	name: new StringCriteriaField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		replaceable: true,
+		choices: StringComparison.CustomOptionsChoices("GURPS.Item.Features.FIELDS.SkillPointBonus.Name"),
+		initial: { compare: StringComparison.Option.IsString, qualifier: "" },
+	}),
+	specialization: new StringCriteriaField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		replaceable: true,
+		choices: StringComparison.CustomOptionsChoices(
+			"GURPS.Item.Features.FIELDS.SkillPointBonus.Specialization",
+		),
+	}),
+	tags: new StringCriteriaField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		replaceable: true,
+		choices: StringComparison.CustomOptionsChoicesPlural(
+			"GURPS.Item.Features.FIELDS.SkillPointBonus.TagsSingle",
+			"GURPS.Item.Features.FIELDS.SkillPointBonus.TagsPlural",
+		),
+	}),
 }
+
+
+type SkillPointBonusSchema = BaseFeatureSchema & typeof skillPointBonusSchema
 
 export { SkillPointBonus, type SkillPointBonusSchema }

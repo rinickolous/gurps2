@@ -7,5 +7,8 @@
 
 Up next:
 
+- Add abstract feature bonus totals (make them console error and return 0 for now).
+- Add movebonus enum
+
 - Finish boolean select field (maybe just get rid of it and use ExtendedBooleanField? Would need "is select field" option which may be messy but also the "disabled" would otherwise have to be here too. so yeah, just add it to ExtendedBooleanField and make it a select field if select options are specified or if choices is defined)
 - Finish moving across prereqs

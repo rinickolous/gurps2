@@ -2,26 +2,28 @@ import DataModel = foundry.abstract.DataModel
 import fields = foundry.data.fields
 
 class CollectionField<
-	ModelType extends DataModel.AnyConstructor,
-	AssignmentElementType = CollectionField.AssignmentElementType<fields.EmbeddedDataField<ModelType>>,
-	InitializedElementType extends
-		DataModel.Any = CollectionField.InitializedElementType<// fields.EmbeddedDataField<ModelType>
-	ModelType>,
-	Options extends
-		CollectionField.Options<AssignmentElementType> = CollectionField.DefaultOptions<AssignmentElementType>,
-	AssignmentType = CollectionField.AssignmentType<AssignmentElementType, Options>,
-	InitializedType = CollectionField.InitializedType<AssignmentElementType, InitializedElementType, Options>,
-	PersistedElementType = CollectionField.PersistedElementType<fields.EmbeddedDataField<ModelType>>,
-	PersistedType extends PersistedElementType[] | null | undefined = CollectionField.PersistedType<
-		AssignmentElementType,
-		PersistedElementType,
-		Options
-	>,
+	ModelType extends DataMdel.AnyConstructor,
+	Options extends CollectionField.Options
+// ModelType extends DataModel.AnyConstructor,
+// Options extends
+// CollectionField.Options<AssignmentElementType> = CollectionField.DefaultOptions<ModelType>,
+// AssignmentElementType = CollectionField.AssignmentElementType<ModelType>,
+// InitializedElementType extends
+// DataModel.Any = CollectionField.InitializedElementType<// fields.EmbeddedDataField<ModelType>
+// 	ModelType>,
+// AssignmentType = CollectionField.AssignmentType<ModelType, Options>,
+// InitializedType = CollectionField.InitializedType<AssignmentElementType, InitializedElementType, Options>,
+// PersistedElementType = CollectionField.PersistedElementType<ModelType>,
+// PersistedType extends PersistedElementType[] | null | undefined = CollectionField.PersistedType<
+// 	AssignmentElementType,
+// 	PersistedElementType,
+// 	Options
+// >,
 > extends fields.ArrayField<
 	fields.EmbeddedDataField<ModelType>,
+	Options,
 	AssignmentElementType,
 	InitializedElementType,
-	Options,
 	AssignmentType,
 	InitializedType,
 	PersistedElementType,

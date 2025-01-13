@@ -107,7 +107,4 @@ const containedWeightReductionSchema = {
 type ContainedWeightReductionSchema = BaseFeatureSchema & typeof containedWeightReductionSchema
 
 
-// type ContainedWeightReductionSchema = BaseFeatureSchema & {
-// 	reduction: WeightField<{ required: true, nullable: false, initial: string, allowPercent: true }>
-// }
 export { ContainedWeightReduction, type ContainedWeightReductionSchema }

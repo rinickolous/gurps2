@@ -128,7 +128,7 @@ enum ActorType {
 
 enum ActorTemplateType {
 	Settings = "SettingsHolderTemplate",
-	Features = "FeatureHolderTemplate",
+	// Features = "FeatureHolderTemplate",
 	Attributes = "AttributeHolderTemplate",
 }
 

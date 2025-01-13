@@ -45,7 +45,7 @@ abstract class BaseAction<Schema extends BaseActionSchema = BaseActionSchema> ex
 
 	/* -------------------------------------------- */
 
-	async getSheetData(_context: Record<string, unknown>): Promise<void> {}
+	async getSheetData(_context: Record<string, unknown>): Promise<void> { }
 
 	/* -------------------------------------------- */
 

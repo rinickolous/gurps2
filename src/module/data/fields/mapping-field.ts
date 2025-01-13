@@ -27,7 +27,7 @@ class MappingField<
 	declare initialValue: MappingFieldInitialValueBuilder
 	initialKeysOnly = false
 
-	constructor(model: AssignmentElementType, options: Options) {
+	constructor(model: AssignmentElementType, options?: Options) {
 		if (!(model instanceof fields.DataField)) {
 			throw ErrorGURPS("MappingField must have a DataField as its contained element")
 		}

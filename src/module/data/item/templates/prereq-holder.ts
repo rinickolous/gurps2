@@ -1,4 +1,3 @@
-import { Feature, FeatureClass, FeatureSet, FeatureTypes } from "@data/feature/types.ts"
 import { ErrorGURPS, feature, ItemType } from "@util"
 import { ItemDataModel } from "../base.ts"
 import { DRBonus } from "@data/feature/dr-bonus.ts"
@@ -100,3 +99,5 @@ const prereqHolderSchema = {
 }
 
 type PrereqHolderSchema = typeof prereqHolderSchema
+
+export { PrereqHolderTemplate, type PrereqHolderSchema }

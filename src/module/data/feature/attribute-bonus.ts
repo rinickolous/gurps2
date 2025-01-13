@@ -1,43 +1,14 @@
 import { createDummyElement, feature, getAttributeChoices, GID, stlimit } from "@util"
-import fields = foundry.data.fields
 import { BaseFeature, BaseFeatureSchema } from "./base-feature.ts"
+import { ExtendedStringField } from "@data/fields/extended-string-field.ts"
 
 class AttributeBonus extends BaseFeature<AttributeBonusSchema> {
 	static override TYPE = feature.Type.AttributeBonus
 
 	static override defineSchema(): AttributeBonusSchema {
-		const fields = foundry.data.fields
-
-		const attributeChoices = getAttributeChoices(
-			null,
-			GID.Strength,
-			"GURPS.Item.Features.FIELDS.Attribute.Attribute",
-			{
-				blank: false,
-				ten: false,
-				size: true,
-				dodge: true,
-				parry: true,
-				block: true,
-				skill: false,
-			},
-		)
-
 		return {
 			...super.defineSchema(),
-			attribute: new fields.StringField({
-				required: true,
-				nullable: false,
-				choices: attributeChoices.choices,
-				initial: GID.Strength,
-			}),
-			limitation: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: stlimit.OptionsChoices,
-				initial: stlimit.Option.None,
-			}),
+			...attributeBonusSchema
 		}
 	}
 
@@ -99,9 +70,38 @@ class AttributeBonus extends BaseFeature<AttributeBonusSchema> {
 	fillWithNameableKeys(_m: Map<string, string>, _existing: Map<string, string>): void { }
 }
 
-type AttributeBonusSchema = BaseFeatureSchema & {
-	attribute: fields.StringField<{ required: true, nullable: false }>
-	limitation: fields.StringField<{ required: true, nullable: false }, string, stlimit.Option>
+const attributeBonusSchema = {
+	attribute: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		choices:
+			getAttributeChoices(
+				null,
+				GID.Strength,
+				"GURPS.Item.Features.FIELDS.Attribute.Attribute",
+				{
+					blank: false,
+					ten: false,
+					size: true,
+					dodge: true,
+					parry: true,
+					block: true,
+					skill: false,
+				},
+			).choices,
+		initial: GID.Strength,
+		toggleable: true,
+	}),
+	limitation: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		choices: stlimit.OptionsChoices,
+		initial: stlimit.Option.None,
+		toggleable: true,
+	}),
 }
+
+type AttributeBonusSchema = BaseFeatureSchema & typeof attributeBonusSchema
 
 export { AttributeBonus }

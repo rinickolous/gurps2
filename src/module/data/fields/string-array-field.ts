@@ -1,38 +1,16 @@
-import { ToReplaceableInputConfig, ToToggleableInputConfigWithOptions } from "./helpers.ts"
 import fields = foundry.data.fields
 
 class StringArrayField<
-	const Options extends fields.ArrayField.Options<string> = fields.ArrayField.DefaultOptions<string>,
-// const AssignmentElementType = fields.ArrayField.AssignmentElementType<fields.StringField>,
-// const InitializedElementType = fields.ArrayField.InitializedElementType<fields.StringField>,
-// const AssignmentType = fields.ArrayField.AssignmentType<string, Options>,
-// const InitializedType = fields.ArrayField.InitializedType<string, string, Options>,
-// const PersistedElementType = fields.ArrayField.PersistedElementType<fields.StringField>,
-> extends fields.ArrayField<
-	fields.StringField<{
-		required: true
-		nullable: false
-		blank: false
-	}>,
-	// string,
-	// string,
-	// AssignmentElementType,
-	// InitializedElementType,
-	Options
-// AssignmentElementType,
-// InitializedElementType,
-// string, string,
-// AssignmentType,
-// InitializedType,
-// PersistedElementType
-> {
+	const Options extends ExtendedField.Options<fields.ArrayField.Options<string>> = fields.ArrayField.DefaultOptions<string>
+> extends fields.ArrayField<fields.StringField<{ required: true, nullable: false, blank: false }>, Options> {
+
 	constructor(options?: Options, context?: fields.DataField.Context) {
 		super(new fields.StringField({ required: true, nullable: false, blank: false }), options, context)
 	}
 
-	protected override _toInput(
-		config: ToReplaceableInputConfig<string[]> | ToToggleableInputConfigWithOptions<string[]>,
-	): HTMLElement | HTMLCollection {
+	/* -------------------------------------------- */
+
+	protected override _toInput(config: ExtendedField.ToInputConfig<fields.ArrayField.InitializedType<fields.StringField.AssignmentType<{ required: true; nullable: false; blank: false }>, string, Options>>): HTMLElement | HTMLCollection {
 		let value = ""
 		if (Array.isArray(config.value)) value = config.value.join(", ")
 
@@ -45,6 +23,8 @@ class StringArrayField<
 
 		return foundry.applications.fields.createTextInput({ ...config, value })
 	}
+
+	/* -------------------------------------------- */
 
 	override clean(value: string, options?: fields.DataField.CleanOptions) {
 		function onlyUnique(value: string, index: number, array: string[]) {
@@ -66,6 +46,7 @@ class StringArrayField<
 		}
 		return super.clean(newValue as string[], options)
 	}
+
 }
 
 export { StringArrayField }

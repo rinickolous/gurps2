@@ -35,7 +35,7 @@ class StringCriteria<
 
 	/* -------------------------------------------- */
 
-	matches(this: StringCriteria, replacements: Map<string, string>, value: string): boolean {
+	matches(replacements: Map<string, string>, value: string): boolean {
 		value = Nameable.apply(value, replacements)
 		switch (this.compare) {
 			case StringComparison.Option.AnyString:
@@ -64,7 +64,6 @@ class StringCriteria<
 	/* -------------------------------------------- */
 
 	matchesList(
-		this: StringCriteria,
 		replacements: Map<string, string>, ...value: string[]): boolean {
 		value = Nameable.applyToList(value, replacements)
 		if (value.length === 0) return this.matches(replacements, "")
@@ -91,19 +90,19 @@ class StringCriteria<
 
 	/* -------------------------------------------- */
 
-	override toString(this: StringCriteria, replacements: Map<string, string> = new Map()): string {
+	override toString(replacements: Map<string, string> = new Map()): string {
 		return this.describe(Nameable.apply(this.qualifier, replacements))
 	}
 
 	/* -------------------------------------------- */
 
-	toStringWithPrefix(this: StringCriteria, replacements: Map<string, string>, prefix: string, notPrefix: string): string {
+	toStringWithPrefix(replacements: Map<string, string>, prefix: string, notPrefix: string): string {
 		return this.describeWithPrefix(prefix, notPrefix, Nameable.apply(this.qualifier, replacements))
 	}
 
 	/* -------------------------------------------- */
 
-	altString(this: StringCriteria): string {
+	altString(): string {
 		switch (this.compare) {
 			case StringComparison.Option.IsNotString:
 			case StringComparison.Option.DoesNotContainString:

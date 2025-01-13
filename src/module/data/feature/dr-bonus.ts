@@ -146,6 +146,7 @@ const drBonusSchema = {
 		required: true,
 		nullable: false,
 		initial: [GID.Torso],
+		toggleable: true
 	}),
 	specialization: new fields.StringField({ required: true, nullable: false, initial: GID.All }),
 }
