@@ -1,13 +1,13 @@
 import { ErrorGURPS, TooltipGURPS } from "@util"
-import { BaseAttack } from "../base-attack.ts"
 import { ItemGURPS } from "@documents/item.ts"
+import { BaseAttack } from "../base-attack.ts"
 
 class WeaponField<
 	Schema extends WeaponFieldSchema = WeaponFieldSchema,
-	Parent extends BaseAttack = BaseAttack,
-> extends foundry.abstract.DataModel<Schema, Parent> {
-	get item(): ItemGURPS {
-		return this.parent.item
+> extends foundry.abstract.DataModel<Schema, BaseAttack> {
+	get item(): ItemGURPS | null {
+		if (this.parent === null) return null
+		return (this.parent as BaseAttack).item
 	}
 
 	static fromString(_s: string): WeaponField {

@@ -1,29 +1,13 @@
 import { WeaponField } from "./weapon-field.ts"
-import fields = foundry.data.fields
-import { Int, StringBuilder, TooltipGURPS, feature, i18n, progression, stdmg } from "@util"
-import { BaseAttack } from "../base-attack.ts"
-import { ToggleableBooleanField, ToggleableNumberField, ToggleableStringField } from "@data/fields/index.ts"
+import { ActorTemplateType, ActorType, GID, Int, ItemType, StringBuilder, TooltipGURPS, feature, i18n, progression, stdmg } from "@util"
+import { type BaseAttack } from "../base-attack.ts"
+import { ExtendedNumberField, ExtendedStringField, ExtendedBooleanField, DiceField } from "@data/fields/index.ts"
 import { CharacterSettings } from "@data/actor/fields/character-settings.ts"
+import { DiceGURPS } from "@data/dice.ts"
 
-class WeaponDamage extends WeaponField<WeaponDamageSchema, BaseAttack> {
+class WeaponDamage extends WeaponField<WeaponDamageSchema> {
 	static override defineSchema(): WeaponDamageSchema {
-		return {
-			type: new ToggleableStringField({ required: true, nullable: false, initial: "cr" }),
-			st: new ToggleableStringField({
-				required: true,
-				nullable: false,
-				choices: stdmg.OptionsChoices,
-				initial: stdmg.Option.Thrust,
-			}),
-			leveled: new ToggleableBooleanField({ required: true, nullable: false, initial: false }),
-			st_mul: new ToggleableNumberField({ required: true, nullable: false, initial: 0 }),
-			base: new DiceField(),
-			armor_divisor: new ToggleableNumberField({ required: true, nullable: false, initial: 1 }),
-			fragmentation: new DiceField(),
-			fragmentation_armor_divisor: new ToggleableNumberField({ required: true, nullable: false, initial: 1 }),
-			fragmentation_type: new ToggleableStringField({ required: true, nullable: false, initial: "" }),
-			modifier_per_die: new ToggleableNumberField({ required: true, nullable: false, initial: 0 }),
-		}
+		return weaponDamageSchema
 	}
 
 	override toString(): string {
@@ -80,7 +64,7 @@ class WeaponDamage extends WeaponField<WeaponDamageSchema, BaseAttack> {
 		let base = this.baseDamageDice
 		if (base.count === 0 && base.modifier === 0) return this.toString()
 		const actor = this.parent.actor
-		if (actor === null || !actor.isOfType(ActorType.Character)) return this.toString()
+		if (actor === null || !actor.hasTemplate(ActorTemplateType.Settings)) return this.toString()
 
 		const adjustForPhoenixFlame =
 			actor.system.settings.damage_progression === progression.Option.PhoenixFlameD3 && base.sides === 3
@@ -173,7 +157,7 @@ class WeaponDamage extends WeaponField<WeaponDamageSchema, BaseAttack> {
 					st = actor.system.telekineticStrength
 					break
 				default:
-					st = Math.trunc(Math.max(actor.system.resolveAttributeCurrent(gid.Strength), 0))
+					st = Math.trunc(Math.max(actor.system.resolveAttributeCurrent(GID.Strength), 0))
 			}
 		}
 		let percentMin = 0
@@ -267,19 +251,61 @@ function adjustDiceForPercentBonus(d: DiceGURPS, percent: number): DiceGURPS {
 	})
 }
 
-interface WeaponDamage extends WeaponField<BaseAttack, WeaponDamageSchema>, ModelPropsFromSchema<WeaponDamageSchema> {}
 
-type WeaponDamageSchema = {
-	type: ToggleableStringField<string, string, true, false, true>
-	st: ToggleableStringField<stdmg.Option, stdmg.Option, true, false, true>
-	leveled: ToggleableBooleanField<boolean, boolean, true, false, true>
-	st_mul: ToggleableNumberField<number, number, true, false, true>
-	base: fields.SchemaField<DiceSchema, SourceFromSchema<DiceSchema>, DiceGURPS, true, true, true>
-	armor_divisor: ToggleableNumberField<number, number, true, false, true>
-	fragmentation: fields.SchemaField<DiceSchema, SourceFromSchema<DiceSchema>, DiceGURPS, true, true, true>
-	fragmentation_armor_divisor: ToggleableNumberField<number, number, true, false, true>
-	fragmentation_type: ToggleableStringField<string, string, true, false, true>
-	modifier_per_die: ToggleableNumberField<number, number, true, false, true>
+const weaponDamageSchema = {
+	type: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		initial: "cr",
+		toggleable: true,
+	}),
+	st: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		choices: stdmg.OptionsChoices,
+		initial: stdmg.Option.Thrust,
+		toggleable: true,
+	}),
+	leveled: new ExtendedBooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		toggleable: true,
+	}),
+	st_mul: new ExtendedNumberField({
+		required: true,
+		nullable: false,
+		initial: 0,
+		toggleable: true,
+	}),
+	base: new DiceField(),
+	armor_divisor: new ExtendedNumberField({
+		required: true,
+		nullable: false,
+		initial: 1,
+		toggleable: true,
+	}),
+	fragmentation: new DiceField(),
+	fragmentation_armor_divisor: new ExtendedNumberField({
+		required: true,
+		nullable: false,
+		initial: 1,
+		toggleable: true,
+	}),
+	fragmentation_type: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		initial: "",
+		toggleable: true,
+	}),
+	modifier_per_die: new ExtendedNumberField({
+		required: true,
+		nullable: false,
+		initial: 0,
+		toggleable: true,
+	}),
 }
+
+type WeaponDamageSchema = typeof weaponDamageSchema
 
 export { WeaponDamage, type WeaponDamageSchema }

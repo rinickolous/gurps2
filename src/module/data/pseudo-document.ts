@@ -46,7 +46,6 @@ abstract class PseudoDocument<
 				initial: () => this.metadata.type!,
 			}),
 			name: new fields.StringField({ required: true, nullable: false, initial: undefined }),
-			// @ts-expect-error weird types
 			img: new fields.FilePathField({
 				required: true,
 				nullable: false,
@@ -69,7 +68,7 @@ abstract class PseudoDocument<
 	/* -------------------------------------------- */
 
 	get metadata(): PseudoDocumentMetaData {
-		return this.constructor.metadata
+		return (this.constructor as typeof PseudoDocument).metadata
 	}
 
 	/* -------------------------------------------- */
@@ -84,7 +83,7 @@ abstract class PseudoDocument<
 	}
 
 	get documentConfig(): PseudoDocumentConfig {
-		return this.constructor.documentConfig
+		return (this.constructor as typeof PseudoDocument).documentConfig
 	}
 
 	/* -------------------------------------------- */
@@ -97,7 +96,7 @@ abstract class PseudoDocument<
 	}
 
 	get documentName(): string {
-		return (this.constructor as unknown as PseudoDocument).documentName
+		return (this.constructor as typeof PseudoDocument).documentName
 	}
 
 	/* -------------------------------------------- */
@@ -153,12 +152,12 @@ abstract class PseudoDocument<
 	 * Lazily obtain a ApplicationV2 instance used to configure this PseudoDocument, or null if no sheet is available.
 	 */
 	get sheet(): foundry.applications.api.ApplicationV2 | null {
-		const cls = this.constructor.metadata.sheetClass
+		const cls = (this.constructor as typeof PseudoDocument).metadata.sheetClass
 		if (!cls) return null
-		if (!this.constructor._sheets.has(this.uuid)) {
-			this.constructor._sheets.set(this.uuid, new cls({ document: this }))
+		if (!(this.constructor as typeof PseudoDocument)._sheets.has(this.uuid)) {
+			(this.constructor as typeof PseudoDocument)._sheets.set(this.uuid, new cls({ document: this as PseudoDocument }))
 		}
-		return this.constructor._sheets.get(this.uuid) ?? null
+		return (this.constructor as typeof PseudoDocument)._sheets.get(this.uuid) ?? null
 	}
 
 	/* -------------------------------------------- */
@@ -382,16 +381,31 @@ abstract class PseudoDocument<
 	prepareDerivedData(): void { }
 }
 
-interface PseudoDocument {
-	constructor: typeof PseudoDocument
+// interface PseudoDocument {
+// 	constructor: typeof PseudoDocument
+// }
+
+const pseudoDocumentSchema = {
+	_id: new fields.StringField({
+		required: true,
+		nullable: false,
+		initial: () => foundry.utils.randomID(),
+	}),
+	type: new fields.StringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		readonly: false,
+	}),
+	name: new fields.StringField({ required: true, nullable: false, initial: undefined }),
+	img: new fields.FilePathField({
+		required: true,
+		nullable: false,
+		categories: ["IMAGE"],
+	}),
+	sort: new fields.IntegerSortField(),
 }
 
-type PseudoDocumentSchema = {
-	_id: fields.StringField<{ required: true; nullable: false }>
-	type: fields.StringField<{ required: true; nullable: false }>
-	name: fields.StringField<{ required: true; nullable: false }>
-	img: fields.FilePathField
-	sort: fields.IntegerSortField<{ required: true; nullable: false }>
-}
+type PseudoDocumentSchema = typeof pseudoDocumentSchema
 
 export { PseudoDocument, type PseudoDocumentMetaData, type PseudoDocumentSchema }

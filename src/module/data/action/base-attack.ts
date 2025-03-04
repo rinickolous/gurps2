@@ -1,7 +1,5 @@
 import { BaseAction, BaseActionSchema } from "./base-action.ts"
 import fields = foundry.data.fields
-import { WeaponDamage } from "./fields/weapon-damage.ts"
-import { WeaponStrength } from "./fields/weapon-strength.ts"
 import {
 	ActionType,
 	ActorType,
@@ -23,8 +21,11 @@ import { ExtendedStringField } from "@data/fields/index.ts"
 import { SkillDefaultField } from "@data/fields/skill-default-field.ts"
 import { Feature } from "@data/feature/types.ts"
 import { WeaponBonus } from "@data/feature/weapon-bonus.ts"
+import { WeaponStrength } from "./fields/weapon-strength.ts"
 
-class BaseAttack<Schema extends BaseAttackSchema = BaseAttackSchema> extends BaseAction<Schema> {
+class BaseAttack<
+	Schema extends BaseAttackSchema = BaseAttackSchema
+> extends BaseAction<Schema> {
 	declare protected _weaponLevel: number
 
 	static override defineSchema(): BaseAttackSchema {
@@ -400,8 +401,9 @@ const baseAttackSchema = {
 		initial: "",
 		label: "GURPS.Item.BasicInformation.FIELDS.Notes.Name",
 	}),
+	// damage: new fields.EmbeddedDataField(WeaponDamage),
 	strength: new fields.EmbeddedDataField(WeaponStrength),
-	damage: new fields.EmbeddedDataField(WeaponDamage),
+	// damage: new fields.EmbeddedDataField(WeaponDamage),
 	// Is the weapon currently unready?
 	unready: new fields.BooleanField({ required: true, nullable: false, initial: false }),
 	defaults: new fields.ArrayField(new SkillDefaultField()),

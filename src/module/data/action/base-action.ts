@@ -1,7 +1,6 @@
 import { ItemDataModel } from "@data/item/base.ts"
 import fields = foundry.data.fields
 import { PseudoDocument, PseudoDocumentMetaData, PseudoDocumentSchema } from "../pseudo-document.ts"
-import { AppliedEffectField } from "./fields/applied-effect-field.ts"
 import { CellData, CellDataOptions } from "@data/cell-data.ts"
 import { ActionType, ErrorGURPS, ItemTemplateType } from "@util"
 import { ActionDataModelClasses } from "./types.ts"
@@ -10,7 +9,7 @@ import { ItemDataTemplateClasses } from "@data/item/types.ts"
 
 type ActionMetadata = PseudoDocumentMetaData
 
-abstract class BaseAction<Schema extends BaseActionSchema = BaseActionSchema> extends PseudoDocument<
+class BaseAction<Schema extends BaseActionSchema = BaseActionSchema> extends PseudoDocument<
 	Schema,
 	ItemDataModel
 > {
@@ -22,15 +21,9 @@ abstract class BaseAction<Schema extends BaseActionSchema = BaseActionSchema> ex
 	})
 
 	static override defineSchema(): BaseActionSchema {
-		const fields = foundry.data.fields
-
 		return {
 			...super.defineSchema(),
-			activation: new fields.SchemaField({}),
-			consumption: new fields.SchemaField({}),
-			target: new fields.SchemaField({}),
-			actionRange: new fields.SchemaField({}),
-			effects: new fields.ArrayField(new AppliedEffectField()),
+			...baseActionSchema
 		}
 	}
 
@@ -79,12 +72,14 @@ abstract class BaseAction<Schema extends BaseActionSchema = BaseActionSchema> ex
 	}
 }
 
-type BaseActionSchema = PseudoDocumentSchema & {
-	activation: fields.SchemaField<{}> // TODO
-	consumption: fields.SchemaField<{}> // TODO
-	target: fields.SchemaField<{}> // TODO
-	actionRange: fields.SchemaField<{}> // TODO
-	effects: fields.ArrayField<AppliedEffectField> // TODO
+const baseActionSchema = {
+	activation: new fields.SchemaField({}),
+	consumption: new fields.SchemaField({}),
+	target: new fields.SchemaField({}),
+	actionRange: new fields.SchemaField({}),
+	// effects: new fields.ArrayField(new AppliedEffectField()),
 }
+
+type BaseActionSchema = PseudoDocumentSchema & typeof baseActionSchema
 
 export { BaseAction, type BaseActionSchema, type ActionMetadata }

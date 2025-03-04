@@ -2,23 +2,11 @@ import { WeaponField } from "./weapon-field.ts"
 import fields = foundry.data.fields
 import { Int, StringBuilder, TooltipGURPS, feature, i18n, wswitch } from "@util"
 import { BaseAttack } from "../base-attack.ts"
-import { ToggleableBooleanField, ToggleableNumberField } from "@data/fields/index.ts"
+import { ExtendedNumberField, ExtendedBooleanField } from "@data/fields/index.ts"
 
-class WeaponStrength extends WeaponField<WeaponStrengthSchema, BaseAttack> {
+class WeaponStrength extends WeaponField<WeaponStrengthSchema> {
 	static override defineSchema(): WeaponStrengthSchema {
-		return {
-			min: new ToggleableNumberField({
-				required: true,
-				nullable: false,
-				min: 0,
-				initial: 0,
-			}),
-			bipod: new ToggleableBooleanField({ required: true, nullable: false, initial: false }),
-			mounted: new ToggleableBooleanField({ required: true, nullable: false, initial: false }),
-			musketRest: new ToggleableBooleanField({ required: true, nullable: false, initial: false }),
-			twoHanded: new ToggleableBooleanField({ required: true, nullable: false, initial: false }),
-			twoHandedUnready: new ToggleableBooleanField({ required: true, nullable: false, initial: false }),
-		}
+		return weaponStrengthSchema
 	}
 
 	static override fromString(s: string): WeaponStrength {
@@ -31,7 +19,7 @@ class WeaponStrength extends WeaponField<WeaponStrengthSchema, BaseAttack> {
 			ws.musketRest = s.includes("r")
 			ws.twoHanded = s.includes("†") || s.includes("*")
 			ws.twoHandedUnready = s.includes("‡")
-			;[ws.min] = Int.extract(s)
+				;[ws.min] = Int.extract(s)
 		}
 		return new WeaponStrength(ws)
 	}
@@ -126,14 +114,14 @@ class WeaponStrength extends WeaponField<WeaponStrengthSchema, BaseAttack> {
 	}
 
 	static override cleanData(
-		source?: Partial<foundry.abstract.DataModel.ConstructorDataFor<WeaponStrength>>,
+		source?: Partial<foundry.abstract.DataModel.ConstructorData<WeaponStrengthSchema>>,
 		options?: Parameters<fields.SchemaField.Any["clean"]>[1],
 	): object {
 		let {
 			min,
 			twoHanded,
 			twoHandedUnready,
-		}: Partial<foundry.abstract.DataModel.ConstructorDataFor<WeaponStrength>> = {
+		}: Partial<foundry.abstract.DataModel.ConstructorData<WeaponStrengthSchema>> = {
 			min: 0,
 			twoHanded: false,
 			twoHandedUnready: false,
@@ -146,13 +134,46 @@ class WeaponStrength extends WeaponField<WeaponStrengthSchema, BaseAttack> {
 	}
 }
 
-type WeaponStrengthSchema = {
-	min: ToggleableNumberField<{ required: true; nullable: false }>
-	bipod: ToggleableBooleanField<{ required: true; nullable: false }>
-	mounted: ToggleableBooleanField<{ required: true; nullable: false }>
-	musketRest: ToggleableBooleanField<{ required: true; nullable: false }>
-	twoHanded: ToggleableBooleanField<{ required: true; nullable: false }>
-	twoHandedUnready: ToggleableBooleanField<{ required: true; nullable: false }>
+const weaponStrengthSchema = {
+	min: new ExtendedNumberField({
+		required: true,
+		nullable: false,
+		min: 0,
+		initial: 0,
+		toggleable: true,
+	}),
+	bipod: new ExtendedBooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		toggleable: true,
+	}),
+	mounted: new ExtendedBooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		toggleable: true,
+	}),
+	musketRest: new ExtendedBooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		toggleable: true,
+	}),
+	twoHanded: new ExtendedBooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		toggleable: true,
+	}),
+	twoHandedUnready: new ExtendedBooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		toggleable: true,
+	}),
 }
+
+type WeaponStrengthSchema = typeof weaponStrengthSchema
 
 export { WeaponStrength, type WeaponStrengthSchema }
