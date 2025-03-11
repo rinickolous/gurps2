@@ -1,7 +1,20 @@
 import { SystemDataModel, SystemDataModelMetadata } from "@data/abstract.ts"
 import { ActorSystemFlags } from "@documents/actor-system-flags.ts"
 import { ActorGURPS } from "@documents/actor.ts"
-import { ActorTemplateType, ActorType, equalFold, ErrorGURPS, feature, GID, ItemType, movelimit, Nameable, skillsel, stlimit, TooltipGURPS } from "@util"
+import {
+	ActorTemplateType,
+	ActorType,
+	equalFold,
+	ErrorGURPS,
+	feature,
+	GID,
+	ItemType,
+	movelimit,
+	Nameable,
+	skillsel,
+	stlimit,
+	TooltipGURPS,
+} from "@util"
 import { ActorDataModelClasses, ActorDataTemplateClasses } from "./types.ts"
 import { FeatureSet } from "@data/feature/types.ts"
 import { CharacterSettings } from "./fields/character-settings.ts"
@@ -61,10 +74,9 @@ class ActorDataModel<Schema extends ActorDataSchema = ActorDataSchema> extends S
 
 	/* -------------------------------------------- */
 
-	_prepareEmbeddedDocuments(): void { }
+	_prepareEmbeddedDocuments(): void {}
 
 	/* -------------------------------------------- */
-
 
 	/**
 	 * @param attributeId - ID of attribute
@@ -363,8 +375,7 @@ class ActorDataModel<Schema extends ActorDataSchema = ActorDataSchema> extends S
 		m: Set<WeaponBonus> = new Set(),
 		allowedFeatureTypes: Set<feature.Type> = new Set(),
 		temporary: boolean | null = null,
-	): void {
-	}
+	): void {}
 
 	/* -------------------------------------------- */
 
@@ -430,7 +441,6 @@ class ActorDataModel<Schema extends ActorDataSchema = ActorDataSchema> extends S
 		})
 		return list as ItemInstance<ItemType.Skill | ItemType.Technique>[]
 	}
-
 }
 
 interface ActorDataModel<Schema extends ActorDataSchema> extends SystemDataModel<Schema, ActorGURPS> {

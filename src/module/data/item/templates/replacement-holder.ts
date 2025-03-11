@@ -57,7 +57,7 @@ class ReplacementsField<const Options extends MappingField.Options<AnyObject>> e
 	override initialize(
 		value: Record<string, string>,
 		model: foundry.abstract.DataModel.Any,
-		options?: AnyObject
+		options?: AnyObject,
 	): Map<string, string> {
 		super.initialize(value, model)
 		const records = Object.entries(super.initialize(value as any, model, options) as unknown as [string, string])

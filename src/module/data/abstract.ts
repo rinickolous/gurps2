@@ -4,21 +4,56 @@ import DataSchema = foundry.data.fields.DataSchema
 import { SYSTEM_NAME } from "@util"
 import { AnyObject, DeepPartial } from "fvtt-types/utils"
 
-// Type to get the instance type of a class constructor
-type InstanceTypeOf<T> = T extends new (...args: any[]) => infer R ? R : never
+// Immiscible keys
+const immiscibleKeys = new Set([
+	"prototype",
+	"length",
+	"name",
+	"mixed",
+	"cleanData",
+	"_cleanData",
+	"_initializationOrder",
+	"validateJoint",
+	"_validateJoint",
+	"migrateData",
+	"_migrateData",
+	"shimData",
+	"_shimData",
+	"defineSchema",
+] as const)
 
-// Type to combine instance types of all classes in the array
-type CombinedInstanceType<T extends any[]> = T extends [infer U, ...infer Rest]
-	? U extends new (...args: any[]) => any
-	? InstanceTypeOf<U> & CombinedInstanceType<Rest>
-	: never
+// NEW SOLUTION START
+type ImmiscibleKeys = typeof immiscibleKeys extends Set<infer T> ? T : never
+
+// Combine instance types from templates
+type CombinedInstanceType<T extends Array<typeof SystemDataModel<any, any>>> = T extends [
+	infer U extends typeof SystemDataModel<any, any>,
+	...infer Rest extends Array<typeof SystemDataModel<any, any>>,
+]
+	? InstanceType<U> & CombinedInstanceType<Rest>
 	: {}
 
-// Type to combine static types of all classes in the array
-type CombinedStaticType<T extends any[]> = T extends [infer U, ...infer Rest] ? U & CombinedStaticType<Rest> : {}
+// Combine static types, excluding immiscible keys
+type CombinedStaticType<T extends any[]> = Omit<
+	T extends [infer U, ...infer Rest] ? U & CombinedStaticType<Rest> : {},
+	ImmiscibleKeys
+>
 
-// Type to represent the combined class with both static and instance members
-type CombinedClass<T extends (typeof SystemDataModel)[]> = CombinedStaticType<T> & (new (...args: any[]) => CombinedInstanceType<T>)
+// Combined class type
+type CombinedDataModel<
+	T extends Array<typeof SystemDataModel<any, any>>,
+	S extends DataSchema = MergeSchemas<T>, // Move default here
+	B extends typeof SystemDataModel<any, any> = typeof SystemDataModel<any, any>,
+> = B &
+	CombinedStaticType<T> & {
+		new (...args: any[]): CombinedInstanceType<T> & InstanceType<B> & SystemDataModel<S>
+	}
+
+type MergeSchemas<T extends any[]> = {
+	[K in keyof T]: T[K] extends typeof SystemDataModel<infer S extends DataSchema, any> ? S : never
+}[number] extends infer U
+	? { [K in keyof U]: U[K] }
+	: never
 
 /* -------------------------------------------- */
 
@@ -68,22 +103,7 @@ class SystemDataModel<
 	/**
 	 * A list of properties that should not be mixed-in to the final type.
 	 */
-	private static _immiscible: Set<string> = new Set([
-		"length",
-		"mixed",
-		"name",
-		"prototype",
-		"cleanData",
-		"_cleanData",
-		"_initializationOrder",
-		"validateJoint",
-		"_validateJoint",
-		"migrateData",
-		"_migrateData",
-		"shimData",
-		"_shimData",
-		"defineSchema",
-	])
+	private static _immiscible: Set<string> = immiscibleKeys
 
 	/* -------------------------------------------- */
 
@@ -179,8 +199,8 @@ class SystemDataModel<
 	protected override async _preCreate(
 		_data: foundry.abstract.TypeDataModel.ParentAssignmentType<Schema, Parent>,
 		_options: foundry.abstract.Document.PreCreateOptions<any>,
-		_user: foundry.documents.BaseUser,
-	): Promise<boolean | void> { }
+		_user: User,
+	): Promise<boolean | void> {}
 
 	/**
 	 * Pre-update logic for this system data.
@@ -193,7 +213,7 @@ class SystemDataModel<
 		_changes: DeepPartial<foundry.abstract.TypeDataModel.ParentAssignmentType<Schema, Parent>>,
 		_options: foundry.abstract.Document.PreUpdateOptions<any>,
 		_userId: string,
-	): Promise<boolean | void> { }
+	): Promise<boolean | void> {}
 
 	/**
 	 * Pre-delete logic for this system data.
@@ -201,12 +221,9 @@ class SystemDataModel<
 	 * @param _user    The User requesting the document creation.
 	 * @returns        A return value of false indicates the creation operation should be cancelled.
 	 */
-	async _preDelete(
-		_options: foundry.abstract.Document.PreDeleteOptions<any>,
-		_user: foundry.documents.BaseUser,
-	): Promise<boolean | void> { }
+	async _preDelete(_options: foundry.abstract.Document.PreDeleteOptions<any>, _user: User): Promise<boolean | void> {}
 
-	override	_onCreate(
+	override _onCreate(
 		data: foundry.abstract.TypeDataModel.ParentAssignmentType<Schema, Parent>,
 		options: foundry.abstract.Document.OnCreateOptions<any>,
 		userId: string,
@@ -220,11 +237,11 @@ class SystemDataModel<
 		_changed: DeepPartial<foundry.abstract.TypeDataModel.ParentAssignmentType<Schema, Parent>>,
 		_options: foundry.abstract.Document.OnUpdateOptions<any>,
 		_userId: string,
-	) { }
+	) {}
 
 	/* -------------------------------------------- */
 
-	_onDelete(_options: foundry.abstract.Document.OnDeleteOptions<any>, _userId: string) { }
+	_onDelete(_options: foundry.abstract.Document.OnDeleteOptions<any>, _userId: string) {}
 
 	/* -------------------------------------------- */
 	/*  Data Validation                             */
@@ -234,19 +251,19 @@ class SystemDataModel<
 		/**
 		 * A specific set of proposed changes to validate, rather than the full source data of the model.
 		 */
-		changes?: fields.SchemaField.InnerAssignmentType<Schema>;
+		changes?: fields.SchemaField.InnerAssignmentType<Schema>
 
 		/**
 		 * If changes are provided, attempt to clean the changes before validating them?
 		 * @defaultValue `false`
 		 */
-		clean?: boolean;
+		clean?: boolean
 
 		/**
 		 * Allow replacement of invalid values with valid defaults?
 		 * @defaultValue `false`
 		 */
-		fallback?: boolean;
+		fallback?: boolean
 
 		/**
 		 * If true, invalid embedded documents will emit a warning and
@@ -254,19 +271,19 @@ class SystemDataModel<
 		 * causing the parent to be considered invalid.
 		 * @defaultValue `false`
 		 */
-		dropInvalidEmbedded: boolean;
+		dropInvalidEmbedded: boolean
 
 		/**
 		 * Throw if an invalid value is encountered, otherwise log a warning?
 		 * @defaultValue `true`
 		 */
-		strict?: boolean;
+		strict?: boolean
 
 		/**
 		 * Perform validation on individual fields?
 		 * @defaultValue `true`
 		 */
-		fields?: boolean;
+		fields?: boolean
 
 		/**
 		 * Perform joint validation on the full data model?
@@ -275,9 +292,8 @@ class SystemDataModel<
 		 * Joint validation can be performed on a complete set of changes (for
 		 * example testing a complete data model) by explicitly passing true.
 		 */
-		joint?: boolean;
-	}
-	) {
+		joint?: boolean
+	}) {
 		if (this.constructor._enableV10Validation === false) return true
 		return super.validate(options)
 	}
@@ -363,7 +379,7 @@ class SystemDataModel<
 	/* -------------------------------------------- */
 
 	// override  toObject(source: true): this["_source"];
-	override  toObject(source?: boolean): ReturnType<this["schema"]["toObject"]> {
+	override toObject(source?: boolean): ReturnType<this["schema"]["toObject"]> {
 		return super.toObject(source)
 	}
 
@@ -374,14 +390,19 @@ class SystemDataModel<
 	/**
 	 * Mix multiple templates with the base type.
 	 */
-	static mixin<T extends (typeof SystemDataModel<any, any>)[]>(...templates: T): CombinedClass<T> {
+	static mixin<
+		B extends typeof SystemDataModel<any, any>,
+		T extends Array<typeof SystemDataModel<any, any>>,
+		S extends DataSchema = MergeSchemas<T>,
+	>(this: B, ...templates: T): CombinedDataModel<T, S, B> {
 		for (const template of templates) {
 			if (!(template.prototype instanceof SystemDataModel)) {
 				throw new Error(`${template.name} is not a subclass of SystemDataModel`)
 			}
 		}
 
-		const Base = class extends this { }
+		// @ts-expect-error: Mixin class constructor rule (TS2545)
+		const Base = class extends this {}
 		Object.defineProperty(Base, "_schemaTemplates", {
 			value: Object.seal([...this._schemaTemplates, ...templates]),
 			writable: false,

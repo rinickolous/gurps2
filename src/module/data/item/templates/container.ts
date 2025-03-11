@@ -75,7 +75,6 @@ class ContainerTemplate extends ItemDataModel<ContainerSchema> {
 	get contents(): MaybePromise<Collection<ItemGURPS>> {
 		// If in a compendium, fetch using getDocuments and return a promise
 		if (this.parent.pack && !this.parent.isEmbedded) {
-			//@ts-expect-error weird types
 			const pack = game.packs?.get(this.parent.pack)
 			//@ts-expect-error weird types
 			return pack!
@@ -92,6 +91,24 @@ class ContainerTemplate extends ItemDataModel<ContainerSchema> {
 			},
 			new Collection(),
 		)
+	}
+
+	/* -------------------------------------------- */
+
+	get allContents(): Collection<ItemGURPS> {
+		//TODO: maybe support promises later
+		const contents = this.contents
+		if (contents instanceof Promise) return new Collection()
+		return contents.reduce((collection: Collection<ItemGURPS>, item: ItemGURPS) => {
+			collection.set(item.id!, item)
+			if (item.system.hasTemplate(ItemTemplateType.Container)) {
+				if (!(item.system.contents instanceof Promise))
+					item.system.contents.forEach((e: ItemGURPS) => {
+						collection.set(e.id!, e)
+					})
+			}
+			return collection
+		}, new Collection())
 	}
 }
 

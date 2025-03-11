@@ -23,6 +23,10 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 
 	cachedVariables = new Map<string, string>()
 
+	static testItem() {
+		return "hey"
+	}
+
 	/* -------------------------------------------- */
 
 	static override metadata: ItemDataModelMetadata = Object.freeze(
@@ -138,7 +142,7 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 	 * Prepare type-specific data for the Item sheet.
 	 * @param  context  Sheet context data.
 	 */
-	async getSheetData(_context: Record<string, unknown>): Promise<void> { }
+	async getSheetData(_context: Record<string, unknown>): Promise<void> {}
 
 	/**
 	 * All of the containers this item is within up to the parent actor or collection.

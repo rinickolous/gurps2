@@ -21,6 +21,22 @@ class ActorGURPS extends Actor {
 	}
 
 	/* -------------------------------------------- */
+	/*  Getters                                     */
+	/* -------------------------------------------- */
+
+	get strikingStrength(): number {
+		if (this.isOfType(ActorType.Character)) return this.system.strikingStrength
+		return 0
+	}
+
+	/* -------------------------------------------- */
+
+	get liftingStrength(): number {
+		if (this.isOfType(ActorType.Character)) return this.system.liftingStrength
+		return 0
+	}
+
+	/* -------------------------------------------- */
 
 	/**
 	 * Resolves an embedded expression

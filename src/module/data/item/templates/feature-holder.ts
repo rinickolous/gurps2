@@ -8,7 +8,6 @@ import { AnyObject } from "fvtt-types/utils"
 import fields = foundry.data.fields
 
 class FeatureHolderTemplate extends ItemDataModel<FeatureHolderSchema> {
-
 	defineSchema(): FeatureHolderSchema {
 		return featureHolderSchema
 	}
@@ -96,13 +95,9 @@ class FeatureHolderTemplate extends ItemDataModel<FeatureHolderSchema> {
 			feature.fillWithNameableKeys(m, existing)
 		}
 	}
-
 }
 
-
-class FeaturesField<
-	Options extends MappingField.Options<FeatureField>
-> extends MappingField<
+class FeaturesField<Options extends MappingField.Options<FeatureField>> extends MappingField<
 	FeatureField,
 	Options,
 	FeatureField,
@@ -179,10 +174,9 @@ class FeatureField<
 }
 
 const featureHolderSchema = {
-	features: new FeaturesField({ required: true, nullable: false })
+	features: new FeaturesField({ required: true, nullable: false }),
 }
 
 type FeatureHolderSchema = typeof featureHolderSchema
-
 
 export { FeatureHolderTemplate, type FeatureHolderSchema }

@@ -62,7 +62,13 @@ class BasicInformationTemplate extends ItemDataModel<BasicInformationSchema> {
 
 const basicInformationSchema = {
 	container: new fields.ForeignDocumentField(ItemGURPS, { idOnly: true }),
-	name: new ExtendedStringField({ required: true, nullable: false, toggleable: true, replaceable: true, initial: "" }),
+	name: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		toggleable: true,
+		replaceable: true,
+		initial: "",
+	}),
 	description: new fields.HTMLField({ required: true, nullable: false, initial: "" }),
 	notes: new ExtendedStringField({
 		required: true,
@@ -79,10 +85,11 @@ const basicInformationSchema = {
 		label: "GURPS.Item.BasicInformation.FIELDS.Tags.Name",
 	}),
 	vtt_notes: new ExtendedStringField({
-		required: true, nullable: false,
+		required: true,
+		nullable: false,
 
 		toggleable: true,
-		initial: ""
+		initial: "",
 	}),
 	reference: new ExtendedStringField({
 		required: true,
@@ -92,10 +99,11 @@ const basicInformationSchema = {
 		label: "GURPS.Item.BasicInformation.FIELDS.Reference.Name",
 	}),
 	reference_highlight: new ExtendedStringField({
-		required: true, nullable: false,
+		required: true,
+		nullable: false,
 
 		toggleable: true,
-		initial: ""
+		initial: "",
 	}),
 }
 

@@ -1,8 +1,8 @@
 import fields = foundry.data.fields
 import api = foundry.applications.api
-import DEFAULT_ATTRIBUTE_SETTINGS from "@static/settings/attributes.json"
-import DEFAULT_RESOURCE_TRACKER_SETTINGS from "@static/settings/resource-trackers.json"
-import DEFAULT_MOVE_TYPE_SETTINGS from "@static/settings/move-types.json"
+import DEFAULT_ATTRIBUTE_SETTINGS from "@static/settings/attributes.json" assert { type: "json" }
+import DEFAULT_RESOURCE_TRACKER_SETTINGS from "@static/settings/resource-trackers.json" assert { type: "json" }
+import DEFAULT_MOVE_TYPE_SETTINGS from "@static/settings/move-types.json" assert { type: "json" }
 import { AttributeDefinition } from "@data/stat/attribute/attribute-definition.ts"
 import { ResourceTrackerDefinition } from "@data/stat/resource-tracker/resource-tracker-definition.ts"
 import { SETTINGS, SYSTEM_NAME, threshold } from "@util"
@@ -13,43 +13,31 @@ import { AnyObject, DeepPartial } from "fvtt-types/utils"
 
 class AttributeSettings extends foundry.abstract.DataModel<AttributeSettingsSchema> {
 	static override defineSchema(): AttributeSettingsSchema {
-		const fields = foundry.data.fields
-		return {
-			attributes: new fields.ArrayField(new fields.EmbeddedDataField(AttributeDefinition), {
-				required: true,
-				nullable: false,
-				initial: DEFAULT_ATTRIBUTE_SETTINGS as any,
-			}),
-			resource_trackers: new fields.ArrayField(new fields.EmbeddedDataField(ResourceTrackerDefinition), {
-				required: true,
-				nullable: false,
-				initial: DEFAULT_RESOURCE_TRACKER_SETTINGS as any,
-			}),
-			move_types: new fields.ArrayField(new fields.EmbeddedDataField(MoveTypeDefinition), {
-				required: true,
-				nullable: false,
-				initial: DEFAULT_MOVE_TYPE_SETTINGS as any,
-			}),
-		}
+		return attributeSettingsSchema
 	}
 }
 
 /* -------------------------------------------- */
 
-type AttributeSettingsSchema = {
-	attributes: fields.ArrayField<
-		fields.EmbeddedDataField<typeof AttributeDefinition>,
-		{ required: true; nullable: false }
-	>
-	resource_trackers: fields.ArrayField<
-		fields.EmbeddedDataField<typeof ResourceTrackerDefinition>,
-		{ required: true; nullable: false }
-	>
-	move_types: fields.ArrayField<
-		fields.EmbeddedDataField<typeof MoveTypeDefinition>,
-		{ required: true; nullable: false }
-	>
+const attributeSettingsSchema = {
+	attributes: new fields.ArrayField(new fields.EmbeddedDataField(AttributeDefinition), {
+		required: true,
+		nullable: false,
+		initial: DEFAULT_ATTRIBUTE_SETTINGS as any,
+	}),
+	resource_trackers: new fields.ArrayField(new fields.EmbeddedDataField(ResourceTrackerDefinition), {
+		required: true,
+		nullable: false,
+		initial: DEFAULT_RESOURCE_TRACKER_SETTINGS as any,
+	}),
+	move_types: new fields.ArrayField(new fields.EmbeddedDataField(MoveTypeDefinition), {
+		required: true,
+		nullable: false,
+		initial: DEFAULT_MOVE_TYPE_SETTINGS as any,
+	}),
 }
+
+type AttributeSettingsSchema = typeof attributeSettingsSchema
 
 /* -------------------------------------------- */
 
@@ -221,7 +209,7 @@ class AttributesConfig extends api.HandlebarsApplicationMixin(api.ApplicationV2<
 	protected _preparePartContext(
 		partId: string,
 		context: any,
-		_options: DeepPartial<api.HandlebarsApplicationMixin.HandlebarsRenderOptions>,
+		_options: DeepPartial<api.HandlebarsApplicationMixin.RenderOptions>,
 	) {
 		context.partId = `${this.id}-${partId}`
 		context.tab = context.tabs[partId]

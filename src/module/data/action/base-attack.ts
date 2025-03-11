@@ -22,17 +22,15 @@ import { SkillDefaultField } from "@data/fields/skill-default-field.ts"
 import { Feature } from "@data/feature/types.ts"
 import { WeaponBonus } from "@data/feature/weapon-bonus.ts"
 import { WeaponStrength } from "./fields/weapon-strength.ts"
+import { WeaponDamage } from "./fields/weapon-damage.ts"
 
-class BaseAttack<
-	Schema extends BaseAttackSchema = BaseAttackSchema
-> extends BaseAction<Schema> {
+class BaseAttack<Schema extends BaseAttackSchema = BaseAttackSchema> extends BaseAction<Schema> {
 	declare protected _weaponLevel: number
 
 	static override defineSchema(): BaseAttackSchema {
-
 		return {
 			...super.defineSchema(),
-			...baseAttackSchema
+			...baseAttackSchema,
 		}
 	}
 
@@ -71,7 +69,7 @@ class BaseAttack<
 	/* -------------------------------------------- */
 
 	get usesCrossbowSkill(): boolean {
-		const replacements = (this as BaseAttack).replacements
+		const replacements = this.replacements
 		return (this as BaseAttack).defaults.some(def => def.nameWithReplacements(replacements) === "Crossbow")
 	}
 
@@ -117,9 +115,9 @@ class BaseAttack<
 		let adj = 0
 		let minST = this.strength.resolve(this, null).min
 		if (!this.isOfType(ActionType.AttackRanged) || (this.range.musclePowered && !this.usesCrossbowSkill)) {
-			minST -= actor.system.strikingStrength
+			minST -= actor.strikingStrength
 		} else {
-			minST -= actor.system.liftingStrength
+			minST -= actor.liftingStrength
 		}
 		if (minST > 0) {
 			adj -= minST
@@ -148,7 +146,8 @@ class BaseAttack<
 				adj += this.extractSkillBonusForThisWeapon(f, tooltip)
 			}
 		}
-		if (container.isOfType(ItemType.Trait, ItemType.Equipment, ItemType.EquipmentContainer)) {
+		// if (container.isOfType(ItemType.Trait, ItemType.Equipment, ItemType.EquipmentContainer)) {
+		if (container.isOfType(ItemType.Trait)) {
 			for (const mod of container.system.allModifiers as Collection<ItemInstance<ItemType.TraitModifier>>) {
 				for (const f of mod.system.features) {
 					adj += this.extractSkillBonusForThisWeapon(f, tooltip)
@@ -397,13 +396,13 @@ const baseAttackSchema = {
 	notes: new ExtendedStringField({
 		required: true,
 		nullable: false,
-		toggleable: true, replaceable: true,
+		toggleable: true,
+		replaceable: true,
 		initial: "",
 		label: "GURPS.Item.BasicInformation.FIELDS.Notes.Name",
 	}),
-	// damage: new fields.EmbeddedDataField(WeaponDamage),
+	damage: new fields.EmbeddedDataField(WeaponDamage),
 	strength: new fields.EmbeddedDataField(WeaponStrength),
-	// damage: new fields.EmbeddedDataField(WeaponDamage),
 	// Is the weapon currently unready?
 	unready: new fields.BooleanField({ required: true, nullable: false, initial: false }),
 	defaults: new fields.ArrayField(new SkillDefaultField()),
