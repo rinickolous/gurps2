@@ -1,9 +1,8 @@
-import { GID } from "@util"
+import { encumbrance, GID } from "@util"
 import { ActorDataModel } from "./base.ts"
 import { AttributeHolderTemplate, SettingsHolderTemplate } from "./templates/index.ts"
 import { CharacterBonuses } from "./fields/character-bonuses.ts"
 
-// @ts-expect-error TODO: fix later
 class CharacterData extends ActorDataModel.mixin(SettingsHolderTemplate, AttributeHolderTemplate) {
 	bonuses: CharacterBonuses = new CharacterBonuses()
 
@@ -52,6 +51,12 @@ class CharacterData extends ActorDataModel.mixin(SettingsHolderTemplate, Attribu
 		}
 		st += this.bonuses.throwingStrength
 		return Math.trunc(st)
+	}
+
+	/* -------------------------------------------- */
+
+	encumbranceLevel(forSkills: boolean): encumbrance.Level {
+		return encumbrance.Level.No
 	}
 }
 

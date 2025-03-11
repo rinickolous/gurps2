@@ -110,6 +110,15 @@ class ContainerTemplate extends ItemDataModel<ContainerSchema> {
 			return collection
 		}, new Collection())
 	}
+
+	/* -------------------------------------------- */
+
+	get allModifiers(): Collection<ItemGURPS> {
+		console.error(
+			"ContainerTemplate#allModifiers does not have a base implementation and must be used in a subclass.",
+		)
+		return new Collection()
+	}
 }
 
 type ContainerSchema = {

@@ -49,11 +49,14 @@ class TraitData extends ItemDataModel.mixin<
 
 	/* -------------------------------------------- */
 
-	get allModifiers(): Collection<ItemInstance<ItemType.TraitModifier>> {
-		return this.allContents.reduce(
+	override get allModifiers(): Collection<ItemInstance<ItemType.TraitModifier>> {
+		return this.modifiers.reduce(
 			(collection: Collection<ItemInstance<ItemType.TraitModifier>>, item: ItemGURPS) => {
-				if (item.isOfType(ItemType.TraitModifier) && item.system.enabled) collection.set(item.id!, item)
-				return collection
+		const items: <ItemInstance<ItemType.TraitModifier>>[] = []
+				if (item.isOfType(ItemType.TraitModifier) && item.system.enabled) collection.set(item.id, item)
+		if (item.isOfType(ItemType.TraitModifierContainer)) {
+			item.allChildren.forEach((child) => {
+				if (child.isOfType(ItemType.TraitModifier) && child.system.enabled) collection.set(child.id, child)
 			},
 			new Collection(),
 		)

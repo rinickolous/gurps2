@@ -22,7 +22,6 @@ const immiscibleKeys = new Set([
 	"defineSchema",
 ] as const)
 
-// NEW SOLUTION START
 type ImmiscibleKeys = typeof immiscibleKeys extends Set<infer T> ? T : never
 
 // Combine instance types from templates
