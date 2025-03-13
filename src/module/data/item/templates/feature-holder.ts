@@ -4,8 +4,8 @@ import { ItemDataModel } from "../base.ts"
 import { DRBonus } from "@data/feature/dr-bonus.ts"
 import { MappingField } from "@data/fields/mapping-field.ts"
 import { ItemGURPS } from "@documents/item.ts"
-import { AnyObject } from "fvtt-types/utils"
 import fields = foundry.data.fields
+import { AnyObject } from "fvtt-types/utils"
 
 class FeatureHolderTemplate extends ItemDataModel<FeatureHolderSchema> {
 	defineSchema(): FeatureHolderSchema {
@@ -137,21 +137,16 @@ class FeatureField<
 	/* -------------------------------------------- */
 
 	protected override _cleanType(value: Feature, options?: fields.DataField.CleanOptions): Feature {
-		// if (!(typeof value === "object")) value = {}
-
 		const cls = this.getModel(value)
-		if (cls) return cls.cleanData(value, { ...options }) as Feature
+		// TODO: verify this works, otherwise pass through value itself
+		if (cls) return cls.cleanData({ ...value }, { ...options }) as Feature
 		return value
 	}
 
 	/* -------------------------------------------- */
 
-	getModel(value: object): FeatureClass | null {
-		if (
-			// isObject(value) &&
-			Object.hasOwn(value, "type") &&
-			Object.keys(FeatureTypes).includes((value as any).type)
-		) {
+	getModel(value: Feature | AnyObject): FeatureClass | null {
+		if (Object.hasOwn(value, "type") && Object.keys(FeatureTypes).includes((value as any).type)) {
 			return FeatureTypes[(value as any).type as feature.Type] as FeatureClass
 		}
 		return null

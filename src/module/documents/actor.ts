@@ -1,5 +1,6 @@
 import { ActorDataModelClasses, ActorDataTemplateClasses } from "@data/actor/types.ts"
 import { ActorTemplateType, ActorType } from "@util"
+import { ItemGURPS } from "./item.ts"
 
 class ActorGURPS extends Actor {
 	/* -------------------------------------------- */
@@ -47,6 +48,10 @@ class ActorGURPS extends Actor {
 		const result = String(ev.evaluate(exp))
 		return result
 	}
+}
+
+interface ActorGURPS extends Actor {
+	items: foundry.abstract.EmbeddedCollection<ItemGURPS, this>
 }
 
 export { ActorGURPS }

@@ -2,7 +2,7 @@ import { DocumentSystemFlags } from "@documents/system-flags.ts"
 import fields = foundry.data.fields
 import DataSchema = foundry.data.fields.DataSchema
 import { SYSTEM_NAME } from "@util"
-import { AnyObject, DeepPartial } from "fvtt-types/utils"
+import { AnyMutableObject, AnyObject, DeepPartial } from "fvtt-types/utils"
 
 // Immiscible keys
 const immiscibleKeys = new Set([
@@ -64,7 +64,7 @@ interface SystemDataModelMetadata<T extends DocumentSystemFlags = DocumentSystem
 
 class SystemDataModel<
 	Schema extends DataSchema = DataSchema,
-	Parent extends foundry.abstract.Document.Any = foundry.abstract.Document.Any,
+	Parent extends Item | Actor = Item | Actor,
 > extends foundry.abstract.TypeDataModel<Schema, Parent> {
 	static _enableV10Validation = true
 
@@ -149,7 +149,11 @@ class SystemDataModel<
 	/*  Data Cleaning                               */
 	/* -------------------------------------------- */
 
-	static override cleanData(source?: object, options?: Record<string, unknown>): object {
+	// static override cleanData(source?: AnyMutableObject, options?: Record<string, unknown>): object {
+	static override cleanData(
+		source?: AnyMutableObject,
+		options?: Parameters<fields.SchemaField.Any["clean"]>[1],
+	): AnyMutableObject {
 		this._cleanData(source, options)
 		return super.cleanData(source, options)
 	}
@@ -161,7 +165,7 @@ class SystemDataModel<
 	 * @param {object} [source]         The source data
 	 * @param {object} [options={}]     Additional options (see DataModel.cleanData)
 	 */
-	static _cleanData(source?: object, options?: Record<string, unknown>) {
+	static _cleanData(source?: AnyMutableObject, options?: Parameters<fields.SchemaField.Any["clean"]>[1]) {
 		for (const template of this._schemaTemplates) {
 			template._cleanData(source, options)
 		}
@@ -197,7 +201,7 @@ class SystemDataModel<
 	 */
 	protected override async _preCreate(
 		_data: foundry.abstract.TypeDataModel.ParentAssignmentType<Schema, Parent>,
-		_options: foundry.abstract.Document.PreCreateOptions<any>,
+		_options: foundry.abstract.Document.Database.PreCreateOptions<any>,
 		_user: User,
 	): Promise<boolean | void> {}
 
@@ -210,8 +214,8 @@ class SystemDataModel<
 	 */
 	async _preUpdate(
 		_changes: DeepPartial<foundry.abstract.TypeDataModel.ParentAssignmentType<Schema, Parent>>,
-		_options: foundry.abstract.Document.PreUpdateOptions<any>,
-		_userId: string,
+		_options: foundry.abstract.Document.Database.PreUpdateOptions<any>,
+		_user: User.Implementation,
 	): Promise<boolean | void> {}
 
 	/**
@@ -220,13 +224,16 @@ class SystemDataModel<
 	 * @param _user    The User requesting the document creation.
 	 * @returns        A return value of false indicates the creation operation should be cancelled.
 	 */
-	async _preDelete(_options: foundry.abstract.Document.PreDeleteOptions<any>, _user: User): Promise<boolean | void> {}
+	async _preDelete(
+		_options: foundry.abstract.Document.Database.PreDeleteOperationInstance<any>,
+		_user: User,
+	): Promise<boolean | void> {}
 
 	override _onCreate(
 		data: foundry.abstract.TypeDataModel.ParentAssignmentType<Schema, Parent>,
-		options: foundry.abstract.Document.OnCreateOptions<any>,
+		options: foundry.abstract.Document.Database.CreateOptions<any>,
 		userId: string,
-	) {
+	): void {
 		super._onCreate(data, options, userId)
 	}
 
@@ -234,13 +241,13 @@ class SystemDataModel<
 
 	_onUpdate(
 		_changed: DeepPartial<foundry.abstract.TypeDataModel.ParentAssignmentType<Schema, Parent>>,
-		_options: foundry.abstract.Document.OnUpdateOptions<any>,
+		_options: foundry.abstract.Document.Database.UpdateOperation<any>,
 		_userId: string,
 	) {}
 
 	/* -------------------------------------------- */
 
-	_onDelete(_options: foundry.abstract.Document.OnDeleteOptions<any>, _userId: string) {}
+	_onDelete(_options: foundry.abstract.Document.Database.DeleteOptions<any>, _userId: string) {}
 
 	/* -------------------------------------------- */
 	/*  Data Validation                             */
@@ -250,7 +257,7 @@ class SystemDataModel<
 		/**
 		 * A specific set of proposed changes to validate, rather than the full source data of the model.
 		 */
-		changes?: fields.SchemaField.InnerAssignmentType<Schema>
+		changes?: fields.SchemaField.AssignmentData<Schema>
 
 		/**
 		 * If changes are provided, attempt to clean the changes before validating them?
@@ -301,7 +308,9 @@ class SystemDataModel<
 	/*  Data Validation                             */
 	/* -------------------------------------------- */
 
-	static override validateJoint(data: Record<string, unknown>) {
+	// static override validateJoint(data: Record<string, unknown>) {
+	// TODO: see if this does anything anymore
+	static override validateJoint(data: never) {
 		this._validateJoint(data)
 		return super.validateJoint(data)
 	}
@@ -342,7 +351,10 @@ class SystemDataModel<
 
 	/* -------------------------------------------- */
 
-	static override shimData(data: object, options?: { embedded?: boolean }): object {
+	static override shimData(
+		data: AnyMutableObject,
+		options?: foundry.abstract.DataModel.ShimDataOptions,
+	): AnyMutableObject {
 		this._shimData(data, options)
 		return super.shimData(data, options)
 	}
@@ -355,7 +367,7 @@ class SystemDataModel<
 	 * @param {object} [options]    Additional options (see DataModel.shimData)
 	 * @protected
 	 */
-	static _shimData(data: object, options?: { embedded?: boolean }): void {
+	static _shimData(data: AnyMutableObject, options?: foundry.abstract.DataModel.ShimDataOptions): void {
 		for (const template of this._schemaTemplates) {
 			template._shimData(data, options)
 		}
@@ -378,7 +390,11 @@ class SystemDataModel<
 	/* -------------------------------------------- */
 
 	// override  toObject(source: true): this["_source"];
-	override toObject(source?: boolean): ReturnType<this["schema"]["toObject"]> {
+	override toObject<Source extends boolean | undefined>(
+		source?: Source,
+	): Source extends false
+		? fields.SchemaField.PersistedData<Schema>
+		: Readonly<fields.SchemaField.PersistedData<Schema>> {
 		return super.toObject(source)
 	}
 
@@ -427,7 +443,7 @@ class SystemDataModel<
 	}
 }
 
-interface SystemDataModel<Schema extends DataSchema, Parent extends foundry.abstract.Document.Any>
+interface SystemDataModel<Schema extends DataSchema, Parent extends Item | Actor>
 	extends foundry.abstract.TypeDataModel<Schema, Parent> {
 	constructor: typeof SystemDataModel<Schema, Parent>
 }

@@ -6,6 +6,7 @@ import { ItemDataModelClasses, ItemDataTemplateClasses, ItemTemplateInstance } f
 import { ActorGURPS } from "@documents/actor.ts"
 import { CellData, CellDataOptions } from "@data/cell-data.ts"
 import { SheetButton } from "@data/sheet-button.ts"
+import { DeepPartial } from "fvtt-types/utils"
 
 type ItemDataModelMetadata = SystemDataModelMetadata<ItemSystemFlags>
 
@@ -32,7 +33,7 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 	static override metadata: ItemDataModelMetadata = Object.freeze(
 		foundry.utils.mergeObject(
 			super.metadata,
-			{ systemFlagsModel: ItemSystemFlags },
+			{ systemFlagsModel: ItemSystemFlags, container: { id: null, contentType: null } },
 			{ inplace: false },
 		) as ItemDataModelMetadata,
 	)
@@ -80,6 +81,12 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 	}
 
 	/* -------------------------------------------- */
+
+	get container(): MaybePromise<ItemGURPS> | null {
+		const containerId = this.metadata.container.id
+	}
+
+	/* -------------------------------------------- */
 	/*  Item Sheet                                  */
 	/* -------------------------------------------- */
 
@@ -119,7 +126,11 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 		parentContainers.forEach(c => c.render(false, options))
 
 		// Render the actor sheet, compendium, or sidebar
-		if (this.parent.isEmbedded) this.parent.actor!.sheet?.render(false, options)
+		if (this.parent.isEmbedded)
+			this.parent.actor!.sheet?.render(
+				//@ts-expect-error: This does match an overload but not sure why it's not recognised here.
+				options as DeepPartial<foundry.applications.api.ApplicationV2.RenderOptions>,
+			)
 		else if (this.parent.pack) game.packs?.get(this.parent.pack)?.apps.forEach(a => a.render(false, options))
 		//@ts-expect-error waiting for types to catch up to v13
 		else ui.items?.render(false, options)
@@ -165,6 +176,8 @@ interface ItemDataModel<Schema extends ItemDataSchema> extends SystemDataModel<S
 	constructor: typeof ItemDataModel
 }
 
-type ItemDataSchema = {}
+const itemDataSchema = {}
+
+type ItemDataSchema = typeof itemDataSchema
 
 export { ItemDataModel }

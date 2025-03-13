@@ -29,7 +29,7 @@ class ActionHolderTemplate extends ItemDataModel<ActionHolderSchema> {
 	async createAction(
 		type: ActionType,
 		data: foundry.abstract.DataModel.ConstructorDataFor<Action>,
-		{ renderSheet }: { renderSheet: boolean;[key: string]: unknown } = { renderSheet: true },
+		{ renderSheet }: { renderSheet: boolean; [key: string]: unknown } = { renderSheet: true },
 	): Promise<foundry.applications.api.ApplicationV2 | null> {
 		const cls = ActionDataModelClasses[type]
 		if (!cls) throw ErrorGURPS(`${type} is not a valid Action type`)

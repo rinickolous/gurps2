@@ -2,14 +2,11 @@ import { ItemDataModel } from "../base.ts"
 import fields = foundry.data.fields
 import { ItemTemplateType, ItemType, ItemTypes } from "@util"
 import { ItemDataModelClasses, ItemInstance } from "../types.ts"
-import { ItemGURPS } from "@documents/item.ts"
+import { ItemGURPS } from "@documents"
 
 class ContainerTemplate extends ItemDataModel<ContainerSchema> {
 	static override defineSchema(): ContainerSchema {
-		const fields = foundry.data.fields
-		return {
-			open: new fields.BooleanField({ required: true, nullable: true, initial: null }),
-		}
+		return containerSchema
 	}
 
 	/* -------------------------------------------- */
@@ -72,14 +69,41 @@ class ContainerTemplate extends ItemDataModel<ContainerSchema> {
 	/**
 	 * Get all of the items contained in this container. A promise if item is within a compendium.
 	 */
-	get contents(): MaybePromise<Collection<ItemGURPS>> {
+	// get contents(): MaybePromise<Collection<ItemGURPS>> {
+	// 	// If in a compendium, fetch using getDocuments and return a promise
+	// 	if (this.parent.pack && !this.parent.isEmbedded) {
+	// 		const pack = game.packs?.get(this.parent.pack)
+	// 		if (!pack) {
+	// 			console.error(`Compendium pack ${this.parent.pack} not found`)
+	// 			return new Collection()
+	// 		}
+	// 		return pack
+	// 			.getDocuments({ system: { container: this.parent.id } })
+	// 			.then(d => new Collection(d.map(d => [d.id, d]))) as Promise<Collection<ItemGURPS>>
+	// 	}
+	//
+	// 	// Otherwise use local document collection
+	// 	return (this.parent.isEmbedded ? this.parent.actor!.items : game.items).reduce(
+	// 		(collection: Collection<ItemGURPS>, item: ItemGURPS) => {
+	// 			if (item.system.hasTemplate(ItemTemplateType.BasicInformation))
+	// 				if (item.system.container === this.parent.id) collection.set(item.id!, item)
+	// 			return collection
+	// 		},
+	// 		new Collection(),
+	// 	)
+	// }
+
+	contents(relationship: string): MaybePromise<Collection<ItemGURPS>> {
 		// If in a compendium, fetch using getDocuments and return a promise
 		if (this.parent.pack && !this.parent.isEmbedded) {
 			const pack = game.packs?.get(this.parent.pack)
-			//@ts-expect-error weird types
-			return pack!
-				.getDocuments({ system: { container: this.parent.id } })
-				.then(d => new Collection(d.map(d => [d.id, d])))
+			if (!pack) {
+				console.error(`Compendium pack ${this.parent.pack} not found`)
+				return new Collection()
+			}
+			return pack
+				.getDocuments({ system: { container: this.parent.id, relationship } })
+				.then(d => new Collection(d.map(d => [d.id, d]))) as Promise<Collection<ItemGURPS>>
 		}
 
 		// Otherwise use local document collection
@@ -91,6 +115,20 @@ class ContainerTemplate extends ItemDataModel<ContainerSchema> {
 			},
 			new Collection(),
 		)
+	}
+
+	/* -------------------------------------------- */
+
+	get children(): MaybePromise<Collection<ItemGURPS>> {
+		return this.contents("child")
+	}
+
+	/* -------------------------------------------- */
+
+	/* -------------------------------------------- */
+
+	get modifiers(): MaybePromise<Collection<ItemGURPS>> {
+		return this.contents("modifier")
 	}
 
 	/* -------------------------------------------- */
@@ -121,8 +159,11 @@ class ContainerTemplate extends ItemDataModel<ContainerSchema> {
 	}
 }
 
-type ContainerSchema = {
-	open: fields.BooleanField<{ required: true; nullable: true }>
+const containerSchema = {
+	childIds: new fields.ArrayField(new fields.ForeignDocumentField(ItemGURPS, { idOnly: true })),
+	modifierIds: new fields.ArrayField(new fields.ForeignDocumentField(ItemGURPS, { idOnly: true })),
 }
+
+type ContainerSchema = typeof containerSchema
 
 export { ContainerTemplate, type ContainerSchema }

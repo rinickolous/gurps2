@@ -1,5 +1,6 @@
 import { ItemDataModelClasses, ItemDataTemplateClasses } from "@data/item/types.ts"
 import { ItemType, ItemTemplateType } from "@util"
+import { ActorGURPS } from "./actor.ts"
 
 class ItemGURPS extends Item {
 	/* -------------------------------------------- */
@@ -30,15 +31,20 @@ class ItemGURPS extends Item {
 	 */
 	get container(): MaybePromise<ItemGURPS> | null {
 		if (!Object.hasOwn(this.system, "container")) return null
-		if (this.isEmbedded) return this.actor!.items.get((this.system as any).container) ?? null
+		const containerId = (this.system as unknown as { container: string | null }).container
+		if (this.isEmbedded) return this.actor!.items.get(containerId || "") ?? null
 		if (this.pack) {
 			const pack = game.packs?.get(this.pack)
-			const item = pack?.getDocument((this.system as unknown as { container: string }).container)
-			return (item as Promise<ItemGURPS>) ?? null
+			const item = pack?.getDocument(containerId || "")
+			return (item as unknown as Promise<ItemGURPS>) ?? null
 		}
 
-		return game.items?.get((this.system as unknown as { container: string }).container) ?? null
+		return (game.items?.get(containerId || "") as ItemGURPS) ?? null
 	}
+}
+
+interface ItemGURPS extends Item {
+	get actor(): ActorGURPS | null
 }
 
 export { ItemGURPS }

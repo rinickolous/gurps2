@@ -16,8 +16,6 @@ import {
 	StudyHolderSchema,
 	StudyHolderTemplate,
 } from "./templates/index.ts"
-import { ItemInstance } from "./types.ts"
-import { ItemGURPS } from "@documents"
 import fields = foundry.data.fields
 
 class TraitData extends ItemDataModel.mixin<
@@ -45,20 +43,7 @@ class TraitData extends ItemDataModel.mixin<
 
 	/* -------------------------------------------- */
 
-	get allModifiers(): Collection<ItemInstance<ItemType.TraitModifier>> {}
-
-	// override get allModifiers(): Collection<ItemInstance<ItemType.TraitModifier>> {
-	// 	return this.modifiers.reduce(
-	// 		(collection: Collection<ItemInstance<ItemType.TraitModifier>>, item: ItemGURPS) => {
-	// 	const items: <ItemInstance<ItemType.TraitModifier>>[] = []
-	// 			if (item.isOfType(ItemType.TraitModifier) && item.system.enabled) collection.set(item.id, item)
-	// 	if (item.isOfType(ItemType.TraitModifierContainer)) {
-	// 		item.allChildren.forEach((child) => {
-	// 			if (child.isOfType(ItemType.TraitModifier) && child.system.enabled) collection.set(child.id, child)
-	// 		},
-	// 		new Collection(),
-	// 	)
-	// }
+	// override get allModifiers(): MaybePromise<Collection<ItemInstance<ItemType.TraitModifier>>> {}
 }
 
 const traitSchema = {

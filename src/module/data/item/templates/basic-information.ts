@@ -2,7 +2,7 @@ import { ItemDataModel } from "../base.ts"
 import fields = foundry.data.fields
 import { ItemGURPS } from "@documents"
 import { ExtendedStringField, StringArrayField } from "@data/fields/index.ts"
-import { ItemTemplateType, Nameable, RegEx } from "@util"
+import { contents, ItemTemplateType, Nameable, RegEx } from "@util"
 
 class BasicInformationTemplate extends ItemDataModel<BasicInformationSchema> {
 	static override defineSchema(): BasicInformationSchema {
@@ -61,7 +61,6 @@ class BasicInformationTemplate extends ItemDataModel<BasicInformationSchema> {
 }
 
 const basicInformationSchema = {
-	container: new fields.ForeignDocumentField(ItemGURPS, { idOnly: true }),
 	name: new ExtendedStringField({
 		required: true,
 		nullable: false,
