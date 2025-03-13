@@ -33,7 +33,7 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 	static override metadata: ItemDataModelMetadata = Object.freeze(
 		foundry.utils.mergeObject(
 			super.metadata,
-			{ systemFlagsModel: ItemSystemFlags, container: { id: null, contentType: null } },
+			{ systemFlagsModel: ItemSystemFlags },
 			{ inplace: false },
 		) as ItemDataModelMetadata,
 	)
