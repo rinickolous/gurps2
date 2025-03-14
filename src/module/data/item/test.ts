@@ -1,32 +1,21 @@
-import { ActorBody } from "@data/hit-location.ts"
-import fields = foundry.data.fields
 import { SystemDataModel } from "@data/abstract.ts"
+import { ItemDataModel } from "./base.ts"
+import { BasicInformationTemplate } from "./templates/basic-information.ts"
 
-class TestItem extends SystemDataModel<TestSchema> {
+export class TestItemData1 extends foundry.abstract.TypeDataModel<TestItemSchema, Item> {}
 
-	testFunc() {
-		const a: TestItem = {} as any
-		const b = a.toObject()
+export class TestItemData2 extends SystemDataModel<TestItemSchema, Item> {}
 
-		b.body.locations
+export class TestItemData3 extends ItemDataModel<TestItemSchema> {}
 
+export class TestItemData4 extends SystemDataModel.mixin<[typeof BasicInformationTemplate], TestItemSchema>(
+	BasicInformationTemplate,
+) {}
 
-	}
-}
+export class TestItemData5 extends ItemDataModel.mixin<[typeof BasicInformationTemplate], TestItemSchema>(
+	BasicInformationTemplate,
+) {}
 
-class TestModel extends foundry.abstract.DataModel<TestModelSchema> { }
+type TestItemSchema = {}
 
-type TestSchema = {
-	test: fields.EmbeddedDataField<typeof TestModel>
-	body: fields.EmbeddedDataField<typeof ActorBody>
-	foo: fields.StringField
-}
-
-type TestModelSchema = {
-	foo: fields.SchemaField<{
-		bar: fields.ArrayField<fields.StringField>
-	}>
-	body: fields.EmbeddedDataField<typeof ActorBody>
-}
-
-export { TestItem }
+// export { TestItemData, type TestItemSchema }

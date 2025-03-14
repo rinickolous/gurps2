@@ -1,16 +1,14 @@
 import { SystemDataModel, SystemDataModelMetadata } from "@data/abstract.ts"
 import { ItemSystemFlags } from "@documents/item-system-flags.ts"
-import { ItemGURPS } from "@documents/item.ts"
 import { ItemType, ItemTemplateType, ErrorGURPS } from "@util"
 import { ItemDataModelClasses, ItemDataTemplateClasses, ItemTemplateInstance } from "./types.ts"
-import { ActorGURPS } from "@documents/actor.ts"
 import { CellData, CellDataOptions } from "@data/cell-data.ts"
 import { SheetButton } from "@data/sheet-button.ts"
 import { DeepPartial } from "fvtt-types/utils"
 
 type ItemDataModelMetadata = SystemDataModelMetadata<ItemSystemFlags>
 
-class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends SystemDataModel<Schema, ItemGURPS> {
+class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends SystemDataModel<Schema, Item> {
 	/**
 	 * Maximum depth items can be nested in containers.
 	 */
@@ -64,13 +62,13 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 	/*  Getters                                     */
 	/* -------------------------------------------- */
 
-	get item(): ItemGURPS | null {
+	get item(): this["parent"] {
 		return this.parent
 	}
 
 	/* -------------------------------------------- */
 
-	get actor(): ActorGURPS | null {
+	get actor(): Actor.Implementation | null {
 		return this.parent.actor
 	}
 
@@ -82,8 +80,9 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 
 	/* -------------------------------------------- */
 
-	get container(): MaybePromise<ItemGURPS> | null {
-		const containerId = this.metadata.container.id
+	get container(): MaybePromise<Item.Implementation> | null {
+		return null
+		// const containerId = this.metadata.container.id
 	}
 
 	/* -------------------------------------------- */
@@ -138,9 +137,10 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 		// Render former container if it was moved between containers
 		if (options.formerContainer) {
 			const former = await fromUuid(options.formerContainer)
-			if (former instanceof ItemGURPS) {
+			if (former instanceof Item) {
 				former?.render(false, options)
-				former?.system._renderContainers({ ...options, formerContainer: undefined })
+				if (former?.system instanceof ItemDataModel)
+					former?.system._renderContainers({ ...options, formerContainer: undefined })
 			}
 		}
 	}
@@ -172,12 +172,8 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 	}
 }
 
-interface ItemDataModel<Schema extends ItemDataSchema> extends SystemDataModel<Schema, ItemGURPS> {
+interface ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends SystemDataModel<Schema, Item> {
 	constructor: typeof ItemDataModel
 }
-
-const itemDataSchema = {}
-
-type ItemDataSchema = typeof itemDataSchema
 
 export { ItemDataModel }

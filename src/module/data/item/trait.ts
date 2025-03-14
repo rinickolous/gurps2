@@ -17,32 +17,31 @@ import {
 	StudyHolderTemplate,
 } from "./templates/index.ts"
 import fields = foundry.data.fields
+import { SystemDataModel } from "@data/abstract.ts"
 
-class TraitData extends ItemDataModel.mixin<
-	typeof ItemDataModel,
+class TraitData extends SystemDataModel.mixin<
+	// typeof ItemDataModel,
 	[
-		typeof ActionHolderTemplate,
+		// typeof ActionHolderTemplate,
 		typeof BasicInformationTemplate,
-		typeof ContainerTemplate,
-		typeof FeatureHolderTemplate,
-		typeof PrereqHolderTemplate,
-		typeof ReplacementHolderTemplate,
-		typeof StudyHolderTemplate,
+		// typeof ContainerTemplate,
+		// typeof FeatureHolderTemplate,
+		// typeof PrereqHolderTemplate,
+		// typeof ReplacementHolderTemplate,
+		// typeof StudyHolderTemplate,
 	],
 	TraitSchema
 >(
-	ActionHolderTemplate,
+	// ActionHolderTemplate,
 	BasicInformationTemplate,
-	ContainerTemplate,
-	FeatureHolderTemplate,
-	PrereqHolderTemplate,
-	ReplacementHolderTemplate,
-	StudyHolderTemplate,
+	// ContainerTemplate,
+	// FeatureHolderTemplate,
+	// PrereqHolderTemplate,
+	// ReplacementHolderTemplate,
+	// StudyHolderTemplate,
 ) {
-	static override modifierTypes = new Set([ItemType.TraitModifier, ItemType.TraitModifierContainer])
-
+	// static override modifierTypes = new Set([ItemType.TraitModifier, ItemType.TraitModifierContainer])
 	/* -------------------------------------------- */
-
 	// override get allModifiers(): MaybePromise<Collection<ItemInstance<ItemType.TraitModifier>>> {}
 }
 
@@ -53,10 +52,10 @@ const traitSchema = {
 type TraitSchema = ActionHolderSchema &
 	BasicInformationSchema &
 	ContainerSchema &
-	FeatureHolderSchema &
-	PrereqHolderSchema &
-	ReplacementHolderSchema &
-	StudyHolderSchema &
+	// FeatureHolderSchema &
+	// PrereqHolderSchema &
+	// ReplacementHolderSchema &
+	// StudyHolderSchema &
 	typeof traitSchema
 
 export { TraitData, type TraitSchema }
