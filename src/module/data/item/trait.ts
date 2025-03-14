@@ -22,7 +22,7 @@ import { SystemDataModel } from "@data/abstract.ts"
 class TraitData extends SystemDataModel.mixin<
 	// typeof ItemDataModel,
 	[
-		// typeof ActionHolderTemplate,
+		typeof ActionHolderTemplate,
 		typeof BasicInformationTemplate,
 		// typeof ContainerTemplate,
 		// typeof FeatureHolderTemplate,
@@ -32,7 +32,7 @@ class TraitData extends SystemDataModel.mixin<
 	],
 	TraitSchema
 >(
-	// ActionHolderTemplate,
+	ActionHolderTemplate,
 	BasicInformationTemplate,
 	// ContainerTemplate,
 	// FeatureHolderTemplate,
