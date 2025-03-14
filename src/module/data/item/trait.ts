@@ -19,7 +19,7 @@ import {
 import fields = foundry.data.fields
 import { SystemDataModel } from "@data/abstract.ts"
 
-class TraitData extends SystemDataModel.mixin<
+class TraitData extends ItemDataModel.mixin<
 	// typeof ItemDataModel,
 	[
 		typeof ActionHolderTemplate,
