@@ -1,70 +1,73 @@
-// import { ItemDataModel } from "../base.ts"
 import fields = foundry.data.fields
 import { ExtendedStringField, StringArrayField } from "@data/fields/index.ts"
-// import { contents, ItemTemplateType, Nameable, RegEx } from "@util"
+import { contents, ItemTemplateType, Nameable, RegEx } from "@util"
 import { ItemDataModel } from "../base.ts"
 
 class BasicInformationTemplate extends ItemDataModel<BasicInformationSchema> {
-	// static override defineSchema(): BasicInformationSchema {
-	// 	return basicInformationSchema
-	// }
-	//
-	// /* -------------------------------------------- */
-	//
-	// hasTag(tag: string): boolean {
-	// 	return this.tags.includes(tag)
-	// }
-	//
-	// /* -------------------------------------------- */
-	//
-	// get combinedTags(): string {
-	// 	return this.tags.join(", ")
-	// }
-	//
-	// /* -------------------------------------------- */
-	//
-	// get processedName(): string {
-	// 	return this.nameWithReplacements
-	// }
-	//
-	// /* -------------------------------------------- */
-	//
-	// get processedNotes(): string {
-	// 	return RegEx.replace(RegEx.EvalEmbedded, this.notesWithReplacements, this.actor)
-	// }
-	//
-	// /* -------------------------------------------- */
-	//
-	// get enrichedDescription(): Promise<string> {
-	// 	let text = this.description
-	// 	text = RegEx.replace(RegEx.EvalEmbedded, text, this.actor)
-	// 	return TextEditor.enrichHTML(text, {
-	// 		// async: false,
-	// 	})
-	// }
-	//
-	// /* -------------------------------------------- */
-	//
-	// /** Replacements */
-	// get nameWithReplacements(): string {
-	// 	if (this.hasTemplate(ItemTemplateType.ReplacementHolder))
-	// 		return Nameable.apply(this.parent.name, this.replacements)
-	// 	return this.parent.name
-	// }
-	//
-	// /* -------------------------------------------- */
-	//
-	// get notesWithReplacements(): string {
-	// 	if (this.hasTemplate(ItemTemplateType.ReplacementHolder)) return Nameable.apply(this.notes, this.replacements)
-	// 	return this.notes
-	// }
+	constructor(...args: any[]) {
+		super(...args)
+	}
+	static override defineSchema(): BasicInformationSchema {
+		return basicInformationSchema
+	}
+
+	/* -------------------------------------------- */
+
+	hasTag(tag: string): boolean {
+		return this.tags.includes(tag)
+	}
+
+	/* -------------------------------------------- */
+
+	get combinedTags(): string {
+		return this.tags.join(", ")
+	}
+
+	/* -------------------------------------------- */
+
+	get processedName(): string {
+		return this.nameWithReplacements
+	}
+
+	/* -------------------------------------------- */
+
+	get processedNotes(): string {
+		return RegEx.replace(RegEx.EvalEmbedded, this.notesWithReplacements, this.actor)
+	}
+
+	/* -------------------------------------------- */
+
+	get enrichedDescription(): Promise<string> {
+		let text = this.description
+		text = RegEx.replace(RegEx.EvalEmbedded, text, this.actor)
+		return TextEditor.enrichHTML(text, {
+			// async: false,
+		})
+	}
+
+	/* -------------------------------------------- */
+
+	/** Replacements */
+	get nameWithReplacements(): string {
+		if (this.hasTemplate(ItemTemplateType.ReplacementHolder))
+			return Nameable.apply(this.parent.name, this.replacements)
+		return this.parent.name
+	}
+
+	/* -------------------------------------------- */
+
+	get notesWithReplacements(): string {
+		if (this.hasTemplate(ItemTemplateType.ReplacementHolder)) return Nameable.apply(this.notes, this.replacements)
+		return this.notes
+	}
 }
 
 const basicInformationSchema = {
-	// containerData: new fields.SchemaField({
-	// 	id: new fields.ForeignDocumentField(Item, { idOnly: true }),
-	// 	relationship: new fields.StringField({ required: true, nullable: false, initial: contents.TypesChoices }),
-	// }),
+	containerData: new fields.SchemaField({
+		// @ts-expect-error weird type stuff
+		id: new fields.ForeignDocumentField(Item, { idOnly: true }),
+		relationship: new fields.StringField({ required: true, nullable: false, initial: contents.TypesChoices }),
+	}),
 	name: new ExtendedStringField({
 		required: true,
 		nullable: false,

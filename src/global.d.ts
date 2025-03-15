@@ -5,7 +5,7 @@
 // import { TraitData } from "@data"
 // import type { TraitData } from "@data"
 import { TestItemData1, TestItemData2, TestItemData3 } from "@data/item/test.ts"
-import { ItemGURPS } from "@documents"
+import { ActorGURPS, ItemGURPS } from "@documents"
 import { AttributeSettings } from "@module/settings/attributes-config.ts"
 import { ColorSettings } from "@module/settings/color-config.ts"
 import { HitLocationSettings } from "@module/settings/hit-location-config.ts"
@@ -30,6 +30,7 @@ declare global {
 
 	interface DocumentClassConfig {
 		Item: typeof ItemGURPS
+		Actor: typeof ActorGURPS
 	}
 
 	interface DataModelConfig {

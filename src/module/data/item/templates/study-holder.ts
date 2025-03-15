@@ -1,7 +1,11 @@
-import { ItemDataModel } from "../base.ts"
 import fields = foundry.data.fields
+import { SystemDataModel } from "@data/abstract.ts"
 
-class StudyHolderTemplate extends ItemDataModel<StudyHolderSchema> { }
+class StudyHolderTemplate extends SystemDataModel<StudyHolderSchema> {
+	constructor(...args: any[]) {
+		super(...args)
+	}
+}
 
 type StudyHolderSchema = {
 	study: fields.StringField<{ required: true; nullable: false }>

@@ -1,10 +1,13 @@
 import { Nameable } from "@util"
-import { ItemDataModel } from "../base.ts"
 import { MappingField } from "@data/fields/mapping-field.ts"
 import { AnyObject } from "fvtt-types/utils"
 import fields = foundry.data.fields
+import { SystemDataModel } from "@data/abstract.ts"
 
-class ReplacementHolderTemplate extends ItemDataModel<ReplacementHolderSchema> {
+class ReplacementHolderTemplate extends SystemDataModel<ReplacementHolderSchema> {
+	constructor(...args: any[]) {
+		super(...args)
+	}
 	static override defineSchema(): ReplacementHolderSchema {
 		return replacementHolderSchema
 	}

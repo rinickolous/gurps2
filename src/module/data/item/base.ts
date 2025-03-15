@@ -62,9 +62,9 @@ class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends Syste
 	/*  Getters                                     */
 	/* -------------------------------------------- */
 
-	get item(): this["parent"] {
-		return this.parent
-	}
+	// get item(): this["parent"] {
+	// 	return this.parent
+	// }
 
 	/* -------------------------------------------- */
 
