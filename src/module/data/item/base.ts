@@ -163,7 +163,7 @@ class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends Syste
 		let container
 		let depth = 0
 		const containers = []
-		while ((container = await item.container) && depth < ItemDataModel.MAX_DEPTH) {
+		while ((container = await (item as Item.Implementation).container) && depth < ItemDataModel.MAX_DEPTH) {
 			containers.push(container)
 			item = container
 			depth += 1

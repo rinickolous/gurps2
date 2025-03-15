@@ -64,7 +64,7 @@ class ItemGURPS<SubType extends Item.SubType> extends Item<SubType> {
 	 * The item that contains this item, if it is in a container. Returns a promise if the item is located
 	 * in a compendium pack.
 	 */
-	get container(): MaybePromise<Item.Implementation> | null {
+	get container(): MaybePromise<Item> | null {
 		if (!Object.hasOwn(this.system, "container")) return null
 		const containerId = (this.system as unknown as { container: string | null }).container
 		if (this.isEmbedded) return this.actor!.items.get(containerId || "") ?? null

@@ -1,22 +1,35 @@
 import { ItemType } from "@util"
 import { ItemDataModel } from "./base.ts"
 import {
-	ActionHolderSchema,
 	ActionHolderTemplate,
-	BasicInformationSchema,
 	BasicInformationTemplate,
-	ContainerSchema,
 	ContainerTemplate,
-	FeatureHolderSchema,
 	FeatureHolderTemplate,
-	PrereqHolderSchema,
 	PrereqHolderTemplate,
-	ReplacementHolderSchema,
 	ReplacementHolderTemplate,
-	StudyHolderSchema,
 	StudyHolderTemplate,
 } from "./templates/index.ts"
 import fields = foundry.data.fields
+
+/* -------------------------------------------- */
+
+const traitFieldsSchema = {
+	enabled: new fields.BooleanField(),
+}
+
+/* -------------------------------------------- */
+
+type TraitFieldsSchema = typeof traitFieldsSchema
+
+/* -------------------------------------------- */
+
+class TraitFields extends ItemDataModel<TraitFieldsSchema> {
+	static override defineSchema(): TraitFieldsSchema {
+		return traitFieldsSchema
+	}
+}
+
+/* -------------------------------------------- */
 
 class TraitData extends ItemDataModel.mixin(
 	ActionHolderTemplate,
@@ -26,6 +39,7 @@ class TraitData extends ItemDataModel.mixin(
 	PrereqHolderTemplate,
 	ReplacementHolderTemplate,
 	StudyHolderTemplate,
+	TraitFields,
 ) {
 	static override modifierTypes = new Set([ItemType.TraitModifier, ItemType.TraitModifierContainer])
 
@@ -34,17 +48,4 @@ class TraitData extends ItemDataModel.mixin(
 	// get allModifiers(): MaybePromise<Collection<ItemInstance<ItemType.TraitModifier>>> {}
 }
 
-const traitSchema = {
-	enabled: new fields.BooleanField(),
-}
-
-type TraitSchema = ActionHolderSchema &
-	BasicInformationSchema &
-	ContainerSchema &
-	FeatureHolderSchema &
-	PrereqHolderSchema &
-	ReplacementHolderSchema &
-	StudyHolderSchema &
-	typeof traitSchema
-
-export { TraitData, type TraitSchema }
+export { TraitData }

@@ -1,10 +1,6 @@
 /// <reference path="./types/fields/collection-field.d.ts" />
 /// <reference path="./types/fields/extended-fields.d.ts" />
 /// <reference path="./types/fields/mapping-field.d.ts" />
-
-// import { TraitData } from "@data"
-// import type { TraitData } from "@data"
-import { TestItemData1, TestItemData2, TestItemData3 } from "@data/item/test.ts"
 import { ActorGURPS, ItemGURPS } from "@documents"
 import { AttributeSettings } from "@module/settings/attributes-config.ts"
 import { ColorSettings } from "@module/settings/color-config.ts"
@@ -12,7 +8,6 @@ import { HitLocationSettings } from "@module/settings/hit-location-config.ts"
 import { SheetSettings } from "@module/settings/sheet-settings-config.ts"
 import { ItemType } from "@util"
 import { AnyObject } from "fvtt-types/utils"
-// export type * from "./types/index.js"
 
 declare global {
 	type Maybe<T> = T | null | undefined
@@ -35,7 +30,22 @@ declare global {
 
 	interface DataModelConfig {
 		Item: {
-			[ItemType.Trait]: typeof TestItemData3
+			[ItemType.EquipmentContainer]: typeof EquipmentContainerData
+			[ItemType.EquipmentModifierContainer]: typeof EquipmentModifierContainerData
+			[ItemType.EquipmentModifier]: typeof EquipmentModifierData
+			[ItemType.Equipment]: typeof EquipmentData
+			[ItemType.NoteContainer]: typeof NoteContainerData
+			[ItemType.Note]: typeof NoteData
+			[ItemType.RitualMagicSpell]: typeof RitualMagicSpellData
+			[ItemType.SkillContainer]: typeof SkillContainerData
+			[ItemType.Skill]: typeof SkillData
+			[ItemType.SpellContainer]: typeof SpellContainerData
+			[ItemType.Spell]: typeof SpellData
+			[ItemType.Technique]: typeof TechniqueData
+			[ItemType.TraitContainer]: typeof TraitContainerData
+			[ItemType.TraitModifierContainer]: typeof TraitModifierContainerData
+			[ItemType.TraitModifier]: typeof TraitModifierData
+			[ItemType.Trait]: typeof TraitData
 		}
 	}
 
