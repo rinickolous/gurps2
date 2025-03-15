@@ -1,4 +1,3 @@
-import { DocumentSystemFlags } from "@documents/system-flags.ts"
 import fields = foundry.data.fields
 import DataSchema = foundry.data.fields.DataSchema
 import { SYSTEM_NAME } from "@util"
@@ -66,10 +65,15 @@ interface ConcreteImmiscible {
 
 /* -------------------------------------------- */
 
-interface SystemDataModelMetadata<T extends DocumentSystemFlags = DocumentSystemFlags> {
-	systemFlagsModel: Constructor<T> | null
+type SystemDataModelMetadata<
+	T extends foundry.abstract.DataModel.AnyConstructor = foundry.abstract.DataModel.AnyConstructor,
+> = {
+	systemFlagsModel: T
 }
-
+// & T extends foundry.abstract.DataModel.AnyConstructor
+// 	? foundry.data.fields.SchemaField.AssignmentData<foundry.abstract.DataModel.SchemaOfClass<T>>
+// 	: {}
+//
 /* -------------------------------------------- */
 
 class SystemDataModel<
@@ -119,11 +123,11 @@ class SystemDataModel<
 	/**
 	 * Metadata that describes this DataModel.
 	 */
-	static metadata: SystemDataModelMetadata = Object.freeze({
+	static metadata: SystemDataModelMetadata<any> = Object.freeze({
 		systemFlagsModel: null,
 	})
 
-	get metadata(): SystemDataModelMetadata {
+	get metadata(): SystemDataModelMetadata<any> {
 		return this.constructor.metadata
 	}
 

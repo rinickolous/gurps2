@@ -6,9 +6,12 @@ import { CellData, CellDataOptions } from "@data/cell-data.ts"
 import { SheetButton } from "@data/sheet-button.ts"
 import { DeepPartial } from "fvtt-types/utils"
 
-type ItemDataModelMetadata = SystemDataModelMetadata<ItemSystemFlags>
+type ItemDataModelMetadata = SystemDataModelMetadata<typeof ItemSystemFlags>
 
-class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends SystemDataModel<Schema, Item> {
+class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends SystemDataModel<
+	Schema,
+	Item.Implementation
+> {
 	/**
 	 * Maximum depth items can be nested in containers.
 	 */
@@ -31,10 +34,28 @@ class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends Syste
 	static override metadata: ItemDataModelMetadata = Object.freeze(
 		foundry.utils.mergeObject(
 			super.metadata,
-			{ systemFlagsModel: ItemSystemFlags },
+			{
+				enchantable: false,
+			},
 			{ inplace: false },
-		) as ItemDataModelMetadata,
+		),
 	)
+
+	// static override metadata: SystemDataModelMetadata<typeof ItemSystemFlags> = Object.freeze(
+	// 	foundry.utils.mergeObject(
+	// 		super.metadata,
+	// 		{ systemFlagsModel: ItemSystemFlags },
+	// 		{ inplace: false },
+	// 	) as ItemDataModelMetadata,
+	// )
+
+	// static override metadata: ItemDataModelMetadata = Object.freeze(
+	// 	foundry.utils.mergeObject(
+	// 		super.metadata,
+	// 		{ systemFlagsModel: ItemSystemFlags },
+	// 		{ inplace: false },
+	// 	) as ItemDataModelMetadata,
+	// )
 
 	override get metadata(): ItemDataModelMetadata {
 		return this.constructor.metadata
@@ -80,9 +101,8 @@ class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends Syste
 
 	/* -------------------------------------------- */
 
-	get container(): MaybePromise<Item.Implementation> | null {
-		return null
-		// const containerId = this.metadata.container.id
+	get container(): MaybePromise<ItemTemplateInstance<ItemTemplateType.Container>> | null {
+		return this.parent.container
 	}
 
 	/* -------------------------------------------- */

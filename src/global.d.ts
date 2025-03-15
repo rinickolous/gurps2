@@ -6,7 +6,7 @@ import { AttributeSettings } from "@module/settings/attributes-config.ts"
 import { ColorSettings } from "@module/settings/color-config.ts"
 import { HitLocationSettings } from "@module/settings/hit-location-config.ts"
 import { SheetSettings } from "@module/settings/sheet-settings-config.ts"
-import { ItemType } from "@util"
+import { contents, ItemType } from "@util"
 import { AnyObject } from "fvtt-types/utils"
 
 declare global {
@@ -14,19 +14,46 @@ declare global {
 	type MaybePromise<T> = T | Promise<T>
 	type Constructor<T> = new () => T
 
+	/* -------------------------------------------- */
+	/* Criteria                                     */
+	/* -------------------------------------------- */
+
 	type CriteriaFieldOptions = {
 		choices?: Record<string, string>
 	}
+
+	/* -------------------------------------------- */
 
 	type CriteriaConstructorOptions = AnyObject & {
 		toggleable?: boolean
 		replaceable?: boolean
 	}
 
+	/* -------------------------------------------- */
+	/* Document Config                              */
+	/* -------------------------------------------- */
+
 	interface DocumentClassConfig {
 		Item: typeof ItemGURPS
 		Actor: typeof ActorGURPS
 	}
+
+	/* -------------------------------------------- */
+
+	interface CommonFlags {}
+
+	interface ItemFlags extends CommonFlags {
+		containerId: string
+		containerRelationship: contents.Type
+	}
+
+	interface FlagConfig {
+		Item: ItemFlags
+	}
+
+	/* -------------------------------------------- */
+	/* DataModel Config                             */
+	/* -------------------------------------------- */
 
 	interface DataModelConfig {
 		Item: {
