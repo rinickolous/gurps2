@@ -37,7 +37,6 @@ type _Mixed<T extends (typeof AnySystemDataModel)[]> = T extends [
 	? ImmiscibleToAny<First> & _Mixed<Rest>
 	: {}
 
-// @ts-expect-error - This is effectively a faux subclass of `T` which tsc isn't too fond of.
 // It can be unsound but in this case there's no other way to do it.
 interface ImmiscibleToAny<T extends object> extends Record<ImmiscibleKeys, any>, T {}
 

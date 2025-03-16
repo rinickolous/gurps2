@@ -41,7 +41,6 @@ class ActionHolderTemplate extends ItemDataModel<ActionHolderSchema> {
 		if (action.preCreate(createData) === false) return null
 
 		await this.parent.update(
-			// @ts-expect-error: Caught this on a bad commit, should be fixed soon.
 			{
 				[`system.actions.${action.id}`]: action.toObject(),
 			},
@@ -56,7 +55,6 @@ class ActionHolderTemplate extends ItemDataModel<ActionHolderSchema> {
 	updateAction(id: string, updates: object): Promise<Item | undefined> {
 		if (!this.actions || !this.actions.has(id)) throw ErrorGURPS(`Action of ID ${id} could not be found to update`)
 		console.log(updates)
-		// @ts-expect-error: Caught this on a bad commit, should be fixed soon.
 		return this.parent.update({ [`system.actions.${id}`]: updates }, {})
 	}
 
@@ -66,7 +64,6 @@ class ActionHolderTemplate extends ItemDataModel<ActionHolderSchema> {
 		const action = this.actions?.get(id)
 		if (!action) return this.parent
 		await Promise.allSettled([...(action.constructor as ActionClass)._sheets.values()].map(e => e.close()))
-		// @ts-expect-error: Caught this on a bad commit, should be fixed soon.
 		return this.parent.update({ [`system.actions.-=${id}`]: null }, {})
 	}
 

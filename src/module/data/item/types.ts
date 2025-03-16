@@ -36,10 +36,8 @@ export interface ItemDataTemplateClasses {
 	[ItemTemplateType.StudyHolder]: ItemDataTemplates.StudyHolderTemplate
 }
 
-// export type ItemInstance<T extends ItemType> = ItemGURPS & { system: ItemDataModelClasses[T] }
-export type ItemInstance<T extends ItemType> = Item.Implementation & { system: ItemDataModelClasses[T] }
+export type ItemInstance<Type extends ItemType> = Item.Implementation & { system: ItemDataModelClasses[Type] }
 
-// export type ItemTemplateInstance<T extends ItemTemplateType> = ItemGURPS & { system: ItemDataTemplateClasses[T] }
-export type ItemTemplateInstance<T extends ItemTemplateType> = Item.Implementation & {
-	system: ItemDataTemplateClasses[T]
+export type ItemTemplateInstance<Type extends ItemTemplateType> = Item.Implementation & {
+	system: ItemDataTemplateClasses[Type]
 }

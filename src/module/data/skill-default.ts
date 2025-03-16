@@ -227,7 +227,7 @@ class SkillDefault extends foundry.abstract.DataModel<SkillDefaultSchema, SkillD
 	}
 
 	skillLevelFast(
-		actor: ActorGURPS2,
+		actor: Actor.Implementation,
 		replacements: Map<string, string>,
 		requirePoints: boolean,
 		excludes: Set<string> = new Set(),

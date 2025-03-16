@@ -7,7 +7,6 @@ import fields = foundry.data.fields
 // 	}
 // }
 
-// @ts-ignore: some type weirdness
 class ItemSystemFlags extends foundry.abstract.DataModel<ItemSystemFlagsSchema, Item.Implementation> {
 	static override defineSchema(): ItemSystemFlagsSchema {
 		return itemSystemFlagsSchema

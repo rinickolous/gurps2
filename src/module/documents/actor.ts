@@ -1,8 +1,8 @@
 import { ActorDataModelClasses, ActorDataTemplateClasses } from "@data/actor/types.ts"
 import { ActorTemplateType, ActorType, SYSTEM_NAME } from "@util"
-import { ItemGURPS } from "./item.ts"
+import { ActorDataModel } from "@data/actor/base.ts"
 
-class ActorGURPS extends Actor {
+class ActorGURPS<SubType extends Actor.SubType> extends Actor<SubType> {
 	/* -------------------------------------------- */
 	/*  System Flags Functionality                  */
 	/* -------------------------------------------- */
@@ -16,7 +16,6 @@ class ActorGURPS extends Actor {
 	prepareData() {
 		super.prepareData()
 		if (SYSTEM_NAME in this.flags && this._systemFlagsDataModel) {
-			// @ts-expect-error: Just catching this on a bad commit. Should be fixed soon.
 			this.flags[SYSTEM_NAME] = new this._systemFlagsDataModel(this._source.flags[SYSTEM_NAME], { parent: this })
 		}
 	}
@@ -27,14 +26,10 @@ class ActorGURPS extends Actor {
 		if (scope === SYSTEM_NAME && this._systemFlagsDataModel) {
 			let diff
 			const changes = foundry.utils.expandObject({ [key]: value })
-			// @ts-expect-error: Just catching this on a bad commit. Should be fixed soon.
 			if (this.flags[SYSTEM_NAME]) diff = this.flags[SYSTEM_NAME].updateSource(changes, { dryRun: true })
-			// @ts-expect-error: Just catching this on a bad commit. Should be fixed soon.
 			else diff = new this._systemFlagsDataModel(changes, { parent: this }).toObject()
-			// @ts-expect-error: Just catching this on a bad commit. Should be fixed soon.
 			return this.update({ flags: { [SYSTEM_NAME]: diff } }, {})
 		}
-		// @ts-expect-error: Just catching this on a bad commit. Should be fixed soon.
 		return super.setFlag(scope, key, value)
 	}
 
@@ -53,7 +48,7 @@ class ActorGURPS extends Actor {
 	 * Type safe way of verifying if an Actor contains a template
 	 */
 	hasTemplate<T extends ActorTemplateType>(template: T): this is { system: ActorDataTemplateClasses[T] } {
-		return this.system.hasTemplate(template)
+		return this.system instanceof ActorDataModel && this.system.hasTemplate(template)
 	}
 
 	/* -------------------------------------------- */
@@ -85,8 +80,8 @@ class ActorGURPS extends Actor {
 	}
 }
 
-interface ActorGURPS extends Actor {
-	items: foundry.abstract.EmbeddedCollection<ItemGURPS, this>
-}
+// interface ActorGURPS extends Actor {
+// 	items: foundry.abstract.EmbeddedCollection<ItemGURPS, this>
+// }
 
 export { ActorGURPS }

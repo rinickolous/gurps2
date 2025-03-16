@@ -1,6 +1,6 @@
 import { SystemDataModel, SystemDataModelMetadata } from "@data/abstract.ts"
 import { ItemSystemFlags } from "@documents/item-system-flags.ts"
-import { ItemType, ItemTemplateType, ErrorGURPS } from "@util"
+import { ItemType, ItemTemplateType, ErrorGURPS, SYSTEM_NAME } from "@util"
 import { ItemDataModelClasses, ItemDataTemplateClasses, ItemTemplateInstance } from "./types.ts"
 import { CellData, CellDataOptions } from "@data/cell-data.ts"
 import { SheetButton } from "@data/sheet-button.ts"
@@ -101,8 +101,18 @@ class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends Syste
 
 	/* -------------------------------------------- */
 
-	get container(): MaybePromise<ItemTemplateInstance<ItemTemplateType.Container>> | null {
-		return this.parent.container
+	get container(): MaybePromise<ItemTemplateInstance<ItemTemplateType.Container> | null> {
+		if (!Object.hasOwn(this, "container")) return null
+		const containerId = this.parent.getFlag(SYSTEM_NAME, "containerId") as string | null
+
+		if (this.parent.isEmbedded) return this.parent.actor!.items.get(containerId || "") ?? null
+		if (this.parent.pack) {
+			const pack = game.packs?.get(this.parent.pack)
+			const item = pack?.getDocument(containerId || "")
+			return (item as unknown as Promise<ItemTemplateInstance<ItemTemplateType.Container>>) ?? null
+		}
+
+		return (game.items?.get(containerId || "") as ItemTemplateInstance<ItemTemplateType.Container>) ?? null
 	}
 
 	/* -------------------------------------------- */

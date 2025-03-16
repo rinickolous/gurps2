@@ -156,7 +156,6 @@ abstract class PseudoDocument<
 		if (!(this.constructor as typeof PseudoDocument)._sheets.has(this.uuid)) {
 			;(this.constructor as typeof PseudoDocument)._sheets.set(
 				this.uuid,
-				// @ts-expect-error: Waiting for PseudoDOcumentSheet
 				new cls({ document: this as PseudoDocument }),
 			)
 		}
