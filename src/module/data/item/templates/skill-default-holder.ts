@@ -1,9 +1,10 @@
-import { ItemDataModel } from "../base.ts"
 import fields = foundry.data.fields
 import { SkillDefaultField } from "@data/fields/skill-default-field.ts"
 import { SkillDefault } from "@data/skill-default.ts"
+import { SystemDataModel } from "@data/abstract.ts"
+import { BaseAction } from "@data/action/base-action.ts"
 
-class SkillDefaultHolderTemplate extends ItemDataModel<SkillDefaultHolderSchema> {
+class SkillDefaultHolderTemplate extends SystemDataModel<SkillDefaultHolderSchema> {
 	static override defineSchema(): SkillDefaultHolderSchema {
 		const fields = foundry.data.fields
 		return {
@@ -16,6 +17,16 @@ class SkillDefaultHolderTemplate extends ItemDataModel<SkillDefaultHolderSchema>
 		for (const sd of this.defaults) {
 			sd.fillWithNameableKeys(m, existing)
 		}
+	}
+
+	get item(): Item.Implementation | null {
+		if (!this.parent) {
+			console.error("SkillDefaultHolderTemplate.item | No parent")
+			return null
+		}
+		if (this.parent instanceof CONFIG.Item.documentClass) return this.parent
+		if (this.parent instanceof BaseAction) return this.parent.item
+		return null
 	}
 }
 
