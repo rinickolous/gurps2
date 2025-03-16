@@ -121,13 +121,25 @@ class SheetSettings extends foundry.abstract.DataModel<SheetSettingsSchema, Acto
 /* -------------------------------------------- */
 
 type SheetSettingsSchema = {
-	damage_progression: fields.StringField<{ required: true; nullable: false; blank: false }, string, progression.Option>
+	damage_progression: fields.StringField<
+		{ required: true; nullable: false; blank: false },
+		string,
+		progression.Option
+	>
 	default_length_units: fields.StringField<{ required: true; nullable: false; blank: false }, string, Length.Unit>
 	default_weight_units: fields.StringField<{ required: true; nullable: false; blank: false }, string, Weight.Unit>
-	user_description_display: fields.StringField<{ required: true; nullable: false; blank: false }, string, display.Option>
+	user_description_display: fields.StringField<
+		{ required: true; nullable: false; blank: false },
+		string,
+		display.Option
+	>
 	modifiers_display: fields.StringField<{ required: true; nullable: false; blank: false }, string, display.Option>
 	notes_display: fields.StringField<{ required: true; nullable: false; blank: false }, string, display.Option>
-	skill_level_adj_display: fields.StringField<{ required: true; nullable: false; blank: false }, string, display.Option>
+	skill_level_adj_display: fields.StringField<
+		{ required: true; nullable: false; blank: false },
+		string,
+		display.Option
+	>
 	use_multiplicative_modifiers: fields.BooleanField<{ required: true; nullable: false }>
 	use_modifying_dice_plus_adds: fields.BooleanField<{ required: true; nullable: false }>
 	use_half_stat_defaults: fields.BooleanField<{ required: true; nullable: false }>
@@ -258,7 +270,6 @@ class SheetSettingsConfig extends api.HandlebarsApplicationMixin(api.Application
 		event.preventDefault()
 
 		const defaults = game.settings?.settings.get(`${SYSTEM_NAME}.${SETTINGS.DEFAULT_SHEET_SETTINGS}`)?.default
-		// @ts-expect-error waiting on types to catch up
 		await game.settings?.set(SYSTEM_NAME, SETTINGS.DEFAULT_SHEET_SETTINGS, defaults)
 		ui.notifications?.info("GURPS.Settings.SheetSettings.MessageReset", { localize: true })
 		await this.render()

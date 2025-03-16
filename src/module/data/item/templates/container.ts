@@ -1,9 +1,14 @@
-import { ItemDataModel } from "../base.ts"
+import { ItemTemplateType, ItemType, ItemTypes, SYSTEM_NAME } from "@util"
 import fields = foundry.data.fields
-import { ItemTemplateType, ItemType, ItemTypes } from "@util"
 import { ItemDataModelClasses, ItemInstance } from "../types.ts"
+import { ItemDataModel } from "../base.ts"
+// import { ItemTemplateType, ItemType } from "@util"
+// import { ItemDataModelClasses, ItemInstance } from "../types.ts"
 
 class ContainerTemplate extends ItemDataModel<ContainerSchema> {
+	constructor(...args: any[]) {
+		super(...args)
+	}
 	static override defineSchema(): ContainerSchema {
 		return containerSchema
 	}
@@ -15,7 +20,6 @@ class ContainerTemplate extends ItemDataModel<ContainerSchema> {
 	 */
 	static get contentsTypes(): Set<ItemType> {
 		return new Set([...this.childTypes, ...this.modifierTypes])
-		// return new Set([...this.childTypes, ...this.modifierTypes, ...this.weaponTypes])
 	}
 
 	/* -------------------------------------------- */
@@ -71,11 +75,9 @@ class ContainerTemplate extends ItemDataModel<ContainerSchema> {
 	contents(relationship?: string): MaybePromise<Collection<Item.Implementation>> {
 		// Helper to filter items based on container and optional relationship
 		const filterItem = (item: Item.Implementation): boolean => {
-			if (!item.system.hasTemplate(ItemTemplateType.BasicInformation)) return false
-			if (item.system.container !== this.parent.id) return false
-			// Only filter by relationship if it's defined and non-empty
+			if (item.getFlag(SYSTEM_NAME, "containerId") !== this.parent.id) return false
 			if (relationship !== undefined && relationship !== "") {
-				return item.system.containerData.relationship === relationship
+				return item.getFlag(SYSTEM_NAME, "containerRelationship") === relationship
 			}
 			return true // No relationship filter if undefined or empty
 		}
@@ -133,33 +135,43 @@ class ContainerTemplate extends ItemDataModel<ContainerSchema> {
 			c: Collection<Item.Implementation>,
 		): Promise<Collection<Item.Implementation>> {
 			const collection = new Collection<Item.Implementation>()
-			const promises: Promise<void>[] = []
+			const allPromises: Promise<void>[] = []
 
+			// First pass: Collect all items and promises without awaiting
 			for (const item of c) {
 				collection.set(item.id!, item)
 
-				if (item.system.hasTemplate(ItemTemplateType.Container)) {
+				if (item.system instanceof ItemDataModel && item.system.hasTemplate(ItemTemplateType.Container)) {
 					const itemContents = item.system.contents()
+
 					if (itemContents instanceof Promise) {
-						promises.push(
+						allPromises.push(
 							itemContents.then(async contents => {
 								const nested = await getRecursiveContents(contents)
 								nested.forEach(e => collection.set(e.id!, e))
 							}),
 						)
 					} else {
-						const nested = await getRecursiveContents(itemContents)
-						nested.forEach(e => collection.set(e.id!, e))
+						// For non-promise contents, still recurse but collect the promise
+						allPromises.push(
+							getRecursiveContents(itemContents).then(nested => {
+								nested.forEach(e => collection.set(e.id!, e))
+							}),
+						)
 					}
 				}
 			}
 
-			await Promise.all(promises)
+			// Resolve all promises at once
+			await Promise.all(allPromises)
 			return collection
 		}
 
 		const contents = this.contents()
-		return Promise.resolve(contents).then(c => getRecursiveContents(c))
+		if (contents instanceof Promise) {
+			return contents.then(c => getRecursiveContents(c))
+		}
+		return getRecursiveContents(contents)
 	}
 }
 

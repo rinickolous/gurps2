@@ -1,7 +1,6 @@
 import { DeepPartial } from "fvtt-types/utils"
 import fields = foundry.data.fields
 import { ItemDataModel } from "./item/base.ts"
-import { ActorGURPS, ItemGURPS } from "@documents"
 import { ErrorGURPS, htmlClosest, htmlQuery, htmlQueryAll, i18n, SYSTEM_NAME } from "@util"
 
 type PseudoDocumentConfig = {
@@ -18,7 +17,7 @@ type PseudoDocumentMetaData = {
 
 abstract class PseudoDocument<
 	Schema extends PseudoDocumentSchema = PseudoDocumentSchema,
-	Parent extends ItemDataModel = ItemDataModel,
+	Parent extends ItemDataModel<foundry.data.fields.DataSchema> = ItemDataModel<foundry.data.fields.DataSchema>,
 > extends foundry.abstract.DataModel<Schema, Parent> {
 	static metadata: PseudoDocumentMetaData
 
@@ -133,7 +132,7 @@ abstract class PseudoDocument<
 	/**
 	 * Item to which this PseudoDocument belongs.
 	 */
-	get item(): ItemGURPS {
+	get item(): Item.Implementation {
 		return this.parent.parent
 	}
 
@@ -142,7 +141,7 @@ abstract class PseudoDocument<
 	/**
 	 * Actor to which this PseudoDocument's item belongs, if the item is embedded.
 	 */
-	get actor(): ActorGURPS | null {
+	get actor(): Actor.Implementation | null {
 		return this.item.parent ?? null
 	}
 
@@ -155,7 +154,10 @@ abstract class PseudoDocument<
 		const cls = (this.constructor as typeof PseudoDocument).metadata.sheetClass
 		if (!cls) return null
 		if (!(this.constructor as typeof PseudoDocument)._sheets.has(this.uuid)) {
-			(this.constructor as typeof PseudoDocument)._sheets.set(this.uuid, new cls({ document: this as PseudoDocument }))
+			;(this.constructor as typeof PseudoDocument)._sheets.set(
+				this.uuid,
+				new cls({ document: this as PseudoDocument }),
+			)
 		}
 		return (this.constructor as typeof PseudoDocument)._sheets.get(this.uuid) ?? null
 	}
@@ -183,13 +185,13 @@ abstract class PseudoDocument<
 	 * @param  updates    Updates to apply to this PseudoDocument.
 	 * @returns   This PseudoDocument after updates have been applied.
 	 */
-	override updateSource(
-		changes?: fields.SchemaField.InnerAssignmentType<Schema>,
+	updateSource(
+		changes?: fields.SchemaField.UpdateData<Schema>,
 		options?: { dryRun?: boolean; fallback?: boolean; recursive?: boolean },
-	): object {
+	): fields.SchemaField.UpdateData<Schema> {
 		super.updateSource(changes, options)
-		// TODO: check if this is ok
-		return this as DeepPartial<this["_source"]>
+		//@ts-expect-error idk types???
+		return this.toObject()
 	}
 
 	/* -------------------------------------------- */
@@ -248,7 +250,7 @@ abstract class PseudoDocument<
 		}: {
 			parent?: TDocument["parent"]
 			types?: string[]
-		} & Partial<FormApplicationOptions> = {},
+		} & Partial<FormApplication.Options> = {},
 	): Promise<TDocument | null> {
 		types ??= Object.keys(this.documentConfig)
 		if (types.length === 0 || !parent) return null
@@ -275,8 +277,8 @@ abstract class PseudoDocument<
 		return await Dialog.prompt({
 			title,
 			content,
-			render: html => {
-				if (!(html instanceof HTMLElement)) html = html[0]
+			render: $html => {
+				const html = $html[0]
 				const app = htmlClosest(html, ".app")
 				const folder = app?.querySelector("select")
 				if (folder) {
@@ -289,7 +291,7 @@ abstract class PseudoDocument<
 					button.dataset.tooltip = label
 					button.setAttribute("aria-label", label)
 				})
-					; (htmlQuery(app, ".document-name") as HTMLInputElement).select()
+				;(htmlQuery(app, ".document-name") as HTMLInputElement).select()
 			},
 			// @ts-expect-error idk types???
 			buttons: {
@@ -310,46 +312,10 @@ abstract class PseudoDocument<
 				},
 			},
 		})
-
-		// return (await Dialog.prompt({
-		// 	title,
-		// 	content,
-		// 	render: html => {
-		// 		if (!(html instanceof HTMLElement)) html = html[0]
-		// 		const app = htmlClosest(html, ".app")
-		// 		const folder = app?.querySelector("select")
-		// 		if (folder) {
-		// 			app?.querySelector(".dialog-buttons")?.insertAdjacentElement("afterbegin", folder)
-		// 		}
-		// 		htmlQueryAll(app, ".window-header .header-button").forEach(button => {
-		// 			const label = button.innerText
-		// 			const icon = button.querySelector("i")
-		// 			button.innerHTML = icon?.outerHTML ?? ""
-		// 			button.dataset.tooltip = label
-		// 			button.setAttribute("aria-label", label)
-		// 		})
-		// 		;(htmlQuery(app, ".document-name") as HTMLInputElement).select()
-		// 	},
-		// 	buttons: {
-		// 		confirm: {
-		// 			callback: (html: JQuery<HTMLElement>) => {
-		// 				const $html = html[0]
-		// 				const form = $html.querySelector("form")
-		// 				if (!form?.checkValidity()) {
-		// 					throw ErrorGURPS(i18n.format("DOCUMENT.GURPS.Warning.SelectType", { name: label }))
-		// 				}
-		// 				const fd = new FormDataExtended(form)
-		// 				const createData = foundry.utils.mergeObject(data, fd.object, { inplace: false })
-		// 				if (!(createData.name as string | undefined)?.trim()) delete createData.name
-		// 				;(parent as any).system[`create${this.documentName}`](createData.type, createData)
-		// 			},
-		// 		},
-		// 	},
-		// })) as TDocument | null
 	}
 
 	testUserPermission(
-		user: foundry.documents.BaseUser,
+		user: User,
 		permission: keyof typeof foundry.CONST.DOCUMENT_OWNERSHIP_LEVELS | foundry.CONST.DOCUMENT_OWNERSHIP_LEVELS,
 		{ exact }: { exact?: boolean } = {},
 	): boolean {
@@ -365,12 +331,12 @@ abstract class PseudoDocument<
 	 * @param {object} _data     The initial data object provided to the document creation request.
 	 * @returns {boolean|void}  A return value of false indicates the creation operation should be cancelled.
 	 */
-	preCreate(_data: object): boolean | void { } // NOTE: not protected because it actually has to be accessed from its parent item
+	preCreate(_data: object): boolean | void {} // NOTE: not protected because it actually has to be accessed from its parent item
 
 	/* -------------------------------------------- */
 
 	/** Prepare data related to this DataModel itself, before any derived data is computed. */
-	prepareBaseData(): void { }
+	prepareBaseData(): void {}
 
 	/* -------------------------------------------- */
 
@@ -378,7 +344,7 @@ abstract class PseudoDocument<
 	 * Apply transformations of derivations to the values of the source data object.
 	 * Compute data fields whose values are not stored to the database.
 	 */
-	prepareDerivedData(): void { }
+	prepareDerivedData(): void {}
 }
 
 // interface PseudoDocument {

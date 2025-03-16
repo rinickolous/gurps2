@@ -1,24 +1,22 @@
-import { ErrorGURPS, feature, ItemType } from "@util"
 import { ItemDataModel } from "../base.ts"
-import { DRBonus } from "@data/feature/dr-bonus.ts"
 import { MappingField } from "@data/fields/mapping-field.ts"
-import { ItemGURPS } from "@documents/item.ts"
 import { AnyObject } from "fvtt-types/utils"
 import fields = foundry.data.fields
+import { SystemDataModel } from "@data/abstract.ts"
 
-class PrereqHolderTemplate extends ItemDataModel<PrereqHolderSchema> {
+type Prereq = {}
+
+class PrereqHolderTemplate extends SystemDataModel<PrereqHolderSchema> {
+	constructor(...args: any[]) {
+		super(...args)
+	}
 
 	defineSchema(): PrereqHolderSchema {
 		return prereqHolderSchema
 	}
-
-
 }
 
-
-class PrereqsField<
-	Options extends MappingField.Options<PrereqField>
-> extends MappingField<
+class PrereqsField<Options extends MappingField.Options<PrereqField>> extends MappingField<
 	PrereqField,
 	Options,
 	PrereqField,
@@ -95,7 +93,7 @@ class PrereqField<
 }
 
 const prereqHolderSchema = {
-	prereqs: new PrereqsField({ required: true, nullable: false })
+	prereqs: new PrereqsField({ required: true, nullable: false }),
 }
 
 type PrereqHolderSchema = typeof prereqHolderSchema

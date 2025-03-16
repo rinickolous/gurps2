@@ -1,8 +1,60 @@
 # TO DO
 
-- Re-do container function, try to see how flags actually work in this system so we can use those on the Item document instead of resorting to system data (I think this is desirable). One caveat is that compendium items may not have flags, so we'll need to account for it (by just not using flags).
-- Refactor ContainerTemplate, rethink the way allModifiers is gathered. We likely don't actually need this present in ContainerTemplate itself.
-  More likely, we just need allModifiers present for Traits and Equipment and leave it at that. Otherwise, we're dealing with allModifiers returning
-  something conceptually different in ContainerTemplate than in Trait and Equipment.
 - Make sure actions (attacks, mostly) actually work.
 - Restart work on applications so we have something that actually works.
+
+## Item Templates
+
+- Action Holder
+- Skill
+- Basic Information
+- Container
+- Skill Default (still needed? may be needed for weapons but these are not items anymore. Might migrate to SystemDataModel, but this is not ideal as Actions are not Documents)
+- Equipment
+- Feature Holder
+- Note
+- Prerequisite Holder
+- Replacement Holder
+- Spell
+- Study Holder
+
+## Items
+
+- Equipment
+- Equipment Container
+- Equipment Modifier
+- Equipment Modifier Container
+- Note
+- Note Container
+- Spell
+- Ritual Magic Spell
+- Spell Container
+- Skill
+- Technique
+- Skill Container
+- Trait
+- Trait Container
+- Trait Modifier
+- Trait Modifier Container
+
+## Actors
+
+- Character
+- Loot
+- Vehicle
+- Mass Combat Unit
+
+## Actions
+
+- Base Action\*
+- Base Attack\*
+- Ranged Attack
+- Melee Attack
+- Healing Action
+- Utility Action
+
+## Sheets
+
+- Pseudo-document Sheet [PRIORITY]
+- Character Sheet
+- Item Sheet (use templates as before)

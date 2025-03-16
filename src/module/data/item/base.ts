@@ -1,16 +1,17 @@
 import { SystemDataModel, SystemDataModelMetadata } from "@data/abstract.ts"
 import { ItemSystemFlags } from "@documents/item-system-flags.ts"
-import { ItemGURPS } from "@documents/item.ts"
-import { ItemType, ItemTemplateType, ErrorGURPS } from "@util"
+import { ItemType, ItemTemplateType, ErrorGURPS, SYSTEM_NAME } from "@util"
 import { ItemDataModelClasses, ItemDataTemplateClasses, ItemTemplateInstance } from "./types.ts"
-import { ActorGURPS } from "@documents/actor.ts"
 import { CellData, CellDataOptions } from "@data/cell-data.ts"
 import { SheetButton } from "@data/sheet-button.ts"
 import { DeepPartial } from "fvtt-types/utils"
 
-type ItemDataModelMetadata = SystemDataModelMetadata<ItemSystemFlags>
+type ItemDataModelMetadata = SystemDataModelMetadata<typeof ItemSystemFlags>
 
-class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends SystemDataModel<Schema, ItemGURPS> {
+class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends SystemDataModel<
+	Schema,
+	Item.Implementation
+> {
 	/**
 	 * Maximum depth items can be nested in containers.
 	 */
@@ -33,10 +34,28 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 	static override metadata: ItemDataModelMetadata = Object.freeze(
 		foundry.utils.mergeObject(
 			super.metadata,
-			{ systemFlagsModel: ItemSystemFlags },
+			{
+				enchantable: false,
+			},
 			{ inplace: false },
-		) as ItemDataModelMetadata,
+		),
 	)
+
+	// static override metadata: SystemDataModelMetadata<typeof ItemSystemFlags> = Object.freeze(
+	// 	foundry.utils.mergeObject(
+	// 		super.metadata,
+	// 		{ systemFlagsModel: ItemSystemFlags },
+	// 		{ inplace: false },
+	// 	) as ItemDataModelMetadata,
+	// )
+
+	// static override metadata: ItemDataModelMetadata = Object.freeze(
+	// 	foundry.utils.mergeObject(
+	// 		super.metadata,
+	// 		{ systemFlagsModel: ItemSystemFlags },
+	// 		{ inplace: false },
+	// 	) as ItemDataModelMetadata,
+	// )
 
 	override get metadata(): ItemDataModelMetadata {
 		return this.constructor.metadata
@@ -64,13 +83,13 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 	/*  Getters                                     */
 	/* -------------------------------------------- */
 
-	get item(): ItemGURPS | null {
-		return this.parent
-	}
+	// get item(): this["parent"] {
+	// 	return this.parent
+	// }
 
 	/* -------------------------------------------- */
 
-	get actor(): ActorGURPS | null {
+	get actor(): Actor.Implementation | null {
 		return this.parent.actor
 	}
 
@@ -82,8 +101,18 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 
 	/* -------------------------------------------- */
 
-	get container(): MaybePromise<ItemGURPS> | null {
-		const containerId = this.metadata.container.id
+	get container(): MaybePromise<ItemTemplateInstance<ItemTemplateType.Container> | null> {
+		if (!Object.hasOwn(this, "container")) return null
+		const containerId = this.parent.getFlag(SYSTEM_NAME, "containerId") as string | null
+
+		if (this.parent.isEmbedded) return this.parent.actor!.items.get(containerId || "") ?? null
+		if (this.parent.pack) {
+			const pack = game.packs?.get(this.parent.pack)
+			const item = pack?.getDocument(containerId || "")
+			return (item as unknown as Promise<ItemTemplateInstance<ItemTemplateType.Container>>) ?? null
+		}
+
+		return (game.items?.get(containerId || "") as ItemTemplateInstance<ItemTemplateType.Container>) ?? null
 	}
 
 	/* -------------------------------------------- */
@@ -138,9 +167,10 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 		// Render former container if it was moved between containers
 		if (options.formerContainer) {
 			const former = await fromUuid(options.formerContainer)
-			if (former instanceof ItemGURPS) {
+			if (former instanceof Item) {
 				former?.render(false, options)
-				former?.system._renderContainers({ ...options, formerContainer: undefined })
+				if (former?.system instanceof ItemDataModel)
+					former?.system._renderContainers({ ...options, formerContainer: undefined })
 			}
 		}
 	}
@@ -163,7 +193,7 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 		let container
 		let depth = 0
 		const containers = []
-		while ((container = await item.container) && depth < ItemDataModel.MAX_DEPTH) {
+		while ((container = await (item as Item.Implementation).container) && depth < ItemDataModel.MAX_DEPTH) {
 			containers.push(container)
 			item = container
 			depth += 1
@@ -172,12 +202,8 @@ class ItemDataModel<Schema extends ItemDataSchema = ItemDataSchema> extends Syst
 	}
 }
 
-interface ItemDataModel<Schema extends ItemDataSchema> extends SystemDataModel<Schema, ItemGURPS> {
+interface ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends SystemDataModel<Schema, Item> {
 	constructor: typeof ItemDataModel
 }
-
-const itemDataSchema = {}
-
-type ItemDataSchema = typeof itemDataSchema
 
 export { ItemDataModel }

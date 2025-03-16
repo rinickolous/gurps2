@@ -1,36 +1,34 @@
-import { ActorType, GID, i18n, ItemTemplateType, Nameable } from "@util"
+import {
+	ActorTemplateType,
+	ActorType,
+	createButton,
+	createDummyElement,
+	getAttributeChoices,
+	GID,
+	i18n,
+	ItemTemplateType,
+	Nameable,
+	StringBuilder,
+} from "@util"
 import fields = foundry.data.fields
-import { ReplaceableStringField, ToggleableNumberField, ToggleableStringField } from "./fields/index.ts"
-import { Action } from "./action/types.ts"
-import { ActorGURPS, ItemGURPS } from "@documents"
-import { ItemDataModel } from "./item/base.ts"
+import { ActorGURPS } from "@documents"
+import { SkillDefaultHolderTemplate } from "./item/templates/skill-default-holder.ts"
+import { AnyMutableObject } from "fvtt-types/utils"
+import { ExtendedStringField } from "./fields/extended-string-field.ts"
+import { ExtendedNumberField } from "./fields/extended-number-field.ts"
 
 const SKILL_BASED_DEFAULT_TYPES: Set<string> = new Set([GID.Skill, GID.Parry, GID.Block])
 
-class SkillDefault extends foundry.abstract.DataModel<SkillDefaultSchema, ItemDataModel | Action> {
+class SkillDefault extends foundry.abstract.DataModel<SkillDefaultSchema, SkillDefaultHolderTemplate> {
 	static override defineSchema(): SkillDefaultSchema {
-		const fields = foundry.data.fields
-		return {
-			type: new ToggleableStringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				initial: GID.Dexterity,
-			}),
-			name: new ReplaceableStringField({ required: true, nullable: true, initial: null }),
-			specialization: new ReplaceableStringField({ required: true, nullable: true, initial: null }),
-			modifier: new ToggleableNumberField({ integer: true, required: true, nullable: false, initial: 0 }),
-			level: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
-			adjusted_level: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
-			points: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
-		}
+		return skillDefaultSchema
 	}
 
 	static cleanData(
-		source?: Partial<foundry.abstract.DataModel.ConstructorDataFor<SkillDefault>>,
+		source?: AnyMutableObject,
 		options?: Parameters<fields.SchemaField.Any["clean"]>[1],
-	): object {
-		if (source && source.type) {
+	): AnyMutableObject {
+		if (source && "type" in source && typeof source.type === "string") {
 			source.name = SKILL_BASED_DEFAULT_TYPES.has(source.type) ? source.name || "" : null
 			source.specialization = SKILL_BASED_DEFAULT_TYPES.has(source.type) ? source.specialization || "" : null
 		}
@@ -42,18 +40,17 @@ class SkillDefault extends foundry.abstract.DataModel<SkillDefaultSchema, ItemDa
 		return SKILL_BASED_DEFAULT_TYPES.has(this.type) ?? false
 	}
 
-	get item(): ItemGURPS {
-		// TODO: see if never null
-		return this.parent.item!
+	get item(): Item.Implementation | null {
+		return this.parent.item
 	}
 
 	get index(): number {
-		if (!this.parent.hasTemplate(ItemTemplateType.SkillDefaultHolder)) return -1
-		return this.parent.defaults.indexOf(this)
+		if (!this.item?.hasTemplate(ItemTemplateType.SkillDefaultHolder)) return -1
+		return this.parent?.defaults.indexOf(this)
 	}
 
 	get element(): Handlebars.SafeString {
-		const enabled: boolean = (this.item.sheet as any).editable
+		const enabled: boolean = (this.item?.sheet as any).editable
 		return new Handlebars.SafeString(this.toFormElement(enabled).outerHTML)
 	}
 
@@ -62,12 +59,12 @@ class SkillDefault extends foundry.abstract.DataModel<SkillDefaultSchema, ItemDa
 
 		const element = document.createElement("li")
 
-		const replacements = this.item.hasTemplate(ItemTemplateType.ReplacementHolder)
+		const replacements = this.item?.hasTemplate(ItemTemplateType.ReplacementHolder)
 			? this.item.system.replacements
 			: new Map()
 
 		const choices = Object.entries(
-			getAttributeChoices(this.parent.actor, this.type, "GURPS.Item.Defaults.Fields.Attribute", {
+			getAttributeChoices(this.item?.actor ?? null, this.type, "GURPS.Item.Defaults.Fields.Attribute", {
 				blank: false,
 				ten: true,
 				size: false,
@@ -142,7 +139,7 @@ class SkillDefault extends foundry.abstract.DataModel<SkillDefaultSchema, ItemDa
 		rowElement.append(
 			this.schema.fields.modifier.toInput({
 				name: enabled ? `${prefix}.modifier` : "",
-				value: this.modifier.signedString(),
+				value: this.modifier,
 			}) as HTMLElement,
 		)
 
@@ -165,16 +162,16 @@ class SkillDefault extends foundry.abstract.DataModel<SkillDefaultSchema, ItemDa
 		)
 	}
 
-	fullName(actor: ActorGURPS2, replacements: Map<string, string>): string {
+	fullName(actor: Actor.Implementation, replacements: Map<string, string>): string {
 		if (this.skillBased) {
 			const buffer = new StringBuilder()
 			buffer.push(this.nameWithReplacements(replacements))
 			if (this.specialization !== null && this.specialization !== "") {
 				buffer.push(` (${this.specializationWithReplacements(replacements)})`)
 			}
-			if (this.type === GID.Dodge) buffer.push(game.i18n.localize("GURPS.Attribute.Dodge"))
-			else if (this.type === GID.Parry) buffer.push(game.i18n.localize("GURPS.Attribute.Parry"))
-			else if (this.type === GID.Block) buffer.push(game.i18n.localize("GURPS.Attribute.Block"))
+			if (this.type === GID.Dodge) buffer.push(i18n.localize("GURPS.Attribute.Dodge"))
+			else if (this.type === GID.Parry) buffer.push(i18n.localize("GURPS.Attribute.Parry"))
+			else if (this.type === GID.Block) buffer.push(i18n.localize("GURPS.Attribute.Block"))
 			return buffer.toString()
 		}
 		if (!actor.hasTemplate(ActorTemplateType.Attributes)) {
@@ -185,7 +182,7 @@ class SkillDefault extends foundry.abstract.DataModel<SkillDefaultSchema, ItemDa
 	}
 
 	skillLevel(
-		actor: ActorGURPS2,
+		actor: Actor.Implementation,
 		replacements: Map<string, string>,
 		requirePoints: boolean,
 		excludes: Set<string>,
@@ -196,11 +193,11 @@ class SkillDefault extends foundry.abstract.DataModel<SkillDefaultSchema, ItemDa
 		switch (this.type) {
 			case GID.Parry:
 				best = this.best(actor, replacements, requirePoints, excludes)
-				if (best !== Number.MIN_SAFE_INTEGER) best = best / 2 + 3 + actor.system.bonuses.parry.value
+				if (best !== Number.MIN_SAFE_INTEGER) best = best / 2 + 3 + actor.system.bonuses.parry
 				return this.finalLevel(best)
 			case GID.Block:
 				best = this.best(actor, replacements, requirePoints, excludes)
-				if (best !== Number.MIN_SAFE_INTEGER) best = best / 2 + 3 + actor.system.bonuses.block.value
+				if (best !== Number.MIN_SAFE_INTEGER) best = best / 2 + 3 + actor.system.bonuses.block
 				return this.finalLevel(best)
 			case GID.Skill:
 				return this.finalLevel(this.best(actor, replacements, requirePoints, excludes))
@@ -209,7 +206,12 @@ class SkillDefault extends foundry.abstract.DataModel<SkillDefaultSchema, ItemDa
 		}
 	}
 
-	best(actor: ActorGURPS2, replacements: Map<string, string>, requirePoints: boolean, excludes: Set<string>): number {
+	best(
+		actor: Actor.Implementation,
+		replacements: Map<string, string>,
+		requirePoints: boolean,
+		excludes: Set<string>,
+	): number {
 		let best = Number.MIN_SAFE_INTEGER
 		if (!actor.isOfType(ActorType.Character)) return best
 		for (const s of actor.system.skillNamed(
@@ -225,7 +227,7 @@ class SkillDefault extends foundry.abstract.DataModel<SkillDefaultSchema, ItemDa
 	}
 
 	skillLevelFast(
-		actor: ActorGURPS2,
+		actor: Actor.Implementation,
 		replacements: Map<string, string>,
 		requirePoints: boolean,
 		excludes: Set<string> = new Set(),
@@ -309,15 +311,34 @@ class SkillDefault extends foundry.abstract.DataModel<SkillDefaultSchema, ItemDa
 	}
 }
 
-type SkillDefaultSchema = {
-	// type: ToggleableStringField<{ required: true; nullable: false }, SkillDefaultType>
-	type: ToggleableStringField<{ required: true; nullable: false; blank: false; initial: GID.Dexterity }>
-	name: ReplaceableStringField<{ required: true; nullable: true; initial: null }>
-	specialization: ReplaceableStringField<{ required: true; nullable: true; initial: null }>
-	modifier: ToggleableNumberField<{ required: true; nullable: false }>
-	level: fields.NumberField<{ required: true; nullable: false }>
-	adjusted_level: fields.NumberField<{ required: true; nullable: false }>
-	points: fields.NumberField<{ required: true; nullable: false }>
+const skillDefaultSchema = {
+	type: new ExtendedStringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		initial: GID.Dexterity,
+		toggleable: true,
+	}),
+	name: new ExtendedStringField({
+		required: true,
+		nullable: true,
+		initial: null,
+		toggleable: true,
+		replaceable: true,
+	}),
+	specialization: new ExtendedStringField({
+		required: true,
+		nullable: true,
+		initial: null,
+		toggleable: true,
+		replaceable: true,
+	}),
+	modifier: new ExtendedNumberField({ integer: true, required: true, nullable: false, initial: 0, toggleable: true }),
+	level: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
+	adjusted_level: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
+	points: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
 }
+
+type SkillDefaultSchema = typeof skillDefaultSchema
 
 export { SkillDefault, type SkillDefaultSchema }

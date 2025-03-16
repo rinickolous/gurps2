@@ -1,4 +1,3 @@
-import { DocumentSystemFlags } from "@documents/system-flags.ts"
 import fields = foundry.data.fields
 import DataSchema = foundry.data.fields.DataSchema
 import { SYSTEM_NAME } from "@util"
@@ -12,7 +11,6 @@ const immiscibleKeys = new Set([
 	"mixed",
 	"cleanData",
 	"_cleanData",
-	"_initializationOrder",
 	"validateJoint",
 	"_validateJoint",
 	"migrateData",
@@ -22,44 +20,59 @@ const immiscibleKeys = new Set([
 	"defineSchema",
 ] as const)
 
-type ImmiscibleKeys = typeof immiscibleKeys extends Set<infer T> ? T : never
+type ImmiscibleKeys = typeof immiscibleKeys extends Set<infer Key> ? Key : never
 
-// Combine instance types from templates
-type CombinedInstanceType<T extends Array<typeof SystemDataModel<any, any>>> = T extends [
-	infer U extends typeof SystemDataModel<any, any>,
-	...infer Rest extends Array<typeof SystemDataModel<any, any>>,
-]
-	? InstanceType<U> & CombinedInstanceType<Rest>
-	: {}
-
-// Combine static types, excluding immiscible keys
-type CombinedStaticType<T extends any[]> = Omit<
-	T extends [infer U, ...infer Rest] ? U & CombinedStaticType<Rest> : {},
-	ImmiscibleKeys
->
+declare class AnySystemDataModel extends SystemDataModel<any, any> {
+	constructor(...args: any[])
+}
 
 // Combined class type
-type CombinedDataModel<
-	T extends Array<typeof SystemDataModel<any, any>>,
-	S extends DataSchema = MergeSchemas<T>, // Move default here
-	B extends typeof SystemDataModel<any, any> = typeof SystemDataModel<any, any>,
-> = B &
-	CombinedStaticType<T> & {
-		new (...args: any[]): CombinedInstanceType<T> & InstanceType<B> & SystemDataModel<S>
-	}
+type Mixed<T extends Array<typeof AnySystemDataModel>> = ImmiscibleToConcrete<_Mixed<T>>
 
-type MergeSchemas<T extends any[]> = {
-	[K in keyof T]: T[K] extends typeof SystemDataModel<infer S extends DataSchema, any> ? S : never
-}[number] extends infer U
-	? { [K in keyof U]: U[K] }
-	: never
+// Combine static types, excluding immiscible keys
+type _Mixed<T extends (typeof AnySystemDataModel)[]> = T extends [
+	infer First extends typeof AnySystemDataModel,
+	...infer Rest extends (typeof AnySystemDataModel)[],
+]
+	? ImmiscibleToAny<First> & _Mixed<Rest>
+	: {}
+
+// It can be unsound but in this case there's no other way to do it.
+interface ImmiscibleToAny<T extends object> extends Record<ImmiscibleKeys, any>, T {}
+
+// @ts-expect-error - This is effectively a faux subclass of `T` which tsc isn't too fond of.
+// It can be unsound but in this case there's no other way to do it.
+interface ImmiscibleToConcrete<T extends object> extends ConcreteImmiscible, T {}
+
+interface ConcreteImmiscible {
+	prototype: typeof AnySystemDataModel.prototype
+	length: number
+	name: string
+	cleanData: typeof AnySystemDataModel.cleanData
+	validateJoint: typeof SystemDataModel.validateJoint
+	migrateData: typeof SystemDataModel.migrateData
+	shimData: typeof SystemDataModel.shimData
+	defineSchema: typeof SystemDataModel.defineSchema
+
+	mixed: unknown // This may be relevant to your repo.
+	// These are probably dnd5e constructs.
+	_cleanData: unknown
+	_validateJoint: unknown
+	_migrateData: unknown
+	_shimData: unknown
+}
 
 /* -------------------------------------------- */
 
-interface SystemDataModelMetadata<T extends DocumentSystemFlags = DocumentSystemFlags> {
-	systemFlagsModel: Constructor<T> | null
+type SystemDataModelMetadata<
+	T extends foundry.abstract.DataModel.AnyConstructor = foundry.abstract.DataModel.AnyConstructor,
+> = {
+	systemFlagsModel: T
 }
-
+// & T extends foundry.abstract.DataModel.AnyConstructor
+// 	? foundry.data.fields.SchemaField.AssignmentData<foundry.abstract.DataModel.SchemaOfClass<T>>
+// 	: {}
+//
 /* -------------------------------------------- */
 
 class SystemDataModel<
@@ -109,11 +122,11 @@ class SystemDataModel<
 	/**
 	 * Metadata that describes this DataModel.
 	 */
-	static metadata: SystemDataModelMetadata = Object.freeze({
+	static metadata: SystemDataModelMetadata<any> = Object.freeze({
 		systemFlagsModel: null,
 	})
 
-	get metadata(): SystemDataModelMetadata {
+	get metadata(): SystemDataModelMetadata<any> {
 		return this.constructor.metadata
 	}
 
@@ -405,18 +418,13 @@ class SystemDataModel<
 	/**
 	 * Mix multiple templates with the base type.
 	 */
-	static mixin<
-		B extends typeof SystemDataModel<any, any>,
-		T extends Array<typeof SystemDataModel<any, any>>,
-		S extends DataSchema = MergeSchemas<T>,
-	>(this: B, ...templates: T): CombinedDataModel<T, S, B> {
+	static mixin<T extends Array<typeof SystemDataModel<any, any>>>(...templates: T): Mixed<T> {
 		for (const template of templates) {
 			if (!(template.prototype instanceof SystemDataModel)) {
 				throw new Error(`${template.name} is not a subclass of SystemDataModel`)
 			}
 		}
 
-		// @ts-expect-error: Mixin class constructor rule (TS2545)
 		const Base = class extends this {}
 		Object.defineProperty(Base, "_schemaTemplates", {
 			value: Object.seal([...this._schemaTemplates, ...templates]),

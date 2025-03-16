@@ -1,11 +1,13 @@
 import { ActionsField } from "@data/fields/actions-field.ts"
-import { ItemDataModel } from "../base.ts"
 import { ActionType, ErrorGURPS } from "@util"
-import { Action, ActionDataModelClasses } from "@data/action/types.ts"
-import { ItemGURPS } from "@documents/item.ts"
+import { Action, ActionClass, ActionDataModelClasses } from "@data/action/types.ts"
 import { AttackMelee, AttackRanged } from "@data/action/index.ts"
+import { ItemDataModel } from "../base.ts"
 
 class ActionHolderTemplate extends ItemDataModel<ActionHolderSchema> {
+	constructor(...args: any[]) {
+		super(...args)
+	}
 	static override defineSchema(): ActionHolderSchema {
 		return {
 			actions: new ActionsField({ required: true, nullable: false }),
@@ -38,28 +40,31 @@ class ActionHolderTemplate extends ItemDataModel<ActionHolderSchema> {
 		const action = new cls({ type, ...data }, { parent: this })
 		if (action.preCreate(createData) === false) return null
 
-		await this.parent.update({
-			[`system.actions.${action.id}`]: action.toObject(),
-		})
+		await this.parent.update(
+			{
+				[`system.actions.${action.id}`]: action.toObject(),
+			},
+			{},
+		)
 		const created = this.actions?.get(action.id)
 		return renderSheet ? (created?.sheet?.render({ force: true }) ?? null) : null
 	}
 
 	/* -------------------------------------------- */
 
-	updateAction(id: string, updates: object): Promise<ItemGURPS | undefined> {
+	updateAction(id: string, updates: object): Promise<Item | undefined> {
 		if (!this.actions || !this.actions.has(id)) throw ErrorGURPS(`Action of ID ${id} could not be found to update`)
 		console.log(updates)
-		return this.parent.update({ [`system.actions.${id}`]: updates })
+		return this.parent.update({ [`system.actions.${id}`]: updates }, {})
 	}
 
 	/* -------------------------------------------- */
 
-	async deleteAction(id: string): Promise<ItemGURPS | undefined> {
+	async deleteAction(id: string): Promise<Item | undefined> {
 		const action = this.actions?.get(id)
 		if (!action) return this.parent
-		await Promise.allSettled([...action.constructor._sheets.values()].map(e => e.close()))
-		return this.parent.update({ [`system.actions.-=${id}`]: null })
+		await Promise.allSettled([...(action.constructor as ActionClass)._sheets.values()].map(e => e.close()))
+		return this.parent.update({ [`system.actions.-=${id}`]: null }, {})
 	}
 
 	/* -------------------------------------------- */

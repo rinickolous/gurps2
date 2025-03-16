@@ -268,10 +268,10 @@ class BaseAttack<Schema extends BaseAttackSchema = BaseAttackSchema> extends Bas
 		}
 		if (parent.hasTemplate(ItemTemplateType.Container)) {
 			// TODO: verify that this works for items inside of compendia
-			const modifiers = parent.system.allModifiers as Collection<
-				ItemTemplateInstance<ItemTemplateType.FeatureHolder>
-			>
-			for (const mod of modifiers) {
+			// const modifiers = parent.system.allModifiers as Collection<
+			// 	ItemTemplateInstance<ItemTemplateType.FeatureHolder>
+			// >
+			for (const mod of parent.modifiers) {
 				for (const f of mod.system.features) {
 					const bonus = f.clone()
 					bonus.subOwner = mod

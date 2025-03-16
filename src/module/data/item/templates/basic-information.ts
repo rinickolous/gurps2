@@ -1,9 +1,12 @@
-import { ItemDataModel } from "../base.ts"
 import fields = foundry.data.fields
 import { ExtendedStringField, StringArrayField } from "@data/fields/index.ts"
-import { contents, ItemTemplateType, Nameable, RegEx } from "@util"
+import { ItemTemplateType, Nameable, RegEx } from "@util"
+import { ItemDataModel } from "../base.ts"
 
 class BasicInformationTemplate extends ItemDataModel<BasicInformationSchema> {
+	constructor(...args: any[]) {
+		super(...args)
+	}
 	static override defineSchema(): BasicInformationSchema {
 		return basicInformationSchema
 	}
@@ -60,10 +63,6 @@ class BasicInformationTemplate extends ItemDataModel<BasicInformationSchema> {
 }
 
 const basicInformationSchema = {
-	containerData: new fields.SchemaField({
-		id: new fields.ForeignDocumentField(Item, { idOnly: true }),
-		relationship: new fields.StringField({ required: true, nullable: false, initial: contents.TypesChoices }),
-	}),
 	name: new ExtendedStringField({
 		required: true,
 		nullable: false,

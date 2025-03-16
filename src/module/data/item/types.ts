@@ -1,7 +1,6 @@
 import { ItemTemplateType, ItemType } from "@util"
 import * as ItemDataModels from "./index.ts"
 import * as ItemDataTemplates from "./templates/index.ts"
-import { ItemGURPS } from "@documents/item.ts"
 
 export interface ItemDataModelClasses {
 	[ItemType.EquipmentContainer]: ItemDataModels.EquipmentContainerData
@@ -37,6 +36,8 @@ export interface ItemDataTemplateClasses {
 	[ItemTemplateType.StudyHolder]: ItemDataTemplates.StudyHolderTemplate
 }
 
-export type ItemInstance<T extends ItemType> = ItemGURPS & { system: ItemDataModelClasses[T] }
+export type ItemInstance<Type extends ItemType> = Item.Implementation & { system: ItemDataModelClasses[Type] }
 
-export type ItemTemplateInstance<T extends ItemTemplateType> = ItemGURPS & { system: ItemDataTemplateClasses[T] }
+export type ItemTemplateInstance<Type extends ItemTemplateType> = Item.Implementation & {
+	system: ItemDataTemplateClasses[Type]
+}

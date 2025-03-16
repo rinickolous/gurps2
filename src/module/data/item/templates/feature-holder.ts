@@ -1,13 +1,16 @@
 import { Feature, FeatureClass, FeatureSet, FeatureTypes } from "@data/feature/types.ts"
 import { ErrorGURPS, feature, ItemType } from "@util"
-import { ItemDataModel } from "../base.ts"
 import { DRBonus } from "@data/feature/dr-bonus.ts"
 import { MappingField } from "@data/fields/mapping-field.ts"
 import { ItemGURPS } from "@documents/item.ts"
 import fields = foundry.data.fields
 import { AnyObject } from "fvtt-types/utils"
+import { SystemDataModel } from "@data/abstract.ts"
 
-class FeatureHolderTemplate extends ItemDataModel<FeatureHolderSchema> {
+class FeatureHolderTemplate extends SystemDataModel<FeatureHolderSchema> {
+	constructor(...args: any[]) {
+		super(...args)
+	}
 	defineSchema(): FeatureHolderSchema {
 		return featureHolderSchema
 	}
@@ -154,7 +157,7 @@ class FeatureField<
 
 	/* -------------------------------------------- */
 
-	override initialize(value: AnyObject, model: ItemDataModel, options?: AnyObject): Feature {
+	override initialize(value: AnyObject, model: SystemDataModel, options?: AnyObject): Feature {
 		const cls = this.getModel(value)
 		if (cls) return new cls(value as object, { parent: model, ...options })
 		return foundry.utils.deepClone(value) as unknown as Feature
