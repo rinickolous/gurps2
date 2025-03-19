@@ -1,10 +1,9 @@
-import { ActorGURPS } from "@documents/actor.ts";
-import { GID } from "./enums/index.ts";
-import { i18n } from "./i18n.ts";
-import { CharacterSettings } from "@data/actor/fields/character-settings.ts";
+import { GID } from "./enums/index.ts"
+import { i18n } from "./i18n.ts"
+import { CharacterSettings } from "@data/actor/fields/character-settings.ts"
 
 function getAttributeChoices(
-	actor: ActorGURPS | null,
+	actor: Actor.Implementation | null,
 	current: string,
 	localizationKey = "",
 	options = { blank: false, ten: false, size: false, dodge: false, parry: false, block: false, skill: false },

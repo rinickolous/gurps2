@@ -125,7 +125,7 @@ class AttributesConfig extends api.HandlebarsApplicationMixin(api.ApplicationV2<
 
 	set cachedSettings(value: unknown) {
 		this._cachedSettings = new AttributeSettings(
-			value as foundry.abstract.DataModel.ConstructorData<AttributeSettingsSchema>,
+			value as foundry.abstract.DataModel.CreateData<AttributeSettingsSchema>,
 		)
 	}
 

@@ -1,14 +1,11 @@
 import { BaseAction } from "@data/action/base-action.ts"
 import { Action, ActionClass, ActionDataModelClasses } from "@data/action/types.ts"
 import { MappingField } from "@data/fields/mapping-field.ts"
-import { ItemDataModel } from "@data/item/base.ts"
 import { ActionType } from "@util"
 import { AnyObject } from "fvtt-types/utils"
 import fields = foundry.data.fields
 
-class ActionsField<
-	Options extends MappingField.Options<ActionField>
-> extends MappingField<
+class ActionsField<Options extends MappingField.Options<ActionField>> extends MappingField<
 	ActionField,
 	Options,
 	ActionField,
@@ -69,7 +66,7 @@ class ActionField<
 
 	/* -------------------------------------------- */
 
-	override initialize(value: AnyObject, model: ItemDataModel, options?: AnyObject): Action {
+	override initialize(value: AnyObject, model: foundry.abstract.DataModel.Any, options?: AnyObject): Action {
 		const cls = this.getModel(value)
 		if (cls) return new cls(value as object, { parent: model, ...options })
 		return foundry.utils.deepClone(value) as unknown as Action
@@ -108,6 +105,15 @@ class ActionCollection extends Collection<Action> {
 
 	/* -------------------------------------------- */
 
+	/**
+	 * Fetch an array of activities of a certain type.
+	 */
+	getByType(type: string) {
+		return Array.from(this.#types.get(type) ?? []).map(key => this.get(key))
+	}
+
+	/* -------------------------------------------- */
+
 	override set(key: string, value: Action) {
 		if (!this.#types.has(value.type)) this.#types.set(value.type, new Set())
 		this.#types.get(value.type)?.add(key)
@@ -116,7 +122,6 @@ class ActionCollection extends Collection<Action> {
 
 	/* -------------------------------------------- */
 
-	// @ts-expect-error I don't even know what this means
 	override delete(key: string): boolean {
 		this.#types.get(this.get(key)?.type ?? "")?.delete(key)
 		return super.delete(key)

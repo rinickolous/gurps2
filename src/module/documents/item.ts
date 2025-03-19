@@ -1,5 +1,5 @@
 import { ItemDataModel } from "@data"
-import { ItemDataModelClasses, ItemDataTemplateClasses } from "@data/item/types.ts"
+import { ItemDataModelClasses, ItemDataTemplateClasses, ItemTemplateInstance } from "@data/item/types.ts"
 import { ItemType, ItemTemplateType, SYSTEM_NAME } from "@util"
 import { ItemSystemFlags } from "./item-system-flags.ts"
 
@@ -61,24 +61,9 @@ class ItemGURPS<SubType extends Item.SubType> extends Item<SubType> {
 	 * The item that contains this item, if it is in a container. Returns a promise if the item is located
 	 * in a compendium pack.
 	 */
-	get container(): MaybePromise<Item.Implementation | null> {
+	get container(): MaybePromise<ItemTemplateInstance<ItemTemplateType.Container> | null> {
 		return this.system instanceof ItemDataModel ? this.system.container : null
 	}
-	// get container(): MaybePromise<
-	// 	(Item.Implementation & { system: ItemDataTemplateClasses[ItemTemplateType.Container] }) | null
-	// > {
-	// if (!Object.hasOwn(this.system, "container")) return null
-	// const containerId = this.getFlag(SYSTEM_NAME, "containerId") as string | null
-	//
-	// if (this.isEmbedded) return this.actor!.items.get(containerId || "") ?? null
-	// if (this.pack) {
-	// 	const pack = game.packs?.get(this.pack)
-	// 	const item = pack?.getDocument(containerId || "")
-	// 	return (item as unknown as Promise<ItemTemplateInstance<ItemTemplateType.Container>>) ?? null
-	// }
-	//
-	// return (game.items?.get(containerId || "") as ItemTemplateInstance<ItemTemplateType.Container>) ?? null
-	// }
 }
 
 // interface ItemGURPS<SubType extends Item.SubType> extends Item<SubType> {

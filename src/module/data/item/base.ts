@@ -41,22 +41,6 @@ class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends Syste
 		),
 	)
 
-	// static override metadata: SystemDataModelMetadata<typeof ItemSystemFlags> = Object.freeze(
-	// 	foundry.utils.mergeObject(
-	// 		super.metadata,
-	// 		{ systemFlagsModel: ItemSystemFlags },
-	// 		{ inplace: false },
-	// 	) as ItemDataModelMetadata,
-	// )
-
-	// static override metadata: ItemDataModelMetadata = Object.freeze(
-	// 	foundry.utils.mergeObject(
-	// 		super.metadata,
-	// 		{ systemFlagsModel: ItemSystemFlags },
-	// 		{ inplace: false },
-	// 	) as ItemDataModelMetadata,
-	// )
-
 	override get metadata(): ItemDataModelMetadata {
 		return this.constructor.metadata
 	}
@@ -105,7 +89,12 @@ class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends Syste
 		if (!Object.hasOwn(this, "container")) return null
 		const containerId = this.parent.getFlag(SYSTEM_NAME, "containerId") as string | null
 
-		if (this.parent.isEmbedded) return this.parent.actor!.items.get(containerId || "") ?? null
+		if (this.parent.isEmbedded) {
+			const container = this.parent.actor!.items.get(containerId || "") ?? null
+			if (container && container.hasTemplate(ItemTemplateType.Container))
+				return container as ItemTemplateInstance<ItemTemplateType.Container>
+			return null
+		}
 		if (this.parent.pack) {
 			const pack = game.packs?.get(this.parent.pack)
 			const item = pack?.getDocument(containerId || "")
@@ -202,8 +191,8 @@ class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends Syste
 	}
 }
 
-interface ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends SystemDataModel<Schema, Item> {
-	constructor: typeof ItemDataModel
-}
+// interface ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends SystemDataModel<Schema, Item> {
+// 	constructor: typeof ItemDataModel
+// }
 
 export { ItemDataModel }

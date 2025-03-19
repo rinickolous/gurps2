@@ -5,8 +5,8 @@
 
 ## Item Templates
 
-- Action Holder
-- Skill
+- Action Holder [V]
+- Skill [X]
 - Basic Information
 - Container
 - Skill Default (still needed? may be needed for weapons but these are not items anymore. Might migrate to SystemDataModel, but this is not ideal as Actions are not Documents)

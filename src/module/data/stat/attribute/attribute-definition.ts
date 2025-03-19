@@ -3,14 +3,17 @@ import fields = foundry.data.fields
 import { AbstractStatDefinition } from "../abstract-stat/abstract-stat-definition.ts"
 import { PoolThreshold } from "../pool-threshold.ts"
 import { ActorDataModel } from "@data/actor/base.ts"
+import { AnyMutableObject, AnyObject } from "fvtt-types/utils"
 
 class AttributeDefinition extends AbstractStatDefinition<AttributeDefinitionSchema> {
 	static override defineSchema(): AttributeDefinitionSchema {
 		return attributeDefinitionSchema
 	}
 
-	static override cleanData(source?: object, options?: Parameters<fields.SchemaField.Any["clean"]>[1]): object {
-
+	static cleanData(
+		source?: AnyMutableObject,
+		options?: Parameters<fields.SchemaField.Any["clean"]>[1],
+	): AnyMutableObject {
 		let { type, thresholds }: AnyObject = {
 			type: undefined,
 			thresholds: undefined,
@@ -164,6 +167,5 @@ const attributeDefinitionSchema = {
 }
 
 type AttributeDefinitionSchema = typeof attributeDefinitionSchema
-
 
 export { AttributeDefinition, type AttributeDefinitionSchema }
