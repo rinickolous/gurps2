@@ -1,6 +1,6 @@
 import { SystemDataModel, SystemDataModelMetadata } from "@data/abstract.ts"
 import { ItemSystemFlags } from "@documents/item-system-flags.ts"
-import { ItemType, ItemTemplateType, ErrorGURPS, SYSTEM_NAME } from "@util"
+import { ItemType, ItemTemplateType, ErrorGURPS, SYSTEM_NAME, Nameable } from "@util"
 import { ItemDataModelClasses, ItemDataTemplateClasses, ItemTemplateInstance } from "./types.ts"
 import { CellData, CellDataOptions } from "@data/cell-data.ts"
 import { SheetButton } from "@data/sheet-button.ts"
@@ -64,12 +64,18 @@ class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends Syste
 	}
 
 	/* -------------------------------------------- */
-	/*  Getters                                     */
+
+	protected _processNameable(base: string): string {
+		return this.hasTemplate(ItemTemplateType.ReplacementHolder) ? Nameable.apply(base, this.replacements) : base
+	}
+
+	/* -------------------------------------------- */
+	/*  Accessors                                    */
 	/* -------------------------------------------- */
 
-	// get item(): this["parent"] {
-	// 	return this.parent
-	// }
+	get item(): this["parent"] {
+		return this.parent
+	}
 
 	/* -------------------------------------------- */
 

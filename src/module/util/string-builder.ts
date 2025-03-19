@@ -1,3 +1,6 @@
+/**
+ * StringBuilders are used to concatenate strings and account for localisation.
+ */
 export class StringBuilder {
 	buffer: MaybePromise<string>[]
 
@@ -13,12 +16,16 @@ export class StringBuilder {
 		return this.buffer.join("") ?? ""
 	}
 
-	// Returns the length of the buffer as a string
+	/**
+	 * Returns the length of the buffer as a string
+	 */
 	get length(): number {
 		return this.buffer.length
 	}
 
-	// Returns the number of items in the buffer
+	/**
+	 * Returns the number of items in the buffer
+	 */
 	get size(): number {
 		return this.buffer.length
 	}

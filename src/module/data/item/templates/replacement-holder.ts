@@ -8,6 +8,9 @@ class ReplacementHolderTemplate extends SystemDataModel<ReplacementHolderSchema>
 	constructor(...args: any[]) {
 		super(...args)
 	}
+
+	/* -------------------------------------------- */
+
 	static override defineSchema(): ReplacementHolderSchema {
 		return replacementHolderSchema
 	}
