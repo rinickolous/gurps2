@@ -5,10 +5,10 @@
 
 ## Item Templates
 
-- Action Holder [V]
-- Skill [X]
-- Basic Information
-- Container
+- Action Holder [DONE]
+- Skill [IN PROGRESS]
+- Basic Information [DONE]
+- Container [DONE]
 - Skill Default (still needed? may be needed for weapons but these are not items anymore. Might migrate to SystemDataModel, but this is not ideal as Actions are not Documents)
 - Equipment
 - Feature Holder
@@ -16,7 +16,7 @@
 - Prerequisite Holder
 - Replacement Holder
 - Spell
-- Study Holder
+- Study Holder [DONE]
 
 ## Items
 

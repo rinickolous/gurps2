@@ -2,7 +2,9 @@ import { DifficultyField, ExtendedBooleanField, ExtendedNumberField, ExtendedStr
 import fields = foundry.data.fields
 import { ItemDataModel } from "../base.ts"
 import { AnyMutableObject } from "fvtt-types/utils"
-import { i18n, ItemTemplateType, ItemType, StringBuilder } from "@util"
+import { difficulty, display, i18n, ItemTemplateType, ItemType, StringBuilder } from "@util"
+import { CharacterSettings } from "@data/actor/fields/character-settings.ts"
+import { Study } from "@data/study.ts"
 
 class SkillTemplate extends ItemDataModel<SkillTemplateSchema> {
 	constructor(...args: any[]) {
@@ -27,7 +29,7 @@ class SkillTemplate extends ItemDataModel<SkillTemplateSchema> {
 	/* -------------------------------------------- */
 
 	/**
-	 * Returns the locale-formatted name of the Skill-like Item, including Tech Level and specialization if present.
+	 * @returns the locale-formatted name of the Skill-like Item, including Tech Level and Specialization if present.
 	 */
 	get displayName(): string {
 		const buffer = new StringBuilder()
@@ -49,6 +51,49 @@ class SkillTemplate extends ItemDataModel<SkillTemplateSchema> {
 		}
 
 		return buffer.toString()
+	}
+
+	/* -------------------------------------------- */
+
+	/* -------------------------------------------- */
+
+	/**
+	 * @returns the locale-formatted notes for the Skill-like item, including any Skill it may default to.
+	 * */
+	secondaryText(optionChecker: (option: display.Option) => boolean): string {
+		const buffer = new StringBuilder()
+
+		const settings = CharacterSettings.for(this.actor)
+		if (optionChecker(settings.modifiersDisplay)) {
+			const notes = this.modifierNotes
+			if (notes !== "") buffer.push(notes)
+		}
+		if (optionChecker(settings.notesDisplay)) {
+			const notes = this.hasTemplate(ItemTemplateType.BasicInformation) ? this.notes : ""
+			buffer.appendToNewLine(this._processNameable(notes))
+
+			if (this.hasTemplate(ItemTemplateType.StudyHolder)) {
+				buffer.appendToNewLine(Study.progressText(Study.resolveHours(this), this.studyHoursNeeded, false))
+			}
+		}
+
+		return buffer.toString()
+	}
+
+	protected _addTooltipForSkillLevelAdj(
+		optionChecker: (option: display.Option) => boolean,
+		settings: CharacterSettings,
+		level: SkillTemplate["level"],
+	)
+
+	/* -------------------------------------------- */
+
+	/**
+	 * @returns The notes for the modifiers of the Skill-like item.
+	 * (This is a placeholder, implemented in Skill and Technique).
+	 */
+	get modifierNotes(): string {
+		return ""
 	}
 }
 

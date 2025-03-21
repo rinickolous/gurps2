@@ -7,112 +7,12 @@ import type { AnyObject, DeepPartial } from "fvtt-types/utils"
 
 class SheetSettings extends foundry.abstract.DataModel<SheetSettingsSchema, ActorDataModel | null> {
 	static override defineSchema(): SheetSettingsSchema {
-		const fields = foundry.data.fields
-		return {
-			damage_progression: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: progression.OptionsChoices,
-				initial: progression.Option.BasicSet,
-				label: "GURPS.Settings.SheetSettings.FIELDS.damage_progression.Name",
-			}),
-			default_length_units: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: Length.UnitChoices,
-				initial: Length.Unit.FeetAndInches,
-				label: "GURPS.Settings.SheetSettings.FIELDS.default_length_units.Name",
-			}),
-			default_weight_units: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: Weight.UnitChoices,
-				initial: Weight.Unit.Pound,
-				label: "GURPS.Settings.SheetSettings.FIELDS.default_weight_units.Name",
-			}),
-			user_description_display: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: display.OptionsChoices,
-				initial: display.Option.Tooltip,
-				label: "GURPS.Settings.SheetSettings.FIELDS.user_description_display.Name",
-			}),
-			modifiers_display: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: display.OptionsChoices,
-				initial: display.Option.Inline,
-				label: "GURPS.Settings.SheetSettings.FIELDS.modifiers_display.Name",
-			}),
-			notes_display: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: display.OptionsChoices,
-				initial: display.Option.Inline,
-				label: "GURPS.Settings.SheetSettings.FIELDS.notes_display.Name",
-			}),
-			skill_level_adj_display: new fields.StringField({
-				required: true,
-				nullable: false,
-				blank: false,
-				choices: display.OptionsChoices,
-				initial: display.Option.Tooltip,
-				label: "GURPS.Settings.SheetSettings.FIELDS.skill_level_adj_display.Name",
-			}),
-			use_multiplicative_modifiers: new fields.BooleanField({
-				required: true,
-				nullable: false,
-				initial: false,
-				label: "GURPS.Settings.SheetSettings.FIELDS.use_multiplicative_modifiers.Name",
-			}),
-			use_modifying_dice_plus_adds: new fields.BooleanField({
-				required: true,
-				nullable: false,
-				initial: false,
-				label: "GURPS.Settings.SheetSettings.FIELDS.use_modifying_dice_plus_adds.Name",
-			}),
-			use_half_stat_defaults: new fields.BooleanField({
-				required: true,
-				nullable: false,
-				initial: false,
-				label: "GURPS.Settings.SheetSettings.FIELDS.use_half_stat_defaults.Name",
-			}),
-			show_trait_modifier_adj: new fields.BooleanField({
-				required: true,
-				nullable: false,
-				initial: false,
-				label: "GURPS.Settings.SheetSettings.FIELDS.show_trait_modifier_adj.Name",
-			}),
-			show_equipment_modifier_adj: new fields.BooleanField({
-				required: true,
-				nullable: false,
-				initial: false,
-				label: "GURPS.Settings.SheetSettings.FIELDS.show_equipment_modifier_adj.Name",
-			}),
-			show_spell_adj: new fields.BooleanField({
-				required: true,
-				nullable: false,
-				initial: true,
-				label: "GURPS.Settings.SheetSettings.FIELDS.show_spell_adj.Name",
-			}),
-			exclude_unspent_points_from_total: new fields.BooleanField({
-				required: true,
-				nullable: false,
-				initial: false,
-				label: "GURPS.Settings.SheetSettings.FIELDS.exclude_unspent_points_from_total.Name",
-			}),
-		}
+		return sheetSettingsSchema
 	}
 
 	/* -------------------------------------------- */
 
-	get actor(): ActorGURPS | null {
+	get actor(): Actor.Implementation | null {
 		if (this.parent && this.parent instanceof ActorGURPS) return this.parent
 		return null
 	}
@@ -120,34 +20,108 @@ class SheetSettings extends foundry.abstract.DataModel<SheetSettingsSchema, Acto
 
 /* -------------------------------------------- */
 
-type SheetSettingsSchema = {
-	damage_progression: fields.StringField<
-		{ required: true; nullable: false; blank: false },
-		string,
-		progression.Option
-	>
-	default_length_units: fields.StringField<{ required: true; nullable: false; blank: false }, string, Length.Unit>
-	default_weight_units: fields.StringField<{ required: true; nullable: false; blank: false }, string, Weight.Unit>
-	user_description_display: fields.StringField<
-		{ required: true; nullable: false; blank: false },
-		string,
-		display.Option
-	>
-	modifiers_display: fields.StringField<{ required: true; nullable: false; blank: false }, string, display.Option>
-	notes_display: fields.StringField<{ required: true; nullable: false; blank: false }, string, display.Option>
-	skill_level_adj_display: fields.StringField<
-		{ required: true; nullable: false; blank: false },
-		string,
-		display.Option
-	>
-	use_multiplicative_modifiers: fields.BooleanField<{ required: true; nullable: false }>
-	use_modifying_dice_plus_adds: fields.BooleanField<{ required: true; nullable: false }>
-	use_half_stat_defaults: fields.BooleanField<{ required: true; nullable: false }>
-	show_trait_modifier_adj: fields.BooleanField<{ required: true; nullable: false }>
-	show_equipment_modifier_adj: fields.BooleanField<{ required: true; nullable: false }>
-	show_spell_adj: fields.BooleanField<{ required: true; nullable: false }>
-	exclude_unspent_points_from_total: fields.BooleanField<{ required: true; nullable: false }>
+const sheetSettingsSchema = {
+	damageProgression: new fields.StringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		choices: progression.OptionsChoices,
+		initial: progression.Option.BasicSet,
+		label: "GURPS.Settings.SheetSettings.FIELDS.damage_progression.Name",
+	}),
+	defaultLengthUnits: new fields.StringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		choices: Length.UnitChoices,
+		initial: Length.Unit.FeetAndInches,
+		label: "GURPS.Settings.SheetSettings.FIELDS.DefaultLengthUnits.Name",
+	}),
+	defaultWeightUnits: new fields.StringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		choices: Weight.UnitChoices,
+		initial: Weight.Unit.Pound,
+		label: "GURPS.Settings.SheetSettings.FIELDS.DefaultWeightUnits.Name",
+	}),
+	userDescriptionDisplay: new fields.StringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		choices: display.OptionsChoices,
+		initial: display.Option.Tooltip,
+		label: "GURPS.Settings.SheetSettings.FIELDS.UserDescriptionDisplay.Name",
+	}),
+	modifiersDisplay: new fields.StringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		choices: display.OptionsChoices,
+		initial: display.Option.Inline,
+		label: "GURPS.Settings.SheetSettings.FIELDS.ModifiersDisplay.Name",
+	}),
+	notesDisplay: new fields.StringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		choices: display.OptionsChoices,
+		initial: display.Option.Inline,
+		label: "GURPS.Settings.SheetSettings.FIELDS.NotesDisplay.Name",
+	}),
+	skillLevelAdjDisplay: new fields.StringField({
+		required: true,
+		nullable: false,
+		blank: false,
+		choices: display.OptionsChoices,
+		initial: display.Option.Tooltip,
+		label: "GURPS.Settings.SheetSettings.FIELDS.SkillLevelAdjDisplay.Name",
+	}),
+	useMultiplicativeModifiers: new fields.BooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		label: "GURPS.Settings.SheetSettings.FIELDS.UseMultiplicativeModifiers.Name",
+	}),
+	useModifyingDicePlusAdds: new fields.BooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		label: "GURPS.Settings.SheetSettings.FIELDS.UseModifyingDicePlusAdds.Name",
+	}),
+	useHalfStatDefaults: new fields.BooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		label: "GURPS.Settings.SheetSettings.FIELDS.UseHalfStatDefaults.Name",
+	}),
+	showTraitModifierAdj: new fields.BooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		label: "GURPS.Settings.SheetSettings.FIELDS.ShowTraitModifierAdj.Name",
+	}),
+	showEquipmentModifierAdj: new fields.BooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		label: "GURPS.Settings.SheetSettings.FIELDS.ShowEquipmentModifierAdj.Name",
+	}),
+	showSpellAdj: new fields.BooleanField({
+		required: true,
+		nullable: false,
+		initial: true,
+		label: "GURPS.Settings.SheetSettings.FIELDS.ShowSpellAdj.Name",
+	}),
+	excludeUnspentPointsFromTotal: new fields.BooleanField({
+		required: true,
+		nullable: false,
+		initial: false,
+		label: "GURPS.Settings.SheetSettings.FIELDS.ExcludeUnspentPointsFromTotal.Name",
+	}),
 }
+
+type SheetSettingsSchema = typeof sheetSettingsSchema
 
 /* -------------------------------------------- */
 
@@ -205,7 +179,9 @@ class SheetSettingsConfig extends api.HandlebarsApplicationMixin(api.Application
 
 	/* -------------------------------------------- */
 
-	protected override async _prepareContext(options: DeepPartial<api.ApplicationV2.RenderOptions> = {}) {
+	protected override async _prepareContext(
+		options: DeepPartial<foundry.applications.api.ApplicationV2.RenderOptions> & { isFirstRender: boolean },
+	): Promise<AnyObject> {
 		super._prepareContext(options)
 		const current = game.settings?.get(SYSTEM_NAME, SETTINGS.DEFAULT_SHEET_SETTINGS)
 
@@ -259,9 +235,7 @@ class SheetSettingsConfig extends api.HandlebarsApplicationMixin(api.Application
 	): Promise<void> {
 		event.preventDefault()
 
-		const data = new SheetSettings(
-			formData.object as foundry.abstract.DataModel.ConstructorData<SheetSettingsSchema>,
-		)
+		const data = new SheetSettings(formData.object as foundry.abstract.DataModel.CreateData<SheetSettingsSchema>)
 		game.settings?.set(SYSTEM_NAME, SETTINGS.DEFAULT_SHEET_SETTINGS, data)
 		ui.notifications?.info("GURPS.Settings.SheetSettings.MessageSubmit", { localize: true })
 	}
@@ -269,9 +243,12 @@ class SheetSettingsConfig extends api.HandlebarsApplicationMixin(api.Application
 	static async #onReset(this: api.ApplicationV2, event: Event): Promise<void> {
 		event.preventDefault()
 
-		const defaults = game.settings?.settings.get(`${SYSTEM_NAME}.${SETTINGS.DEFAULT_SHEET_SETTINGS}`)?.default
-		await game.settings?.set(SYSTEM_NAME, SETTINGS.DEFAULT_SHEET_SETTINGS, defaults)
-		ui.notifications?.info("GURPS.Settings.SheetSettings.MessageReset", { localize: true })
+		if (game.settings && game.settings.settings.has(`${SYSTEM_NAME}.${SETTINGS.DEFAULT_SHEET_SETTINGS}`)) {
+			const defaults = game.settings.settings.get(`${SYSTEM_NAME}.${SETTINGS.DEFAULT_SHEET_SETTINGS}`)!
+				.default as SheetSettings
+			await game.settings.set(SYSTEM_NAME, SETTINGS.DEFAULT_SHEET_SETTINGS, defaults)
+			ui.notifications?.info("GURPS.Settings.SheetSettings.MessageReset", { localize: true })
+		}
 		await this.render()
 	}
 }

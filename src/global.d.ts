@@ -86,7 +86,7 @@ declare global {
 	// 	system: ActorDataModel
 	// }
 
-	interface SettingConfig {
+	export interface SettingConfig {
 		"gcsga.colors": typeof ColorSettings
 		"gcsga.defaultAttributes": typeof AttributeSettings
 		"gcsga.defaultSheetSettings": typeof SheetSettings

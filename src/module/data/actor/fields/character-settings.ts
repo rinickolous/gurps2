@@ -1,4 +1,3 @@
-import { ActorGURPS } from "@documents/actor.ts"
 import { ActorTemplateType, ErrorGURPS, SETTINGS, SYSTEM_NAME } from "@util"
 import {
 	AttributeSettings,
@@ -13,7 +12,7 @@ import { ActorDataModel } from "../base.ts"
 type CharacterSettingsSchema = SheetSettingsSchema & AttributeSettingsSchema & HitLocationSettingsSchema
 
 class CharacterSettings extends foundry.abstract.DataModel<CharacterSettingsSchema, ActorDataModel> {
-	get actor(): ActorGURPS {
+	get actor(): Actor.Implementation {
 		return this.parent.parent
 	}
 
@@ -48,11 +47,11 @@ class CharacterSettings extends foundry.abstract.DataModel<CharacterSettingsSche
 			...game.settings?.get(SYSTEM_NAME, SETTINGS.DEFAULT_SHEET_SETTINGS),
 			...game.settings?.get(SYSTEM_NAME, SETTINGS.DEFAULT_ATTRIBUTES),
 			...game.settings?.get(SYSTEM_NAME, SETTINGS.DEFAULT_HIT_LOCATIONS),
-		} as foundry.abstract.DataModel.ConstructorData<CharacterSettingsSchema>)
+		} as foundry.abstract.DataModel.CreateData<CharacterSettingsSchema>)
 	}
 
-	static for(actor: ActorGURPS | null): CharacterSettings {
-		if (actor instanceof ActorGURPS) {
+	static for(actor: Actor.Implementation | null): CharacterSettings {
+		if (actor instanceof Actor) {
 			if (actor.hasTemplate(ActorTemplateType.Settings)) {
 				return actor.system.settings
 			} else {

@@ -1,6 +1,6 @@
 import { SystemDataModel, SystemDataModelMetadata } from "@data/abstract.ts"
 import { ItemSystemFlags } from "@documents/item-system-flags.ts"
-import { ItemType, ItemTemplateType, ErrorGURPS, SYSTEM_NAME, Nameable } from "@util"
+import { ItemType, ItemTemplateType, ErrorGURPS, SYSTEM_NAME, Nameable, display } from "@util"
 import { ItemDataModelClasses, ItemDataTemplateClasses, ItemTemplateInstance } from "./types.ts"
 import { CellData, CellDataOptions } from "@data/cell-data.ts"
 import { SheetButton } from "@data/sheet-button.ts"
@@ -81,6 +81,28 @@ class ItemDataModel<Schema extends foundry.data.fields.DataSchema> extends Syste
 
 	get actor(): Actor.Implementation | null {
 		return this.parent.actor
+	}
+
+	/* -------------------------------------------- */
+
+	get displayName(): string {
+		return this.parent.name
+	}
+
+	/* -------------------------------------------- */
+
+	get displayNotes(): string {
+		return this.secondaryText(display.Option.isInline)
+	}
+
+	/* -------------------------------------------- */
+
+	/**
+	 * Return less important information that should be displayed with the description.
+	 */
+	// @ts-expect-error: This is a stub
+	secondaryText(optionChecker: (option: display.Option) => boolean): string {
+		return ""
 	}
 
 	/* -------------------------------------------- */
