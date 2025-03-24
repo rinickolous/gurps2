@@ -1,20 +1,22 @@
-
-// import { ToggleableStringField } from "./toggleable-string-field.ts"
 import { ExtendedStringField } from "./extended-string-field.ts"
 import fields = foundry.data.fields
-// import { ToToggleableInputConfig, ToToggleableInputConfigWithOptions } from "./helpers.ts"
 import { Int, Weight } from "@util"
 
-interface WeightFieldOptions extends ExtendedField.Options {
-	/* Should the fields allow percentages as a unit?*/
-	allowPercent?: boolean
+namespace WeightField {
+	export type Options = ExtendedField.Options & {
+		/* Should the fields allow percentages as a unit?*/
+		allowPercent?: boolean
+	}
+
+	export type DefaultOptions = ExtendedField.DefaultOptions & { allowPercent: false }
 }
 
-class WeightField<
-	const Options extends WeightFieldOptions = { required: true, nullable: false, allowPercent: false },
-> extends ExtendedStringField<Options, string, string> {
+class WeightField<const Options extends WeightField.Options = WeightField.DefaultOptions> extends ExtendedStringField<
+	Options,
+	string,
+	string
+> {
 	allowPercent: boolean
-
 
 	constructor(options?: Options, context?: fields.DataField.Context) {
 		super(options, context)
@@ -22,11 +24,10 @@ class WeightField<
 	}
 
 	protected override _toInput(
-		config: ExtendedField.ToInputConfig<string> | ExtendedField.ToInputConfigWithOptions<string>
+		config: ExtendedField.ToInputConfig<string> | ExtendedField.ToInputConfigWithOptions<string>,
 	): HTMLElement | HTMLCollection {
 		return super._toInput(config)
 	}
-
 
 	override clean(value: string, options?: fields.DataField.CleanOptions): string {
 		if (typeof value !== "string") return super.clean(value, options)

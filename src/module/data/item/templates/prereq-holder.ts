@@ -16,6 +16,8 @@ class PrereqHolderTemplate extends SystemDataModel<PrereqHolderSchema> {
 	}
 }
 
+/* -------------------------------------------- */
+
 class PrereqsField<Options extends MappingField.Options<PrereqField>> extends MappingField<
 	PrereqField,
 	Options,
@@ -38,6 +40,8 @@ class PrereqsField<Options extends MappingField.Options<PrereqField>> extends Ma
 		// return new ActionCollection(model, actions)
 	}
 }
+
+/* -------------------------------------------- */
 
 class PrereqField<
 	const Options extends fields.DataField.Options<Prereq> = fields.DataField.DefaultOptions,

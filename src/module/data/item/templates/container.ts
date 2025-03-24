@@ -5,6 +5,16 @@ import { ItemDataModel } from "../base.ts"
 // import { ItemTemplateType, ItemType } from "@util"
 // import { ItemDataModelClasses, ItemInstance } from "../types.ts"
 
+/* -------------------------------------------- */
+/* SUPPORTING TYPES 													  */
+/* -------------------------------------------- */
+
+type ItemInstancesFromSet<S extends Set<ItemType>> = {
+	[K in S extends Set<infer T> ? T : never]: ItemInstance<K>
+}[S extends Set<infer T> ? T : never]
+
+type CollectionFromSet<S extends Set<ItemType>> = Collection<ItemInstancesFromSet<S>>
+
 class ContainerTemplate extends ItemDataModel<ContainerSchema> {
 	constructor(...args: any[]) {
 		super(...args)
@@ -181,4 +191,4 @@ const containerSchema = {
 
 type ContainerSchema = typeof containerSchema
 
-export { ContainerTemplate, type ContainerSchema }
+export { ContainerTemplate, type ContainerSchema, type CollectionFromSet, type ItemInstancesFromSet }

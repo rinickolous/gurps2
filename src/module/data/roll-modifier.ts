@@ -1,6 +1,9 @@
+import { StringArrayField } from "./fields/index.ts"
 import fields = foundry.data.fields
 
-class RollModifier extends foundry.abstract.DataModel<RollModifierSchema, foundry.abstract.DataModel.any> {
+// TODO: needs complete re-do
+
+class RollModifier extends foundry.abstract.DataModel<RollModifierSchema, foundry.abstract.DataModel.Any> {
 	static override defineSchema(): RollModifierSchema {
 		const fields = foundry.data.fields
 		return {

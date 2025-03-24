@@ -1,7 +1,12 @@
-import { ItemType } from "@util"
+import { ItemTemplateType, ItemType } from "@util"
 import { ItemDataModel } from "./base.ts"
-import { BasicInformationTemplate, ContainerTemplate, FeatureHolderTemplate } from "./templates/index.ts"
-import { ItemInstance } from "./types.ts"
+import {
+	BasicInformationTemplate,
+	CollectionFromSet,
+	ContainerTemplate,
+	FeatureHolderTemplate,
+	ItemInstancesFromSet,
+} from "./templates/index.ts"
 
 class TraitContainerData extends ItemDataModel.mixin(
 	BasicInformationTemplate,
@@ -15,10 +20,8 @@ class TraitContainerData extends ItemDataModel.mixin(
 	/**
 	 * Returns all modifiers for this trait container and any inherited from its containers.
 	 */
-	get allModifiers(): MaybePromise<
-		Collection<ItemInstance<ItemType.TraitModifier | ItemType.TraitModifierContainer>>
-	> {
-		const allModifiers = new Collection<ItemInstance<ItemType.TraitModifier | ItemType.TraitModifierContainer>>()
+	get allModifiers(): MaybePromise<CollectionFromSet<TraitContainerData["modifierTypes"]>> {
+		const allModifiers = new Collection<ItemInstancesFromSet<TraitContainerData["modifierTypes"]>>()
 		const promises: Promise<void>[] = []
 
 		// Helper function to process a single item's modifiers
@@ -27,16 +30,16 @@ class TraitContainerData extends ItemDataModel.mixin(
 				promises.push(
 					collection.then(mods =>
 						mods.forEach(item => {
-							if (item.isOfType(ItemType.TraitModifier, ItemType.TraitModifierContainer)) {
-								allModifiers.set(item.id!, item)
+							if (this.modifierTypes.has(item.type as ItemType)) {
+								allModifiers.set(item.id!, item as any)
 							}
 						}),
 					),
 				)
 			} else {
 				collection.forEach(item => {
-					if (item.isOfType(ItemType.TraitModifier, ItemType.TraitModifierContainer)) {
-						allModifiers.set(item.id!, item)
+					if (this.modifierTypes.has(item.type as ItemType)) {
+						allModifiers.set(item.id!, item as any)
 					}
 				})
 			}
@@ -52,7 +55,7 @@ class TraitContainerData extends ItemDataModel.mixin(
 				promises.push(
 					currentContainer
 						.then(c => {
-							if (c?.isOfType(ItemType.TraitContainer)) {
+							if (c?.hasTemplate(ItemTemplateType.Container)) {
 								processModifiers(c.system.modifiers) // Direct modifiers only
 								return c.system.container // Chain to next container
 							}
@@ -62,7 +65,7 @@ class TraitContainerData extends ItemDataModel.mixin(
 							currentContainer = nextContainer
 						}),
 				)
-			} else if (currentContainer.isOfType(ItemType.TraitContainer)) {
+			} else if (currentContainer.hasTemplate(ItemTemplateType.Container)) {
 				processModifiers(currentContainer.system.modifiers) // Direct modifiers only
 				currentContainer = currentContainer.system.container
 			} else {

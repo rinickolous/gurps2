@@ -2,7 +2,7 @@ import { DifficultyField, ExtendedBooleanField, ExtendedNumberField, ExtendedStr
 import fields = foundry.data.fields
 import { ItemDataModel } from "../base.ts"
 import { AnyMutableObject } from "fvtt-types/utils"
-import { difficulty, display, i18n, ItemTemplateType, ItemType, StringBuilder } from "@util"
+import { display, i18n, ItemTemplateType, ItemType, StringBuilder } from "@util"
 import { CharacterSettings } from "@data/actor/fields/character-settings.ts"
 import { Study } from "@data/study.ts"
 
@@ -84,7 +84,7 @@ class SkillTemplate extends ItemDataModel<SkillTemplateSchema> {
 		optionChecker: (option: display.Option) => boolean,
 		settings: CharacterSettings,
 		level: SkillTemplate["level"],
-	)
+	) {}
 
 	/* -------------------------------------------- */
 

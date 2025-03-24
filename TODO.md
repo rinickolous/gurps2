@@ -9,13 +9,13 @@
 - Skill [IN PROGRESS]
 - Basic Information [DONE]
 - Container [DONE]
-- Skill Default (still needed? may be needed for weapons but these are not items anymore. Might migrate to SystemDataModel, but this is not ideal as Actions are not Documents)
-- Equipment
-- Feature Holder
-- Note
-- Prerequisite Holder
-- Replacement Holder
-- Spell
+- Skill Default (still needed? may be needed for weapons but these are not items anymore. Might migrate to SystemDataModel, but this is not ideal as Actions are not Documents) [DONE]
+- Equipment [DONE]
+- Feature Holder [DONE]
+- Note [DONE]
+- Prerequisite Holder [DONE?]
+- Replacement Holder [DONE?]
+- Spell [DONE]
 - Study Holder [DONE]
 
 ## Items

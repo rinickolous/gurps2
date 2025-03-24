@@ -11,15 +11,22 @@ class FeatureHolderTemplate extends SystemDataModel<FeatureHolderSchema> {
 	constructor(...args: any[]) {
 		super(...args)
 	}
+
+	/* -------------------------------------------- */
+
 	defineSchema(): FeatureHolderSchema {
 		return featureHolderSchema
 	}
+
+	/* -------------------------------------------- */
 
 	addFeaturesToSet(featureSet: FeatureSet): void {
 		for (const f of this.features) {
 			this._addFeatureToSet(f, featureSet)
 		}
 	}
+
+	/* -------------------------------------------- */
 
 	protected _addFeatureToSet(f: Feature, featureSet: FeatureSet, levels = 0): void {
 		f.featureLevel = levels
@@ -93,12 +100,16 @@ class FeatureHolderTemplate extends SystemDataModel<FeatureHolderSchema> {
 		}
 	}
 
+	/* -------------------------------------------- */
+
 	protected _fillWithNameableKeysFromFeatures(m: Map<string, string>, existing: Map<string, string>): void {
 		for (const feature of this.features) {
 			feature.fillWithNameableKeys(m, existing)
 		}
 	}
 }
+
+/* -------------------------------------------- */
 
 class FeaturesField<Options extends MappingField.Options<FeatureField>> extends MappingField<
 	FeatureField,
@@ -171,10 +182,14 @@ class FeatureField<
 	}
 }
 
+/* -------------------------------------------- */
+
 const featureHolderSchema = {
 	features: new FeaturesField({ required: true, nullable: false }),
 }
 
 type FeatureHolderSchema = typeof featureHolderSchema
+
+/* -------------------------------------------- */
 
 export { FeatureHolderTemplate, type FeatureHolderSchema }

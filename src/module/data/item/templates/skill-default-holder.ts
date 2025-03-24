@@ -1,15 +1,11 @@
 import fields = foundry.data.fields
 import { SkillDefaultField } from "@data/fields/skill-default-field.ts"
-import { SkillDefault } from "@data/skill-default.ts"
 import { SystemDataModel } from "@data/abstract.ts"
 import { BaseAction } from "@data/action/base-action.ts"
 
 class SkillDefaultHolderTemplate extends SystemDataModel<SkillDefaultHolderSchema> {
 	static override defineSchema(): SkillDefaultHolderSchema {
-		const fields = foundry.data.fields
-		return {
-			defaults: new fields.ArrayField(new SkillDefaultField()),
-		}
+		return skillDefaultHolderSchema
 	}
 
 	/** Namebales */
@@ -30,8 +26,10 @@ class SkillDefaultHolderTemplate extends SystemDataModel<SkillDefaultHolderSchem
 	}
 }
 
-type SkillDefaultHolderSchema = {
-	defaults: fields.ArrayField<SkillDefaultField, SkillDefault, SkillDefault>
+const skillDefaultHolderSchema = {
+	defaults: new fields.ArrayField(new SkillDefaultField()),
 }
+
+type SkillDefaultHolderSchema = typeof skillDefaultHolderSchema
 
 export { SkillDefaultHolderTemplate, type SkillDefaultHolderSchema }
